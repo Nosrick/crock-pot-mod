@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients":
+  [
+    {
+      "item": "soilbois:oats"
+    },
+    {
+      "item": "soilbois:oats"
+    },
+    {
+      "item": "soilbois:oats"
+    },
+    {
+      "item": "minecraft:water_bucket"
+    }
+  ],
+  "result": {
+    "item": "soilbois:oat_milk"
+  }
+}

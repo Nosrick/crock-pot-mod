@@ -21,7 +21,8 @@ public enum ItemRegistry {
     SEITAN_BACON("seitan_bacon", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.SEITAN_BACON.get()))),
     SEITAN_SANDWICH("seitan_sandwich", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.SEITAN_SANDWICH.get()))),
 
-    OATS("oats", () -> new ModBlockItem(BlockRegistry.OAT_CROPS.get()));
+    OATS("oats", () -> new ModBlockItem(BlockRegistry.OAT_CROPS.get())),
+    OAT_MILK("oat_milk", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.OAT_MILK.get())));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;

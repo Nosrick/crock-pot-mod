@@ -1,5 +1,6 @@
 package com.gitlab.nosrick.soilbois.registry;
 
+import com.nhoryzon.mc.farmersdelight.registry.EffectsRegistry;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.FoodComponent;
 
@@ -11,7 +12,10 @@ public enum FoodRegistry {
     COOKED_SEITAN_PATTY(4, 0.4f, false),
     RAW_SEITAN_BACON(1, 0f, false),
     SEITAN_BACON(2, 0.1f, false),
-    SEITAN_SANDWICH(10, 0.75f, false);
+    SEITAN_SANDWICH(10, 0.75f, false),
+
+    //TODO: figure out how to get the milk potion effect
+    OAT_MILK(4, 0.2f, false);
 
     private final FoodComponent food;
 
