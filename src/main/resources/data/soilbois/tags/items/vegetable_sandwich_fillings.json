@@ -1,0 +1,10 @@
+{
+  "replace": false,
+  "values": [
+    "#fabric:salad_ingredients",
+    "minecraft:beetroot",
+    "minecraft:carrot",
+    "farmersdelight:onion",
+    "farmersdelight:tomato"
+  ]
+}

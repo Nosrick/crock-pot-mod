@@ -1,0 +1,17 @@
+{
+  "type": "farmersdelight:cutting",
+  "ingredients": [
+    {
+      "item": "soilbois:cooked_seitan"
+    }
+  ],
+  "tool": {
+    "tag": "fabric:tools/knives"
+  },
+  "result": [
+    {
+      "item": "soilbois:cooked_seitan_patty",
+      "count": 4
+    }
+  ]
+}

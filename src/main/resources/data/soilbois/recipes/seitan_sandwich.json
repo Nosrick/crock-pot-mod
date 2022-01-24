@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "fabric:bread"
+    },
+    {
+      "item": "soilbois:cooked_seitan_patty"
+    },
+    {
+      "tag": "soilbois:vegetable_sandwich_fillings"
+    },
+    {
+      "tag": "soilbois:vegetable_sandwich_fillings"
+    }
+  ],
+  "result": {
+    "item": "soilbois:seitan_sandwich"
+  }
+}

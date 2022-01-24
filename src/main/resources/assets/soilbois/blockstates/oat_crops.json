@@ -1,0 +1,28 @@
+{
+  "variants": {
+    "age=0": {
+      "model": "soilbois:block/oats_stage1"
+    },
+    "age=1": {
+      "model": "soilbois:block/oats_stage1"
+    },
+    "age=2": {
+      "model": "soilbois:block/oats_stage2"
+    },
+    "age=3": {
+      "model": "soilbois:block/oats_stage2"
+    },
+    "age=4": {
+      "model": "soilbois:block/oats_stage2"
+    },
+    "age=5": {
+      "model": "soilbois:block/oats_stage3"
+    },
+    "age=6": {
+      "model": "soilbois:block/oats_stage3"
+    },
+    "age=7": {
+      "model": "soilbois:block/oats_stage4"
+    }
+  }
+}

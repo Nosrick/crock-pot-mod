@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "fabric:crops/tomato"
+    },
+    {
+      "tag": "fabric:crops/onion"
+    },
+    {
+      "tag": "soilbois:meat_substitute"
+    },
+    {
+      "tag": "soilbois:meat_substitute"
+    },
+    {
+      "item": "minecraft:stick"
+    },
+    {
+      "item": "minecraft:stick"
+    }
+  ],
+  "result": {
+    "item": "farmersdelight:barbecue_stick",
+    "count": 2
+  }
+}
