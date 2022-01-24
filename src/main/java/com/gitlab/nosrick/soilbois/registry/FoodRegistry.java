@@ -13,7 +13,7 @@ public enum FoodRegistry {
     RAW_SEITAN_BACON(1, 0f, false),
     SEITAN_BACON(2, 0.1f, false),
     SEITAN_SANDWICH(
-            10,
+            12,
             0.85f,
             new StatusEffectInstance(EffectsRegistry.NOURISHED.get()),
             100f,
@@ -28,7 +28,11 @@ public enum FoodRegistry {
             100f,
             false,
             true,
-            true);
+            true),
+    PLAIN_PORRIDGE(
+            10,
+            0.7f,
+            false);
 
     private final FoodComponent food;
 

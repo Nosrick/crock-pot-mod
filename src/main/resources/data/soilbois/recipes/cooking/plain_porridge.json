@@ -1,0 +1,24 @@
+{
+  "type": "farmersdelight:cooking",
+  "ingredients": [
+    {
+      "tag": "fabric:milk"
+    },
+    {
+      "item": "soilbois:oats"
+    },
+    {
+      "item": "soilbois:oats"
+    },
+    {
+      "item": "soilbois:oats"
+    }
+  ],
+  "result": {
+    "item": "soilbois:plain_porridge"
+  },
+  "container": {
+    "item": "minecraft:bowl"
+  },
+  "cookingtime": 200
+}

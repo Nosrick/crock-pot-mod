@@ -22,7 +22,9 @@ public enum ItemRegistry {
     SEITAN_SANDWICH("seitan_sandwich", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.SEITAN_SANDWICH.get()))),
 
     OATS("oats", () -> new ModBlockItem(BlockRegistry.OAT_CROPS.get())),
-    OAT_MILK("oat_milk", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.OAT_MILK.get())));
+    WILD_OATS("wild_oats", () -> new ModBlockItem(BlockRegistry.WILD_OATS.get())),
+    OAT_MILK("oat_milk", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.OAT_MILK.get()))),
+    PLAIN_PORRIDGE("plain_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLAIN_PORRIDGE.get())));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;
