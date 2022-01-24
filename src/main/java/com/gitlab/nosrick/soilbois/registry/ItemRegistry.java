@@ -1,7 +1,7 @@
 package com.gitlab.nosrick.soilbois.registry;
 
 import com.gitlab.nosrick.soilbois.SoilBoisMod;
-import com.gitlab.nosrick.soilbois.item.ConsumableItem;
+import com.nhoryzon.mc.farmersdelight.item.ConsumableItem;
 import com.nhoryzon.mc.farmersdelight.item.ModBlockItem;
 import com.nhoryzon.mc.farmersdelight.item.ModItemSettings;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
@@ -21,7 +21,7 @@ public enum ItemRegistry {
     SEITAN_BACON("seitan_bacon", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.SEITAN_BACON.get()))),
     SEITAN_SANDWICH("seitan_sandwich", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.SEITAN_SANDWICH.get()))),
 
-    OATS("oats", () -> new ModBlockItem(BlockRegistry.OAT_CROP.get()));
+    OATS("oats", () -> new ModBlockItem(BlockRegistry.OAT_CROPS.get()));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;

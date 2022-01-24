@@ -15,7 +15,7 @@ import java.util.function.Supplier;
 
 public enum BlockRegistry {
 
-    OAT_CROP("oat_crops", OatCropBlock::new, true);
+    OAT_CROPS("oat_crops", OatCropBlock::new, true);
 
     private final String pathName;
     private final Supplier<Block> blockSupplier;

@@ -1,15 +1,23 @@
 package com.gitlab.nosrick.soilbois.block;
 
+import com.gitlab.nosrick.soilbois.registry.ItemRegistry;
+import com.nhoryzon.mc.farmersdelight.registry.BlocksRegistry;
 import com.nhoryzon.mc.farmersdelight.util.BlockStateUtils;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.mob.RavagerEntity;
+import net.minecraft.item.ItemStack;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.state.StateManager;
 import net.minecraft.state.property.IntProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.shape.VoxelShape;
 import net.minecraft.world.BlockView;
+import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldView;
 
 import java.util.Random;
 
@@ -29,6 +37,11 @@ public class OatCropBlock extends CropBlock implements Fertilizable {
     public OatCropBlock() {
         super(FabricBlockSettings.copyOf(Blocks.WHEAT));
         setDefaultState(getStateManager().getDefaultState().with(AGE, 0));
+    }
+
+    @Override
+    public IntProperty getAgeProperty() {
+        return AGE;
     }
 
     @Override
@@ -52,5 +65,42 @@ public class OatCropBlock extends CropBlock implements Fertilizable {
         world.setBlockState(pos, withAge(newAge), BlockStateUtils.BLOCK_UPDATE);
     }
 
+    @Override
+    protected boolean canPlantOnTop(BlockState floor, BlockView world, BlockPos pos) {
+        return floor.isOf(Blocks.FARMLAND) || floor.isOf(BlocksRegistry.RICH_SOIL_FARMLAND.get());
+    }
 
+    @Override
+    protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
+        builder.add(AGE);
+    }
+
+    @Override
+    public ItemStack getPickStack(BlockView world, BlockPos pos, BlockState state) {
+        return new ItemStack(ItemRegistry.OATS.get());
+    }
+
+    @Override
+    public boolean canPlaceAt(BlockState state, WorldView world, BlockPos pos) {
+        return (world.getLightLevel(pos, 0) >= 8 || world.isSkyVisible(pos)) && super.canPlaceAt(state, world, pos);
+    }
+
+    @Override
+    public boolean hasRandomTicks(BlockState state) {
+        return state.get(AGE) < MATURITY_AGE;
+    }
+
+    @Override
+    public void onEntityCollision(BlockState state, World world, BlockPos pos, Entity entity) {
+        if (entity instanceof RavagerEntity && world.getGameRules().getBoolean(GameRules.DO_MOB_GRIEFING)) {
+            world.breakBlock(pos, true, entity);
+        }
+
+        super.onEntityCollision(state, world, pos, entity);
+    }
+
+    @Override
+    public VoxelShape getOutlineShape(BlockState state, BlockView world, BlockPos pos, ShapeContext context) {
+        return SHAPE_BY_AGE[state.get(AGE)];
+    }
 }
