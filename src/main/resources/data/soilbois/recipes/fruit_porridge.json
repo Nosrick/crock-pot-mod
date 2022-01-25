@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "tag": "fabric:fruits"
+    },
+    {
+      "tag": "fabric:fruits"
+    },
+    {
+      "item": "soilbois:plain_porridge"
+    }
+  ],
+  "result": {
+    "item": "soilbois:fruit_porridge"
+  }
+}
