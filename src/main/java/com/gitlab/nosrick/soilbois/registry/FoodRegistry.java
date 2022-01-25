@@ -36,6 +36,15 @@ public enum FoodRegistry {
     FRUIT_PORRIDGE(
             12,
             0.73f,
+            false),
+
+    PLANT_CHEESE(
+            8,
+            0.5f,
+            false),
+    PLANT_CHEESE_SLICE(
+            2,
+            0.2f,
             false);
 
     private final FoodComponent food;

@@ -1,0 +1,21 @@
+{
+  "type": "farmersdelight:cooking",
+  "ingredients": [
+    {
+      "tag": "soilbois:plant_milks"
+    },
+    {
+      "tag": "soilbois:plant_milks"
+    },
+    {
+      "tag": "soilbois:plant_milks"
+    },
+    {
+      "item": "soilbois:agar"
+    }
+  ],
+  "result": {
+    "item": "soilbois:plant_cheese"
+  },
+  "cookingtime": 300
+}

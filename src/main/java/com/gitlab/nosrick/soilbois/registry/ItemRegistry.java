@@ -27,7 +27,9 @@ public enum ItemRegistry {
     PLAIN_PORRIDGE("plain_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLAIN_PORRIDGE.get()))),
     FRUIT_PORRIDGE("fruit_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.FRUIT_PORRIDGE.get()))),
 
-    AGAR("agar", () -> new Item(new ModItemSettings()));
+    AGAR("agar", () -> new Item(new ModItemSettings())),
+    PLANT_CHEESE("plant_cheese", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLANT_CHEESE.get()))),
+    PLANT_CHEESE_SLICE("plant_cheese_slice", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLANT_CHEESE_SLICE.get())));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;
