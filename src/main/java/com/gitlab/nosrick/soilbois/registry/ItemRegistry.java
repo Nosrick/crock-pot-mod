@@ -25,7 +25,9 @@ public enum ItemRegistry {
     WILD_OATS("wild_oats", () -> new ModBlockItem(BlockRegistry.WILD_OATS.get())),
     OAT_MILK("oat_milk", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.OAT_MILK.get()))),
     PLAIN_PORRIDGE("plain_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLAIN_PORRIDGE.get()))),
-    FRUIT_PORRIDGE("fruit_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.FRUIT_PORRIDGE.get())));
+    FRUIT_PORRIDGE("fruit_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.FRUIT_PORRIDGE.get()))),
+
+    AGAR("agar", () -> new Item(new ModItemSettings()));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;
