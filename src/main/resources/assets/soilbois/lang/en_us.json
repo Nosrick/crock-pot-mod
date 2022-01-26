@@ -13,6 +13,8 @@
   "item.soilbois.agar": "Agar",
   "item.soilbois.plant_cheese": "Plant Cheese",
   "item.soilbois.plant_cheese_slice": "Sliced Plant Cheese",
+  "item.soilbois.tagine": "Tagine",
   "block.soilbois.oat_crops": "Oats",
-  "block.soilbois.wild_oats": "Wild Oats"
+  "block.soilbois.wild_oats": "Wild Oats",
+  "block.soilbois.tagine_pot": "Tagine Pot"
 }

@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,supported=false": {
+      "model": "soilbois:block/tagine_pot"
+    },
+    "facing=south,supported=false": {
+      "model": "soilbois:block/tagine_pot",
+      "y": 180
+    },
+    "facing=west,supported=false": {
+      "model": "soilbois:block/tagine_pot",
+      "y": 270
+    },
+    "facing=east,supported=false": {
+      "model": "soilbois:block/tagine_pot",
+      "y": 90
+    },
+    "facing=north,supported=true": {
+      "model": "soilbois:block/tagine_pot_supported"
+    },
+    "facing=south,supported=true": {
+      "model": "soilbois:block/tagine_pot_supported",
+      "y": 180
+    },
+    "facing=west,supported=true": {
+      "model": "soilbois:block/tagine_pot_supported",
+      "y": 270
+    },
+    "facing=east,supported=true": {
+      "model": "soilbois:block/tagine_pot_supported",
+      "y": 90
+    }
+  }
+}

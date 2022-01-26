@@ -1,5 +1,6 @@
 package com.gitlab.nosrick.soilbois;
 
+import com.gitlab.nosrick.soilbois.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.soilbois.registry.BlockRegistry;
 import com.gitlab.nosrick.soilbois.registry.ItemRegistry;
 import net.fabricmc.api.ModInitializer;
@@ -15,6 +16,7 @@ public class SoilBoisMod implements ModInitializer {
         LOGGER.info("FUCK FACTORY FARMING don't @me");
 
         BlockRegistry.registerAll();
+        BlockEntityTypesRegistry.registerAll();
         ItemRegistry.registerAll();
     }
 }

@@ -1,10 +1,13 @@
 package com.gitlab.nosrick.soilbois.registry;
 
 import com.gitlab.nosrick.soilbois.SoilBoisMod;
+import com.gitlab.nosrick.soilbois.blockentity.TaginePotBlockEntity;
+import com.gitlab.nosrick.soilbois.item.TagineItem;
 import com.nhoryzon.mc.farmersdelight.item.ConsumableItem;
 import com.nhoryzon.mc.farmersdelight.item.ModBlockItem;
 import com.nhoryzon.mc.farmersdelight.item.ModItemSettings;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -26,6 +29,9 @@ public enum ItemRegistry {
     OAT_MILK("oat_milk", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.OAT_MILK.get()))),
     PLAIN_PORRIDGE("plain_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLAIN_PORRIDGE.get()))),
     FRUIT_PORRIDGE("fruit_porridge", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.FRUIT_PORRIDGE.get()))),
+
+    TAGINE("tagine", () -> new TagineItem()),
+    TAGINE_POT("tagine_pot", () -> new ModBlockItem(BlockRegistry.TAGINE_POT.get())),
 
     AGAR("agar", () -> new Item(new ModItemSettings())),
     PLANT_CHEESE("plant_cheese", () -> new ConsumableItem(new ModItemSettings().food(FoodRegistry.PLANT_CHEESE.get()))),

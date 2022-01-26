@@ -4,6 +4,7 @@
   "package": "com.gitlab.nosrick.soilbois.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
+    "HungerManagerMixin"
   ],
   "client": [
   ],
