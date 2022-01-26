@@ -20,6 +20,9 @@
   "entrypoints": {
     "main": [
       "com.gitlab.nosrick.soilbois.SoilBoisMod"
+    ],
+    "appleskin": [
+      "com.gitlab.nosrick.soilbois.api.appleskin.AppleSkinEventHandler"
     ]
   },
   "mixins": [
