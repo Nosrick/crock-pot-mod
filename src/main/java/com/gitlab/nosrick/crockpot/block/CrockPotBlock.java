@@ -33,7 +33,11 @@ public class CrockPotBlock extends BlockWithEntity {
     public static final IntProperty LIQUID_LEVEL = IntProperty.of("liquid", 0, 2);
 
     public CrockPotBlock(){
-        super(FabricBlockSettings.copyOf(Blocks.CAULDRON));
+        super(FabricBlockSettings
+                .of(Material.METAL)
+                .strength(2.0f)
+                .requiresTool()
+                .nonOpaque());
 
         this.setDefaultState(
                 this.getStateManager()

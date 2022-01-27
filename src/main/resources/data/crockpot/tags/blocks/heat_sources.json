@@ -4,7 +4,6 @@
     "minecraft:lava",
     "minecraft:magma_block",
     "#minecraft:campfires",
-    "#minecraft:fire",
-    "#farmersdelight:heat_sources"
+    "#minecraft:fire"
   ]
 }

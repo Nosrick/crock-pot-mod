@@ -1,33 +1,33 @@
 {
   "variants": {
-    "facing=north,supported=false": {
-      "model": "soilbois:block/tagine_pot"
+    "facing=north,has_fire=false": {
+      "model": "crockpot:block/crock_pot_unsupported"
     },
-    "facing=south,supported=false": {
-      "model": "soilbois:block/tagine_pot",
+    "facing=south,has_fire=false": {
+      "model": "crockpot:block/crock_pot_unsupported",
       "y": 180
     },
-    "facing=west,supported=false": {
-      "model": "soilbois:block/tagine_pot",
+    "facing=west,has_fire=false": {
+      "model": "crockpot:block/crock_pot_unsupported",
       "y": 270
     },
-    "facing=east,supported=false": {
-      "model": "soilbois:block/tagine_pot",
+    "facing=east,has_fire=false": {
+      "model": "crockpot:block/crock_pot_unsupported",
       "y": 90
     },
-    "facing=north,supported=true": {
-      "model": "soilbois:block/tagine_pot_supported"
+    "facing=north,has_fire=true": {
+      "model": "crockpot:block/crock_pot_supported"
     },
-    "facing=south,supported=true": {
-      "model": "soilbois:block/tagine_pot_supported",
+    "facing=south,has_fire=true": {
+      "model": "crockpot:block/crock_pot_supported",
       "y": 180
     },
-    "facing=west,supported=true": {
-      "model": "soilbois:block/tagine_pot_supported",
+    "facing=west,has_fire=true": {
+      "model": "crockpot:block/crock_pot_supported",
       "y": 270
     },
-    "facing=east,supported=true": {
-      "model": "soilbois:block/tagine_pot_supported",
+    "facing=east,has_fire=true": {
+      "model": "crockpot:block/crock_pot_supported",
       "y": 90
     }
   }
