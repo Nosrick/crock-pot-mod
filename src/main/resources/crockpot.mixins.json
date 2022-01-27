@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.gitlab.nosrick.crockpot.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "mixins": [
+    "HungerManagerMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

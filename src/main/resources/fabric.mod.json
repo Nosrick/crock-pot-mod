@@ -1,39 +1,38 @@
 {
   "schemaVersion": 1,
-  "id": "soilbois",
+  "id": "crockpot",
   "version": "${version}",
 
-  "name": "Farmer's Delight: Soilbois",
-  "description": "Adds more plant-based stuff to Farmer's Delight.",
+  "name": "Crock Pot",
+  "description": "Adds a very simple crock pot. Heavily based on Charm's cooking pot.",
   "authors": [
     "nosrick"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/Nosrick",
+    "sources": "https://github.com/Nosrick/crock-pot-mod"
   },
 
-  "license": "CC0-1.0",
-  "icon": "assets/soilbois/icon.png",
+  "license": "MIT",
+  "icon": "assets/crockpot/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.gitlab.nosrick.soilbois.SoilBoisMod"
+      "com.gitlab.nosrick.crockpot.CrockPotMod"
     ],
     "appleskin": [
-      "com.gitlab.nosrick.soilbois.api.appleskin.AppleSkinEventHandler"
+      "com.gitlab.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
     ]
   },
   "mixins": [
-    "soilbois.mixins.json"
+    "crockpot.mixins.json"
   ],
 
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
     "minecraft": "1.18.x",
-    "java": ">=17",
-    "farmersdelight": ">=0.2.0"
+    "java": ">=17"
   }
 }

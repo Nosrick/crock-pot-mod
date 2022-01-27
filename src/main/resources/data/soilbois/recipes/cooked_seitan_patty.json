@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smelting",
-  "ingredient": {
-    "item": "soilbois:raw_seitan_patty"
-  },
-  "result": "soilbois:cooked_seitan_patty",
-  "experience": 0.1,
-  "cookingtime": 100
-}
