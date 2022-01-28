@@ -3,6 +3,7 @@ package com.gitlab.nosrick.crockpot.blockentity;
 import com.gitlab.nosrick.crockpot.block.CrockPotBlock;
 import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
@@ -15,6 +16,8 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.sound.SoundCategory;
+import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -33,20 +36,19 @@ public class CrockPotBlockEntity extends BlockEntity {
     protected static final String NAME_NBT = "Name";
 
     protected static final int MAX_PORTIONS = 64;
+    protected static final int MAX_BOILING_TIME = 20 * 60 * 5;
+    protected static final int MAX_BONUS_STAGES = 5;
 
     protected String name = "";
     protected int portions = 0;
     protected int hunger = 0;
     protected float saturation = 0.0F;
-    protected float displayTicks = 0.0F;
-    protected int displayIndex = 0;
     protected List<String> contents = new ArrayList<>();
+    protected float boilingTime = 0;
+    protected int bonusStages = 0;
 
     //For rendering
-    protected boolean hasFire;
     protected boolean hasFood;
-    protected int liquidLevel;
-
 
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
@@ -101,6 +103,9 @@ public class CrockPotBlockEntity extends BlockEntity {
             }
 
             this.portions++;
+            this.hasFood = true;
+            this.bonusStages = 0;
+            this.boilingTime = 0;
             int foodHunger = foodComponent.getHunger();
             float foodSaturation = foodComponent.getSaturationModifier();
 
@@ -132,19 +137,21 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
-        if (blockEntity.isAboveLitHeatSource() != blockState.get(CrockPotBlock.HAS_FOOD)) {
-            world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FOOD, blockEntity.isAboveLitHeatSource()));
+        if (blockEntity.isAboveLitHeatSource() != blockState.get(CrockPotBlock.HAS_FIRE)) {
+            world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FIRE, blockEntity.isAboveLitHeatSource()));
         }
     }
 
     protected static void clientTick(CrockPotBlockEntity blockEntity) {
-        if (blockEntity.isAboveLitHeatSource()) {
-            blockEntity.animate();
-        }
+
     }
 
     @Nullable
     public ItemStack take(World world, BlockPos pos, BlockState state, ItemStack container) {
+
+        if(world.isClient) {
+            return null;
+        }
 
         if (container.getItem() != Items.BOWL) {
             return null;
@@ -189,32 +196,10 @@ public class CrockPotBlockEntity extends BlockEntity {
         this.hunger = 0;
         this.saturation = 0;
         this.portions = 0;
+        this.hasFood = false;
         world.setBlockState(pos, state.with(CrockPotBlock.LIQUID_LEVEL, 0), 2);
 
         this.markDirty();
-    }
-
-    protected void animate() {
-        World world = getWorld();
-        if (world != null) {
-            BlockPos blockpos = getPos();
-            Random random = world.random;
-            BlockState blockState = world.getBlockState(blockpos);
-            if (blockState.get(CrockPotBlock.HAS_FOOD)) {
-                if (random.nextFloat() < .2f) {
-                    double baseX = blockpos.getX() + .5d + (random.nextDouble() * .6d - .3d);
-                    double baseY = blockpos.getY() + .7d;
-                    double baseZ = blockpos.getZ() + .5d + (random.nextDouble() * .6d - .3d);
-                    world.addParticle(ParticleTypes.BUBBLE_POP, baseX, baseY, baseZ, .0d, .0d, .0d);
-                }
-                if (random.nextFloat() < .05f) {
-                    double baseX = blockpos.getX() + .5d + (random.nextDouble() * .4d - .2d);
-                    double baseY = blockpos.getY() + .7d;
-                    double baseZ = blockpos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
-                    world.addParticle(ParticleTypes.SMOKE, baseX, baseY, baseZ, .0d, .0d, .0d);
-                }
-            }
-        }
     }
 
     public boolean isAboveLitHeatSource() {
@@ -234,4 +219,25 @@ public class CrockPotBlockEntity extends BlockEntity {
         this.portions -= 1;
     }
 
+    public static void tick(World world, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
+        if(world == null) {
+            return;
+        }
+
+        Random random = world.random;
+
+        if (blockState.get(CrockPotBlock.LIQUID_LEVEL) > 0) {
+            if (random.nextFloat() < 0.02f) {
+                float variation = random.nextFloat() / 5f - 0.1f;
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
+            }
+        }
+
+        if (blockState.get(CrockPotBlock.HAS_FOOD)) {
+            if (random.nextFloat() < 0.02f) {
+                float variation = random.nextFloat() / 5f - 0.1f;
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
+            }
+        }
+    }
 }

@@ -1,0 +1,31 @@
+{
+  "block.crock_pot_boil": {
+    "subtitle": "crockpot.subtitles.crock_pot_boil",
+    "category": "block",
+    "sounds": [
+      {
+        "name": "crockpot:block/crock_pot_boil",
+        "stream": true
+      }
+    ]
+  },
+  "block.crock_pot_bubble": {
+    "subtitle": "crockpot.subtitles.crock_pot_bubble",
+    "category": "block",
+    "sounds": [
+      {
+        "name": "crockpot:block/crock_pot_bubble",
+        "stream": true
+      }
+    ]
+  },
+  "block.crock_pot_splash": {
+    "subtitle": "crockpot.subtitles.crock_pot_splash",
+    "category": "block",
+    "sounds": [
+      {
+        "name": "minecraft:entity/generic/splash"
+      }
+    ]
+  }
+}

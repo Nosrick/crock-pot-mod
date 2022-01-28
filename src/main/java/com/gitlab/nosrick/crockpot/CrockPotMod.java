@@ -2,6 +2,7 @@ package com.gitlab.nosrick.crockpot;
 
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.BlockRegistry;
+import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
@@ -23,6 +24,7 @@ public class CrockPotMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("REV UP THOSE CROCK POTS BOIS");
 
+        CrockPotSoundRegistry.registerAll();
         BlockRegistry.registerAll();
         BlockEntityTypesRegistry.registerAll();
         ItemRegistry.registerAll();

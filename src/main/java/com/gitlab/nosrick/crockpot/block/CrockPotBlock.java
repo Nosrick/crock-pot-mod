@@ -2,12 +2,16 @@ package com.gitlab.nosrick.crockpot.block;
 
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.tag.Tags;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
@@ -25,6 +29,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Random;
+
 public class CrockPotBlock extends BlockWithEntity {
 
     public static final DirectionProperty FACING = DirectionProperty.of("facing");
@@ -32,7 +38,7 @@ public class CrockPotBlock extends BlockWithEntity {
     public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
     public static final IntProperty LIQUID_LEVEL = IntProperty.of("liquid", 0, 2);
 
-    public CrockPotBlock(){
+    public CrockPotBlock() {
         super(FabricBlockSettings
                 .of(Material.METAL)
                 .strength(2.0f)
@@ -43,6 +49,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 this.getStateManager()
                         .getDefaultState()
                         .with(LIQUID_LEVEL, 0)
+                        .with(HAS_FIRE, false)
                         .with(HAS_FOOD, false));
     }
 
@@ -60,7 +67,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(LIQUID_LEVEL, FACING, HAS_FOOD, HAS_FIRE);
+        builder.add(LIQUID_LEVEL, FACING, HAS_FIRE, HAS_FOOD);
     }
 
     @Nullable
@@ -83,12 +90,13 @@ public class CrockPotBlock extends BlockWithEntity {
             if (!world.isClient()) {
                 world.setBlockState(pos, state.with(LIQUID_LEVEL, 1), 3);
 
-                world.playSound(player, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
+                world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
+                held.decrement(1);
+                player.giveItemStack(new ItemStack(Items.BUCKET));
             }
 
             return ActionResult.SUCCESS;
-        }
-        else if (state.get(LIQUID_LEVEL) > 0 && state.get(HAS_FOOD)) {
+        } else if (state.get(LIQUID_LEVEL) > 0) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CrockPotBlockEntity pot) {
                 if (!world.isClient()) {
@@ -100,17 +108,22 @@ public class CrockPotBlock extends BlockWithEntity {
                             if (pot.getPortions() > 0) {
                                 world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
                             } else {
+                                world.setBlockState(
+                                        pos,
+                                        state
+                                                .with(HAS_FOOD, false)
+                                                .with(LIQUID_LEVEL, 0));
                                 world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
                             }
                         }
-
                     } else if (held.isFood()) {
                         boolean result = pot.addFood(world, pos, state, held);
                         if (result) {
-                            world.playSound(null, pos, SoundEvents.ENTITY_FISHING_BOBBER_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                            world.setBlockState(pos, state.with(HAS_FOOD, true));
+                            world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
 
                             // if the food has a bowl, give it back to the player
-                            if (held.getItem().hasRecipeRemainder()){
+                            if (held.getItem().hasRecipeRemainder()) {
                                 player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
                             }
                         }
@@ -128,7 +141,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return checkType(type, BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntity::tick);
+        return world.isClient ? null : checkType(type, BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntity::tick);
     }
 
     protected boolean hasTrayHeatSource(BlockState state) {

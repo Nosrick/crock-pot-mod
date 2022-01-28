@@ -1,4 +1,8 @@
 {
   "item.crockpot.stew": "Stew",
-  "block.crockpot.crock_pot": "Crock Pot"
+  "block.crockpot.crock_pot": "Crock Pot",
+
+  "crockpot.subtitles.crock_pot_boil": "Crock pot boils",
+  "crockpot.subtitles.crock_pot_bubble": "Crock pot bubbles",
+  "crockpot.subtitles.crock_pot_splash": "Crock pot splashes"
 }
