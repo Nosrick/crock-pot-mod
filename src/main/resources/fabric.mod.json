@@ -21,6 +21,9 @@
     "main": [
       "com.gitlab.nosrick.crockpot.CrockPotMod"
     ],
+    "client": [
+      "com.gitlab.nosrick.crockpot.CrockPotModClient"
+    ],
     "appleskin": [
       "com.gitlab.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
     ]
