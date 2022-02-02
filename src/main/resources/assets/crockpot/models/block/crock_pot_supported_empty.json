@@ -6,7 +6,6 @@
 		"handle": "crockpot:block/crock_pot_handle",
 		"bottom": "crockpot:block/crock_pot_bottom",
 		"top_empty": "crockpot:block/crock_pot_top_empty",
-		"lid": "crockpot:block/crock_pot_lid",
 		"stand": "crockpot:block/crock_pot_stand",
 		"particle": "crockpot:block/crock_pot_bottom"
 	},
@@ -68,34 +67,6 @@
 			}
 		},
 		{
-			"name": "lid_layer0",
-			"from": [2, 6, 2],
-			"to": [14, 7, 14],
-			"rotation": {"angle": 0, "axis": "y", "origin": [4, 6, 4]},
-			"faces": {
-				"north": {"uv": [6, 4, 12, 4.5], "texture": "#lid"},
-				"east": {"uv": [6, 4.5, 12, 5], "texture": "#lid"},
-				"south": {"uv": [6, 5, 12, 5.5], "texture": "#lid"},
-				"west": {"uv": [6, 5.5, 12, 6], "texture": "#lid"},
-				"up": {"uv": [6, 6, 0, 0], "texture": "#lid"},
-				"down": {"uv": [6, 6, 0, 12], "texture": "#lid"}
-			}
-		},
-		{
-			"name": "lid_layer1",
-			"from": [6, 7, 6],
-			"to": [10, 8, 10],
-			"rotation": {"angle": 0, "axis": "y", "origin": [4, 7, 4]},
-			"faces": {
-				"north": {"uv": [6, 6, 8, 6.5], "texture": "#lid"},
-				"east": {"uv": [6, 6.5, 8, 7], "texture": "#lid"},
-				"south": {"uv": [6, 7, 8, 7.5], "texture": "#lid"},
-				"west": {"uv": [6, 7.5, 8, 8], "texture": "#lid"},
-				"up": {"uv": [8, 2, 6, 0], "texture": "#lid"},
-				"down": {"uv": [8, 2, 6, 4], "texture": "#lid"}
-			}
-		},
-		{
 			"name": "stand",
 			"from": [1, -16, 1],
 			"to": [15, 0, 15],
@@ -119,16 +90,10 @@
 		2,
 		3,
 		{
-			"name": "lid",
-			"origin": [4, 2, 4],
-			"color": 0,
-			"children": [4, 5]
-		},
-		{
 			"name": "stand",
 			"origin": [8, 8, 8],
 			"color": 0,
-			"children": [6]
+			"children": [4]
 		}
 	]
 }

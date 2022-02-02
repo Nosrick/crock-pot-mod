@@ -1,8 +1,7 @@
 package com.gitlab.nosrick.crockpot.block;
 
-import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.blockentity.CrockPotBlockEntity;
-import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
+import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.tag.Tags;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -11,17 +10,16 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -36,7 +34,7 @@ public class CrockPotBlock extends BlockWithEntity {
     public static final DirectionProperty FACING = DirectionProperty.of("facing");
     public static final BooleanProperty HAS_FIRE = BooleanProperty.of("has_fire");
     public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
-    public static final IntProperty LIQUID_LEVEL = IntProperty.of("liquid", 0, 2);
+    public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
     public CrockPotBlock() {
         super(FabricBlockSettings
@@ -48,7 +46,7 @@ public class CrockPotBlock extends BlockWithEntity {
         this.setDefaultState(
                 this.getStateManager()
                         .getDefaultState()
-                        .with(LIQUID_LEVEL, 0)
+                        .with(HAS_LIQUID, false)
                         .with(HAS_FIRE, false)
                         .with(HAS_FOOD, false));
     }
@@ -67,7 +65,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(LIQUID_LEVEL, FACING, HAS_FIRE, HAS_FOOD);
+        builder.add(FACING, HAS_LIQUID, HAS_FIRE, HAS_FOOD);
     }
 
     @Nullable
@@ -82,13 +80,43 @@ public class CrockPotBlock extends BlockWithEntity {
     }
 
     @Override
+    @Environment(EnvType.CLIENT)
+    public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
+        super.randomDisplayTick(state, world, pos, random);
+
+        if (world == null) {
+            return;
+        }
+
+
+        if (world.isClient
+                && state.get(CrockPotBlock.HAS_FIRE)) {
+            if (state.get(CrockPotBlock.HAS_LIQUID)
+                    && random.nextFloat() < .05f) {
+                double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
+                double baseY = pos.getY() + .7d;
+                double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
+                world.addParticle(ParticleTypes.EFFECT, baseX, baseY, baseZ, .0d, .0d, .0d);
+            }
+
+            if (state.get(CrockPotBlock.HAS_FOOD)
+                    && random.nextFloat() < .05f) {
+                double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
+                double baseY = pos.getY() + .7d;
+                double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
+                world.addParticle(ParticleTypes.BUBBLE_POP, baseX, baseY, baseZ, .0d, .0d, .0d);
+            }
+        }
+    }
+
+    @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
 
         ItemStack held = player.getMainHandStack();
 
-        if (state.get(LIQUID_LEVEL) == 0 && held.getItem() == Items.WATER_BUCKET) {
+        if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
             if (!world.isClient()) {
-                world.setBlockState(pos, state.with(LIQUID_LEVEL, 1), 3);
+                world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
                 world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
                 held.decrement(1);
@@ -96,7 +124,7 @@ public class CrockPotBlock extends BlockWithEntity {
             }
 
             return ActionResult.SUCCESS;
-        } else if (state.get(LIQUID_LEVEL) > 0) {
+        } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CrockPotBlockEntity pot) {
                 if (!world.isClient()) {
@@ -112,7 +140,7 @@ public class CrockPotBlock extends BlockWithEntity {
                                         pos,
                                         state
                                                 .with(HAS_FOOD, false)
-                                                .with(LIQUID_LEVEL, 0));
+                                                .with(HAS_LIQUID, false));
                                 world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
                             }
                         }

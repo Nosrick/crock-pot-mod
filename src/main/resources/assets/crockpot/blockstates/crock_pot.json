@@ -1,34 +1,99 @@
 {
   "variants": {
-    "facing=north,has_fire=false": {
-      "model": "crockpot:block/crock_pot_unsupported"
+    "facing=north,has_fire=false,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_empty"
     },
-    "facing=south,has_fire=false": {
-      "model": "crockpot:block/crock_pot_unsupported",
-      "y": 180
-    },
-    "facing=west,has_fire=false": {
-      "model": "crockpot:block/crock_pot_unsupported",
-      "y": 270
-    },
-    "facing=east,has_fire=false": {
-      "model": "crockpot:block/crock_pot_unsupported",
+    "facing=east,has_fire=false,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_empty",
       "y": 90
     },
-    "facing=north,has_fire=true": {
-      "model": "crockpot:block/crock_pot_supported"
-    },
-    "facing=south,has_fire=true": {
-      "model": "crockpot:block/crock_pot_supported",
+    "facing=south,has_fire=false,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_empty",
       "y": 180
     },
-    "facing=west,has_fire=true": {
-      "model": "crockpot:block/crock_pot_supported",
+    "facing=west,has_fire=false,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_empty",
       "y": 270
     },
-    "facing=east,has_fire=true": {
-      "model": "crockpot:block/crock_pot_supported",
+
+    "facing=north,has_fire=false,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_liquid"
+    },
+    "facing=east,has_fire=false,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_liquid",
       "y": 90
+    },
+    "facing=south,has_fire=false,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_liquid",
+      "y": 180
+    },
+    "facing=west,has_fire=false,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_unsupported_liquid",
+      "y": 270
+    },
+
+    "facing=north,has_fire=false,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_unsupported_food"
+    },
+    "facing=east,has_fire=false,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_unsupported_food",
+      "y": 90
+    },
+    "facing=south,has_fire=false,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_unsupported_food",
+      "y": 180
+    },
+    "facing=west,has_fire=false,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_unsupported_food",
+      "y": 270
+    },
+
+    "facing=north,has_fire=true,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_empty"
+    },
+    "facing=east,has_fire=true,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_empty",
+      "y": 90
+    },
+    "facing=south,has_fire=true,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_empty",
+      "y": 180
+    },
+    "facing=west,has_fire=true,has_liquid=false,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_empty",
+      "y": 270
+    },
+
+    "facing=north,has_fire=true,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_liquid"
+    },
+    "facing=east,has_fire=true,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_liquid",
+      "y": 90
+    },
+    "facing=south,has_fire=true,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_liquid",
+      "y": 180
+    },
+    "facing=west,has_fire=true,has_liquid=true,has_food=false": {
+      "model": "crockpot:block/crock_pot_supported_liquid",
+      "y": 270
+    },
+
+    "facing=north,has_fire=true,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_supported_food"
+    },
+    "facing=east,has_fire=true,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_supported_food",
+      "y": 90
+    },
+    "facing=south,has_fire=true,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_supported_food",
+      "y": 180
+    },
+    "facing=west,has_fire=true,has_liquid=true,has_food=true": {
+      "model": "crockpot:block/crock_pot_supported_food",
+      "y": 270
     }
   }
 }

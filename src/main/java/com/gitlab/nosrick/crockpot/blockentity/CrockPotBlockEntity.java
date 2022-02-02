@@ -7,6 +7,7 @@ import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -143,13 +144,12 @@ public class CrockPotBlockEntity extends BlockEntity {
     }
 
     protected static void clientTick(CrockPotBlockEntity blockEntity) {
-
     }
 
     @Nullable
     public ItemStack take(World world, BlockPos pos, BlockState state, ItemStack container) {
 
-        if(world.isClient) {
+        if (world.isClient) {
             return null;
         }
 
@@ -197,7 +197,12 @@ public class CrockPotBlockEntity extends BlockEntity {
         this.saturation = 0;
         this.portions = 0;
         this.hasFood = false;
-        world.setBlockState(pos, state.with(CrockPotBlock.LIQUID_LEVEL, 0), 2);
+        world.setBlockState(
+                pos,
+                state
+                        .with(CrockPotBlock.HAS_LIQUID, false)
+                        .with(CrockPotBlock.HAS_FOOD, false),
+                2);
 
         this.markDirty();
     }
@@ -220,21 +225,21 @@ public class CrockPotBlockEntity extends BlockEntity {
     }
 
     public static void tick(World world, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
-        if(world == null) {
+        if (world == null) {
             return;
         }
 
         Random random = world.random;
 
-        if (blockState.get(CrockPotBlock.LIQUID_LEVEL) > 0) {
-            if (random.nextFloat() < 0.02f) {
+        if (blockState.get(CrockPotBlock.HAS_LIQUID)) {
+            if (random.nextFloat() < 0.01f) {
                 float variation = random.nextFloat() / 5f - 0.1f;
                 world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
             }
         }
 
         if (blockState.get(CrockPotBlock.HAS_FOOD)) {
-            if (random.nextFloat() < 0.02f) {
+            if (random.nextFloat() < 0.01f) {
                 float variation = random.nextFloat() / 5f - 0.1f;
                 world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
             }

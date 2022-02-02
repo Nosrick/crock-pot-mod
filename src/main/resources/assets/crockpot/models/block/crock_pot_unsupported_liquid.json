@@ -1,0 +1,79 @@
+{
+  "credit": "Made with Blockbench",
+  "ambientocclusion": false,
+  "texture_size": [32, 32],
+  "textures": {
+    "handle": "crockpot:block/crock_pot_handle",
+    "bottom": "crockpot:block/crock_pot_bottom",
+    "top_water": "crockpot:block/crock_pot_top_water",
+    "particle": "crockpot:block/crock_pot_bottom"
+  },
+  "elements": [
+    {
+      "name": "pot_layer0",
+      "from": [3, 0, 3],
+      "to": [13, 3, 13],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 3, 8]},
+      "faces": {
+        "north": {"uv": [5, 0, 10, 1.5], "texture": "#bottom"},
+        "east": {"uv": [5, 1.5, 10, 3], "texture": "#bottom"},
+        "south": {"uv": [5, 3, 10, 4.5], "texture": "#bottom"},
+        "west": {"uv": [5, 4.5, 10, 6], "texture": "#bottom"},
+        "up": {"uv": [5, 5, 0, 0], "texture": "#bottom", "cullface": "up"},
+        "down": {"uv": [5, 5, 0, 10], "texture": "#bottom"}
+      }
+    },
+    {
+      "name": "pot_layer1",
+      "from": [2, 3, 2],
+      "to": [14, 6, 14],
+      "rotation": {"angle": 0, "axis": "y", "origin": [8, 5, 8]},
+      "faces": {
+        "north": {"uv": [6, 0, 12, 1.5], "texture": "#top_water"},
+        "east": {"uv": [6, 1.5, 12, 3], "texture": "#top_water"},
+        "south": {"uv": [6, 3, 12, 4.5], "texture": "#top_water"},
+        "west": {"uv": [6, 4.5, 12, 6], "texture": "#top_water"},
+        "up": {"uv": [6, 6, 0, 0], "texture": "#top_water"},
+        "down": {"uv": [6, 6, 0, 12], "texture": "#top_water"}
+      }
+    },
+    {
+      "name": "left_handle",
+      "from": [6, 5, 1],
+      "to": [10, 6, 2],
+      "rotation": {"angle": 0, "axis": "y", "origin": [6, 4, 1]},
+      "faces": {
+        "north": {"uv": [0, 0, 4, 1], "texture": "#handle"},
+        "east": {"uv": [0, 4, 1, 5], "texture": "#handle"},
+        "south": {"uv": [0, 1, 4, 2], "texture": "#handle"},
+        "west": {"uv": [4, 0, 5, 1], "texture": "#handle"},
+        "up": {"uv": [4, 3, 0, 2], "texture": "#handle"},
+        "down": {"uv": [4, 3, 0, 4], "texture": "#handle"}
+      }
+    },
+    {
+      "name": "right_handle",
+      "from": [6, 5, 14],
+      "to": [10, 6, 15],
+      "rotation": {"angle": 0, "axis": "y", "origin": [6, 4, 14]},
+      "faces": {
+        "north": {"uv": [0, 1, 4, 2], "texture": "#handle"},
+        "east": {"uv": [0, 4, 1, 5], "texture": "#handle"},
+        "south": {"uv": [0, 2, 4, 3], "texture": "#handle"},
+        "west": {"uv": [4, 0, 5, 1], "texture": "#handle"},
+        "up": {"uv": [4, 1, 0, 0], "texture": "#handle"},
+        "down": {"uv": [4, 3, 0, 4], "texture": "#handle"}
+      }
+    }
+  ],
+  "groups": [
+    {
+      "name": "pot",
+      "origin": [8, 3, 8],
+      "color": 0,
+      "children": [0, 1]
+    },
+    2,
+    3
+  ]
+}
