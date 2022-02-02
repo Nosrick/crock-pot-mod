@@ -7,7 +7,7 @@ import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.world.ClientWorld;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,15 +16,12 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.particle.ParticleTypes;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 
@@ -36,9 +33,9 @@ public class CrockPotBlockEntity extends BlockEntity {
     protected static final String CONTENTS_NBT = "Contents";
     protected static final String NAME_NBT = "Name";
 
-    protected static final int MAX_PORTIONS = 64;
-    protected static final int MAX_BOILING_TIME = 20 * 60 * 5;
-    protected static final int MAX_BONUS_STAGES = 5;
+    public static final int MAX_PORTIONS = 64;
+    public static final int MAX_BOILING_TIME = 20 * 60 * 5;
+    public static final int MAX_BONUS_STAGES = 5;
 
     protected String name = "";
     protected int portions = 0;
