@@ -3,8 +3,8 @@
   "ambientocclusion": false,
   "texture_size": [32, 32],
   "textures": {
-    "lid": "soilbois:block/crock_pot_lid",
-    "particle": "soilbois:block/crock_pot_bottom"
+    "lid": "crockpot:block/crock_pot_lid",
+    "particle": "crockpot:block/crock_pot_bottom"
   },
   "elements": [
     {
