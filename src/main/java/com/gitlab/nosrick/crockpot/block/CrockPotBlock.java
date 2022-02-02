@@ -20,6 +20,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.IntProperty;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -35,6 +36,9 @@ public class CrockPotBlock extends BlockWithEntity {
     public static final BooleanProperty HAS_FIRE = BooleanProperty.of("has_fire");
     public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
+    public static final IntProperty BONUS_LEVELS = IntProperty.of("bonus_levels", 0, 5);
+
+    public static final int MAX_BONUS_STAGES = 5;
 
     public CrockPotBlock() {
         super(FabricBlockSettings
@@ -48,7 +52,8 @@ public class CrockPotBlock extends BlockWithEntity {
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
                         .with(HAS_FIRE, false)
-                        .with(HAS_FOOD, false));
+                        .with(HAS_FOOD, false)
+                        .with(BONUS_LEVELS, 0));
     }
 
     @Nullable
@@ -65,7 +70,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, HAS_FIRE, HAS_FOOD);
+        builder.add(BONUS_LEVELS, FACING, HAS_LIQUID, HAS_FIRE, HAS_FOOD);
     }
 
     @Nullable
@@ -140,14 +145,15 @@ public class CrockPotBlock extends BlockWithEntity {
                                         pos,
                                         state
                                                 .with(HAS_FOOD, false)
-                                                .with(HAS_LIQUID, false));
+                                                .with(HAS_LIQUID, false)
+                                                .with(BONUS_LEVELS, 0));
                                 world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
                             }
                         }
                     } else if (held.isFood()) {
                         boolean result = pot.addFood(world, pos, state, held);
                         if (result) {
-                            world.setBlockState(pos, state.with(HAS_FOOD, true));
+                            world.setBlockState(pos, state.with(HAS_FOOD, true).with(BONUS_LEVELS, 0));
                             world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
 
                             // if the food has a bowl, give it back to the player
@@ -174,5 +180,13 @@ public class CrockPotBlock extends BlockWithEntity {
 
     protected boolean hasTrayHeatSource(BlockState state) {
         return Tags.HEAT_SOURCES.contains(state.getBlock());
+    }
+
+    public static float getBoilingIntensity(World world, BlockState state) {
+        if(!state.getProperties().contains(BONUS_LEVELS)) {
+            return 0f;
+        }
+
+        return state.get(BONUS_LEVELS) / ((float) MAX_BONUS_STAGES);
     }
 }
