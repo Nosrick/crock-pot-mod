@@ -38,7 +38,7 @@ public class CrockPotBlockEntity extends BlockEntity {
     protected static final String LAST_TIME = "Last Time";
 
     public static final int MAX_PORTIONS = 64;
-    public static final int MAX_BOILING_TIME = 20 * 2;
+    public static final int MAX_BOILING_TIME = 20 * 60 * 2;
 
     protected String name = "";
     protected int portions = 0;
@@ -107,21 +107,22 @@ public class CrockPotBlockEntity extends BlockEntity {
                 this.contents = new ArrayList<>();
             }
 
+            this.portions++;
+            this.boilingTime = 0;
+            int foodHunger = foodComponent.getHunger();
+            float foodSaturation = foodComponent.getSaturationModifier();
+
+            this.hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + foodHunger) / this.portions) / 100);
+            this.saturation = (float) Math.round((100 * (((this.portions - 1) * this.saturation) + foodSaturation) / this.portions) / 100);
+
             if (!contents.contains(foodItem.getTranslationKey())) {
-                this.portions++;
-                this.boilingTime = 0;
-                int foodHunger = foodComponent.getHunger();
-                float foodSaturation = foodComponent.getSaturationModifier();
-
-                this.hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + foodHunger) / this.portions) / 100);
-                this.saturation = (float) Math.round((100 * (((this.portions - 1) * this.saturation) + foodSaturation) / this.portions) / 100);
                 contents.add(foodItem.getTranslationKey());
-
-                this.markDirty();
-                food.decrement(1);
-
-                return true;
             }
+
+            this.markDirty();
+            food.decrement(1);
+
+            return true;
         }
 
         return false;
@@ -141,8 +142,9 @@ public class CrockPotBlockEntity extends BlockEntity {
         if (this.portions > 0) {
             // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
-            StewItem.setHunger(stew, this.hunger);
-            StewItem.setSaturation(stew, this.saturation);
+            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state) / 4f;
+            StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
+            StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
             StewItem.setContents(stew, this.contents);
             container.decrement(1);
 
