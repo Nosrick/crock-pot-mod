@@ -7,7 +7,6 @@ import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -16,10 +15,8 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +94,18 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         Item foodItem = food.getItem();
 
-        FoodComponent foodComponent = foodItem.getFoodComponent();
+        FoodComponent foodComponent;
+
+        if(food.getItem() instanceof StewItem) {
+            foodComponent = new FoodComponent.Builder()
+                    .hunger(StewItem.getHunger(food))
+                    .saturationModifier(StewItem.getSaturation(food))
+                    .build();
+        }
+        else {
+             foodComponent = foodItem.getFoodComponent();
+        }
+
         if (foodComponent == null) {
             return false;
         }
@@ -142,7 +150,7 @@ public class CrockPotBlockEntity extends BlockEntity {
         if (this.portions > 0) {
             // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
-            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state) / 4f;
+            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state) / CrockPotBlock.MAX_BONUS_STAGES;
             StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
             StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
             StewItem.setContents(stew, this.contents);

@@ -1,5 +1,6 @@
 package com.gitlab.nosrick.crockpot.api.appleskin;
 
+import com.gitlab.nosrick.crockpot.CrockPotMod;
 import com.gitlab.nosrick.crockpot.item.StewItem;
 import net.minecraft.item.ItemStack;
 import squeek.appleskin.api.AppleSkinApi;
@@ -20,5 +21,7 @@ public class AppleSkinEventHandler implements AppleSkinApi {
                     }
                 }
         );
+
+        CrockPotMod.MODS_LOADED.add("appleskin");
     }
 }

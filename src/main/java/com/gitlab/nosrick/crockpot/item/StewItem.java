@@ -1,5 +1,7 @@
 package com.gitlab.nosrick.crockpot.item;
 
+import com.gitlab.nosrick.crockpot.CrockPotMod;
+import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FoodComponent;
@@ -10,8 +12,13 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
+import net.minecraft.text.Style;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Formatting;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,6 +79,25 @@ public class StewItem extends Item {
     public static List<String> getContents(ItemStack stack) {
         NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
         return list.stream().map(NbtElement::asString).collect(Collectors.toList());
+    }
+
+    @Override
+    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
+        super.appendTooltip(stack, world, tooltip, context);
+
+        if(!CrockPotMod.MODS_LOADED.contains("appleskin")) {
+            tooltip.add(new TranslatableText(
+                    "item.crockpot.stew.hunger",
+                    getHunger(stack))
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.YELLOW)));
+
+            tooltip.add(new TranslatableText(
+                    "item.crockpot.stew.saturation",
+                    getSaturation(stack))
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.GOLD)));
+        }
     }
 
     public static int getHunger(ItemStack stack) {

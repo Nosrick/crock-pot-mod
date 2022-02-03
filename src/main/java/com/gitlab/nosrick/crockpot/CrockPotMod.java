@@ -6,11 +6,15 @@ import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.minecraft.item.FoodComponent;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CrockPotMod implements ModInitializer {
     public static final String MOD_ID = "crockpot";
@@ -19,6 +23,10 @@ public class CrockPotMod implements ModInitializer {
     public static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder.build(
             new Identifier(MOD_ID, "main"),
             () -> new ItemStack(ItemRegistry.CROCK_POT.get()));
+
+    public static final List<String> MODS_LOADED = new ArrayList<>();
+
+    public static FoodComponent cachedFoodComponent;
 
     @Override
     public void onInitialize() {

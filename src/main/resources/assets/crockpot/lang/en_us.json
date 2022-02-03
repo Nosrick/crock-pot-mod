@@ -1,6 +1,8 @@
 {
   "item.crockpot.stew": "Stew",
   "block.crockpot.crock_pot": "Crock Pot",
+  "item.crockpot.stew.hunger": "Hunger: %s",
+  "item.crockpot.stew.saturation":  "Saturation: %s",
 
   "crockpot.subtitles.crock_pot_boil": "Crock pot boils",
   "crockpot.subtitles.crock_pot_bubble": "Crock pot bubbles",
