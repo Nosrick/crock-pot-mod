@@ -151,7 +151,7 @@ public class CrockPotBlock extends BlockWithEntity {
                             }
                         }
                     } else if (held.isFood()) {
-                        boolean result = pot.addFood(world, pos, state, held);
+                        boolean result = pot.addFood(held);
                         if (result) {
                             world.setBlockState(pos, state.with(HAS_FOOD, true).with(BONUS_LEVELS, 0));
                             world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);

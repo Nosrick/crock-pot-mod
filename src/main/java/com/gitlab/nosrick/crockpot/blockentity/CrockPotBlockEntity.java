@@ -5,8 +5,10 @@ import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
+import com.gitlab.nosrick.crockpot.util.MathUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.player.HungerManager;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -17,9 +19,14 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathConstants;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -45,6 +52,10 @@ public class CrockPotBlockEntity extends BlockEntity {
 
     protected long boilingTime = 0;
     protected long lastTime = 0;
+
+    protected FoodComponent foodComponent;
+
+    protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
 
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
@@ -87,28 +98,25 @@ public class CrockPotBlockEntity extends BlockEntity {
         nbt.put(CONTENTS_NBT, list);
     }
 
-    public boolean addFood(World world, BlockPos pos, BlockState state, ItemStack food) {
-        if (!food.isFood()) {
+    // this method gets called when you call fakeHunger.eat
+    public void add(int food, float saturationModifier) {
+        int hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + food) / this.portions) / 100);
+        float saturation = ((100 * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100);
+
+        saturation = MathUtil.sigFig(saturation, 2);
+
+        this.foodComponent = new FoodComponent.Builder()
+                .hunger(hunger)
+                .saturationModifier(saturation)
+                .build();
+    }
+
+    public boolean addFood(ItemStack food) {
+        if (!food.isFood() || food.getItem() instanceof StewItem) {
             return false;
         }
 
         Item foodItem = food.getItem();
-
-        FoodComponent foodComponent;
-
-        if(food.getItem() instanceof StewItem) {
-            foodComponent = new FoodComponent.Builder()
-                    .hunger(StewItem.getHunger(food))
-                    .saturationModifier(StewItem.getSaturation(food))
-                    .build();
-        }
-        else {
-             foodComponent = foodItem.getFoodComponent();
-        }
-
-        if (foodComponent == null) {
-            return false;
-        }
 
         if (this.portions < MAX_PORTIONS) {
             if (this.portions == 0) {
@@ -116,12 +124,11 @@ public class CrockPotBlockEntity extends BlockEntity {
             }
 
             this.portions++;
-            this.boilingTime = 0;
-            int foodHunger = foodComponent.getHunger();
-            float foodSaturation = foodComponent.getSaturationModifier();
 
-            this.hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + foodHunger) / this.portions) / 100);
-            this.saturation = (float) Math.round((100 * (((this.portions - 1) * this.saturation) + foodSaturation) / this.portions) / 100);
+            this.myHungerManager.eat(foodItem, food);
+            this.boilingTime = 0;
+            this.hunger = this.foodComponent.getHunger();
+            this.saturation = this.foodComponent.getSaturationModifier();
 
             if (!contents.contains(foodItem.getTranslationKey())) {
                 contents.add(foodItem.getTranslationKey());
@@ -151,8 +158,8 @@ public class CrockPotBlockEntity extends BlockEntity {
             // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state) / CrockPotBlock.MAX_BONUS_STAGES;
-            StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
-            StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
+            StewItem.setHunger(stew, this.hunger + MathUtil.goodRounding(this.hunger * boilingIntensity, 2));
+            StewItem.setSaturation(stew, MathUtil.sigFig(this.saturation + (this.saturation * boilingIntensity), 2));
             StewItem.setContents(stew, this.contents);
             container.decrement(1);
 
@@ -166,17 +173,6 @@ public class CrockPotBlockEntity extends BlockEntity {
             this.markDirty();
 
             return stew;
-        }
-
-        return null;
-    }
-
-    public static FoodComponent getFoodComponent(World world, BlockPos pos, BlockState state) {
-        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity taginePotBlockEntity) {
-            return new FoodComponent.Builder()
-                    .hunger(taginePotBlockEntity.hunger)
-                    .saturationModifier(taginePotBlockEntity.saturation)
-                    .build();
         }
 
         return null;
@@ -262,6 +258,18 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         if (blockEntity.isAboveLitHeatSource() != blockState.get(CrockPotBlock.HAS_FIRE)) {
             world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FIRE, blockEntity.isAboveLitHeatSource()));
+        }
+    }
+
+    private static class CrockPotHungerManager extends HungerManager {
+        private final CrockPotBlockEntity crockPotBlockEntity;
+        public CrockPotHungerManager(CrockPotBlockEntity cpbe) {
+            this.crockPotBlockEntity = cpbe;
+        }
+
+        @Override
+        public void add(int food, float saturationModifier) {
+            crockPotBlockEntity.add(food, saturationModifier);
         }
     }
 }
