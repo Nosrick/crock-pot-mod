@@ -17,26 +17,17 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathConstants;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.StringJoiner;
 
 public class CrockPotBlockEntity extends BlockEntity {
 
@@ -101,7 +92,7 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         NbtList list = new NbtList();
         this.contents.forEach(
-                item -> list.add(NbtString.of(item.toString())));
+                item -> list.add(NbtString.of(item)));
         nbt.put(CONTENTS_NBT, list);
     }
 
@@ -193,15 +184,25 @@ public class CrockPotBlockEntity extends BlockEntity {
 
              */
 
-            TranslatableText statusText = new TranslatableText(CrockPotBlock.getStewTranslationKey(world, state));
-            if(this.contents.size() < 4) {
-                List<TranslatableText> list = new ArrayList<>();
-                for(String content : this.contents) {
+            TranslatableText statusText = new TranslatableText(CrockPotBlock.getStewTypeTranslationKey(world, state));
+            statusText.append(" ");
+            if (this.contents.size() < 4) {
+                List<Text> list = new ArrayList<>();
+                for (int i = 0; i < this.contents.size(); i++) {
+                    String content = this.contents.get(i);
                     TranslatableText text = new TranslatableText(content);
                     list.add(text);
+                    if (i < this.contents.size() - 2) {
+                        list.add(new LiteralText(", "));
+                    }
+                    else if (i < this.contents.size() - 1) {
+                        list.add(new LiteralText(" & "));
+                    }
                 }
 
-                list.stream().forEach(str -> statusText.append(str));
+                list.forEach(statusText::append);
+            } else {
+                statusText.append(new TranslatableText("item.crockpot.mixed_stew"));
             }
 
             TranslatableText text = new TranslatableText("item.crockpot.stew", statusText);
@@ -308,6 +309,7 @@ public class CrockPotBlockEntity extends BlockEntity {
 
     private static class CrockPotHungerManager extends HungerManager {
         private final CrockPotBlockEntity crockPotBlockEntity;
+
         public CrockPotHungerManager(CrockPotBlockEntity cpbe) {
             this.crockPotBlockEntity = cpbe;
         }

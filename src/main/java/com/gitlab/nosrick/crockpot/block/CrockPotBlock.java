@@ -211,7 +211,7 @@ public class CrockPotBlock extends BlockWithEntity {
         return new TranslatableText("item.crockpot.plain_stew");
     }
 
-    public static String getStewTranslationKey(World world, BlockState state) {
+    public static String getStewTypeTranslationKey(World world, BlockState state) {
         if(!state.getProperties().contains(BONUS_LEVELS)) {
             return "item.crockpot.mistake_stew";
         }
