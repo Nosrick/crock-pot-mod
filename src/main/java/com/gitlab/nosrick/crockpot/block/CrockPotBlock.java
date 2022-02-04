@@ -21,6 +21,7 @@ import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
 import net.minecraft.state.property.IntProperty;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -188,5 +189,45 @@ public class CrockPotBlock extends BlockWithEntity {
         }
 
         return state.get(BONUS_LEVELS) / ((float) MAX_BONUS_STAGES);
+    }
+
+    public static TranslatableText getStewDescription(World world, BlockState state) {
+        if(!state.getProperties().contains(BONUS_LEVELS)) {
+            return new TranslatableText("item.crockpot.mistake_stew");
+        }
+
+        int bonusLevels = state.get(BONUS_LEVELS);
+
+        if(bonusLevels == MAX_BONUS_STAGES) {
+            return new TranslatableText("item.crockpot.hearty_stew");
+        }
+        if(bonusLevels > 2) {
+            return new TranslatableText("item.crockpot.filling_stew");
+        }
+        if(bonusLevels > 0) {
+            return new TranslatableText("item.crockpot.satisfying_stew");
+        }
+
+        return new TranslatableText("item.crockpot.plain_stew");
+    }
+
+    public static String getStewTranslationKey(World world, BlockState state) {
+        if(!state.getProperties().contains(BONUS_LEVELS)) {
+            return "item.crockpot.mistake_stew";
+        }
+
+        int bonusLevels = state.get(BONUS_LEVELS);
+
+        if(bonusLevels == MAX_BONUS_STAGES) {
+            return "item.crockpot.hearty_stew";
+        }
+        if(bonusLevels > 2) {
+            return "item.crockpot.filling_stew";
+        }
+        if(bonusLevels > 0) {
+            return "item.crockpot.satisfying_stew";
+        }
+
+        return "item.crockpot.plain_stew";
     }
 }

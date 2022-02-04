@@ -17,10 +17,16 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathConstants;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -30,6 +36,7 @@ import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.StringJoiner;
 
 public class CrockPotBlockEntity extends BlockEntity {
 
@@ -94,7 +101,7 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         NbtList list = new NbtList();
         this.contents.forEach(
-                item -> list.add(NbtString.of(item)));
+                item -> list.add(NbtString.of(item.toString())));
         nbt.put(CONTENTS_NBT, list);
     }
 
@@ -102,8 +109,6 @@ public class CrockPotBlockEntity extends BlockEntity {
     public void add(int food, float saturationModifier) {
         int hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + food) / this.portions) / 100);
         float saturation = ((100 * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100);
-
-        saturation = MathUtil.sigFig(saturation, 2);
 
         this.foodComponent = new FoodComponent.Builder()
                 .hunger(hunger)
@@ -124,14 +129,15 @@ public class CrockPotBlockEntity extends BlockEntity {
             }
 
             this.portions++;
-
             this.myHungerManager.eat(foodItem, food);
             this.boilingTime = 0;
             this.hunger = this.foodComponent.getHunger();
             this.saturation = this.foodComponent.getSaturationModifier();
 
-            if (!contents.contains(foodItem.getTranslationKey())) {
-                contents.add(foodItem.getTranslationKey());
+            String id = foodItem.getTranslationKey();
+
+            if (!contents.contains(id)) {
+                contents.add(id);
             }
 
             this.markDirty();
@@ -157,10 +163,49 @@ public class CrockPotBlockEntity extends BlockEntity {
         if (this.portions > 0) {
             // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
-            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state) / CrockPotBlock.MAX_BONUS_STAGES;
+            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state);
             StewItem.setHunger(stew, this.hunger + MathUtil.goodRounding(this.hunger * boilingIntensity, 2));
             StewItem.setSaturation(stew, MathUtil.sigFig(this.saturation + (this.saturation * boilingIntensity), 2));
             StewItem.setContents(stew, this.contents);
+
+            /*
+            if(this.contents.size() < 4) {
+                StringJoiner joiner = new StringJoiner("-");
+                for (String content : this.contents) {
+                    TranslatableText text = new TranslatableText(content);
+                    String name = text.toString();
+                    joiner.add(name);
+                }
+                stew.setCustomName(
+                        new TranslatableText("item.crockpot.stew",
+                                CrockPotBlock.getStewDescription(world, state))
+                                .append(" ")
+                                .append(joiner.toString()));
+            }
+            else {
+                stew.setCustomName(
+                        new LiteralText(
+                                CrockPotBlock.getStewDescription(world, state) +
+                                        " " + new TranslatableText(
+                                                "item.crockpot.stew",
+                                        new TranslatableText("item.crockpot.mixed_stew"))));
+            }
+
+             */
+
+            TranslatableText statusText = new TranslatableText(CrockPotBlock.getStewTranslationKey(world, state));
+            if(this.contents.size() < 4) {
+                List<TranslatableText> list = new ArrayList<>();
+                for(String content : this.contents) {
+                    TranslatableText text = new TranslatableText(content);
+                    list.add(text);
+                }
+
+                list.stream().forEach(str -> statusText.append(str));
+            }
+
+            TranslatableText text = new TranslatableText("item.crockpot.stew", statusText);
+            stew.setCustomName(text);
             container.decrement(1);
 
             this.decrementPortions();

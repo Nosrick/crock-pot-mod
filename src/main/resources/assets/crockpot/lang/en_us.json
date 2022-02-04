@@ -1,5 +1,11 @@
 {
-  "item.crockpot.stew": "Stew",
+  "item.crockpot.stew": "%s Stew",
+  "item.crockpot.mixed_stew": "Mixed",
+  "item.crockpot.satisfying_stew": "Satisfying",
+  "item.crockpot.filling_stew": "Filling",
+  "item.crockpot.hearty_stew": "Hearty",
+  "item.crockpot.plain_stew": "Plain",
+  "item.crockpot.mistake_stew": "Horrible Mistake",
   "block.crockpot.crock_pot": "Crock Pot",
   "item.crockpot.stew.hunger": "Hunger: %s",
   "item.crockpot.stew.saturation":  "Saturation: %s",

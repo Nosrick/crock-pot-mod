@@ -16,6 +16,7 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -85,7 +86,7 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if(!CrockPotMod.MODS_LOADED.contains("appleskin")) {
+        if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
             tooltip.add(new TranslatableText(
                     "item.crockpot.stew.hunger",
                     getHunger(stack))
@@ -94,7 +95,8 @@ public class StewItem extends Item {
 
             tooltip.add(new TranslatableText(
                     "item.crockpot.stew.saturation",
-                    getSaturation(stack))
+                        String.format("%.2f",
+                                getSaturation(stack)))
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.GOLD)));
         }
