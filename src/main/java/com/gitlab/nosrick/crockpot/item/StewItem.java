@@ -86,19 +86,21 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
-            tooltip.add(new TranslatableText(
-                    "item.crockpot.stew.hunger",
-                    getHunger(stack))
-                    .setStyle(Style.EMPTY
-                            .withColor(Formatting.YELLOW)));
+        if(context.isAdvanced()) {
+            if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
+                tooltip.add(new TranslatableText(
+                        "item.crockpot.stew.hunger",
+                        getHunger(stack))
+                        .setStyle(Style.EMPTY
+                                .withColor(Formatting.YELLOW)));
 
-            tooltip.add(new TranslatableText(
-                    "item.crockpot.stew.saturation",
+                tooltip.add(new TranslatableText(
+                        "item.crockpot.stew.saturation",
                         String.format("%.2f",
                                 getSaturation(stack)))
-                    .setStyle(Style.EMPTY
-                            .withColor(Formatting.GOLD)));
+                        .setStyle(Style.EMPTY
+                                .withColor(Formatting.GOLD)));
+            }
         }
     }
 
