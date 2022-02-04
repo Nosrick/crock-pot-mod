@@ -25,6 +25,11 @@ public class CrockPotModClient implements ClientModInitializer {
                     BlockPos pos = buf.readBlockPos();
 
                     ClientWorld world = handler.getWorld();
+
+                    if(world == null){
+                        return;
+                    }
+
                     BlockEntity blockEntity = world.getBlockEntity(pos);
                     if (blockEntity instanceof CrockPotBlockEntity pot) {
                         NbtCompound nbt = buf.readUnlimitedNbt();

@@ -3,12 +3,13 @@ package com.gitlab.nosrick.crockpot.item;
 import com.gitlab.nosrick.crockpot.CrockPotMod;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
@@ -19,11 +20,15 @@ import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StewItem extends Item {
@@ -31,14 +36,17 @@ public class StewItem extends Item {
     protected static final String CONTENTS_NBT = "Contents";
     protected static final String HUNGER_NBT = "Hunger";
     protected static final String SATURATION_NBT = "Saturation";
-    protected static final String EFFECT_NBT = "Effect";
+    protected static final String EFFECT_NAME_NBT = "Effect Name";
+    protected static final String EFFECT_DURATION_NBT = "Effect Duration";
+    protected static final String EFFECT_AMP_NBT = "Effect Amplification";
     protected static final String CURSED_NBT = "Cursed";
 
     public StewItem() {
         super(new ModItemSettings()
                 .food(
                         new FoodComponent.Builder()
-                                .build()));
+                                .build())
+                .recipeRemainder(Items.BOWL));
     }
 
     @Override
@@ -85,7 +93,15 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if (getCurseLevel(stack) > 0) {
+        if(getCurseLevel(stack) > 5) {
+            tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.DARK_GRAY)
+                            .withItalic(true)
+                            .withBold(true)));
+            tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
+        }
+        else if (getCurseLevel(stack) > 0) {
             tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_RED)
@@ -108,6 +124,8 @@ public class StewItem extends Item {
                                 .withColor(Formatting.GOLD)));
             }
         }
+
+
     }
 
     public static int getHunger(ItemStack stack) {
@@ -124,8 +142,15 @@ public class StewItem extends Item {
     }
 
     public static StatusEffectInstance getStatusEffect(ItemStack stack) {
-        String effect = stack.getOrCreateNbt().getString(EFFECT_NBT);
-        return new StatusEffectInstance(StatusEffects.NAUSEA, 10, 10);
+        String name = stack.getOrCreateNbt().getString(EFFECT_NAME_NBT);
+        StatusEffect test = Registry.STATUS_EFFECT.get(new Identifier(name));
+        if(test == null) {
+            return null;
+        }
+
+        int duration = stack.getOrCreateNbt().getInt(EFFECT_DURATION_NBT);
+        int amp = stack.getOrCreateNbt().getInt(EFFECT_AMP_NBT);
+        return new StatusEffectInstance(test, duration, amp);
     }
 
     public static int getCurseLevel(ItemStack stack) {
@@ -146,11 +171,16 @@ public class StewItem extends Item {
         stack.getOrCreateNbt().putFloat(SATURATION_NBT, saturation);
     }
 
-    public static void setEffects(ItemStack stack, StatusEffectInstance statusEffect) {
-        stack.getOrCreateNbt().putString(EFFECT_NBT, statusEffect.getTranslationKey());
-    }
-
     public static void setCurseLevel(ItemStack stack, int curseLevel) {
         stack.getOrCreateNbt().putInt(CURSED_NBT, curseLevel);
+    }
+
+    public static void setStatusEffect(ItemStack stack, StatusEffectInstance statusEffectInstance) {
+        Identifier statusId = Registry.STATUS_EFFECT.getId(statusEffectInstance.getEffectType());
+        if(statusId != null) {
+            stack.getOrCreateNbt().putString(EFFECT_NAME_NBT, statusId.toString());
+            stack.getOrCreateNbt().putInt(EFFECT_DURATION_NBT , statusEffectInstance.getDuration());
+            stack.getOrCreateNbt().putInt(EFFECT_AMP_NBT, statusEffectInstance.getAmplifier());
+        }
     }
 }

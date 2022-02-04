@@ -6,12 +6,13 @@ import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
-import com.gitlab.nosrick.crockpot.util.MathUtil;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
@@ -158,6 +159,8 @@ public class CrockPotBlockEntity extends BlockEntity {
             this.markDirty();
             food.decrement(1);
 
+            sendPacketToClient(this.getWorld(), this);
+
             return true;
         }
 
@@ -184,8 +187,9 @@ public class CrockPotBlockEntity extends BlockEntity {
                 StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
                 StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
             } else {
-                StewItem.setHunger(stew, (this.hunger - (int) (this.hunger * this.curseLevel * 0.5f)));
-                StewItem.setSaturation(stew, (this.saturation - (this.saturation * this.curseLevel * 0.5f)));
+                StewItem.setHunger(stew, 0);
+                StewItem.setSaturation(stew, 0);
+                StewItem.setStatusEffect(stew, new StatusEffectInstance(StatusEffects.NAUSEA, 30, 1));
             }
 
             StewItem.setCurseLevel(stew, this.curseLevel);
@@ -193,7 +197,9 @@ public class CrockPotBlockEntity extends BlockEntity {
 
             TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
             statusText.append(" ");
-            if (this.curseLevel > 0) {
+            if (this.curseLevel > 5) {
+                statusText.append(new TranslatableText("item.crockpot.stew.cowl"));
+            } else if (this.curseLevel > 0) {
                 statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
             } else {
                 if (this.contents.size() < 4) {
@@ -215,18 +221,21 @@ public class CrockPotBlockEntity extends BlockEntity {
                 }
             }
 
-            TranslatableText text = new TranslatableText("item.crockpot.stew", statusText);
-            stew.setCustomName(text);
+            if (this.curseLevel <= 5) {
+                statusText = new TranslatableText("item.crockpot.stew", statusText);
+            }
+            stew.setCustomName(statusText);
             container.decrement(1);
 
             this.decrementPortions();
 
             // if no more portions in the pot, flush out the pot data
-            if (--this.portions <= 0) {
+            if (this.portions <= 0) {
                 this.flush(world, pos, state);
             }
 
             this.markDirty();
+            sendPacketToClient(world, this);
 
             return stew;
         }
@@ -250,6 +259,8 @@ public class CrockPotBlockEntity extends BlockEntity {
                         .with(CrockPotBlock.HAS_FOOD, false));
 
         this.markDirty();
+
+        sendPacketToClient(this.getWorld(), this);
     }
 
     public float getBoilingIntensity() {
@@ -341,19 +352,23 @@ public class CrockPotBlockEntity extends BlockEntity {
             world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FIRE, blockEntity.isAboveLitHeatSource()));
         }
 
+        sendPacketToClient(world, blockEntity);
+    }
+
+    protected static void sendPacketToClient(World world, CrockPotBlockEntity blockEntity) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(blockEntity.pos);
         NbtCompound nbt = new NbtCompound();
         blockEntity.writeNbt(nbt);
         buf.writeNbt(nbt);
 
-        for(ServerPlayerEntity serverPlayer : PlayerLookup.tracking(blockEntity)) {
+        for (ServerPlayerEntity serverPlayer : PlayerLookup.tracking(blockEntity)) {
             ServerPlayNetworking.send(serverPlayer, PACKET_ID, buf);
         }
     }
 
     public static int getBonusLevels(World world, BlockPos pos) {
-        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity){
+        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
             return potBlockEntity.bonusLevels;
         }
 
@@ -361,7 +376,7 @@ public class CrockPotBlockEntity extends BlockEntity {
     }
 
     public static float getBoilingIntensity(World world, BlockPos pos) {
-        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity){
+        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
             return potBlockEntity.getBoilingIntensity();
         }
 

@@ -111,49 +111,47 @@ public class CrockPotBlock extends BlockWithEntity {
 
     @Override
     public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
-
+        if (world.isClient()) {
+            return ActionResult.CONSUME;
+        }
         ItemStack held = player.getMainHandStack();
 
         if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
-            if (!world.isClient()) {
-                world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
+            world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
-                world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
-                held.decrement(1);
-                player.giveItemStack(new ItemStack(Items.BUCKET));
-            }
+            world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
+            held.decrement(1);
+            player.giveItemStack(new ItemStack(Items.BUCKET));
 
             return ActionResult.SUCCESS;
         } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
             BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CrockPotBlockEntity pot) {
-                if (!world.isClient()) {
-                    if (held.getItem() == Items.BOWL) {
-                        ItemStack out = pot.take(world, pos, state, held);
-                        if (out != null) {
-                            player.giveItemStack(out);
+                if (held.getItem() == Items.BOWL) {
+                    ItemStack out = pot.take(world, pos, state, held);
+                    if (out != null) {
+                        player.giveItemStack(out);
 
-                            if (pot.getPortions() > 0) {
-                                world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
-                            } else {
-                                world.setBlockState(
-                                        pos,
-                                        state
-                                                .with(HAS_FOOD, false)
-                                                .with(HAS_LIQUID, false));
-                                world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
-                            }
-                        }
-                    } else if (held.isFood()) {
-                        boolean result = pot.addFood(held);
-                        if (result) {
-                            world.setBlockState(pos, state.with(HAS_FOOD, true));
+                        if (pot.getPortions() > 0) {
                             world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                        } else {
+                            world.setBlockState(
+                                    pos,
+                                    state
+                                            .with(HAS_FOOD, false)
+                                            .with(HAS_LIQUID, false));
+                            world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                        }
+                    }
+                } else if (held.isFood()) {
+                    boolean result = pot.addFood(held);
+                    if (result) {
+                        world.setBlockState(pos, state.with(HAS_FOOD, true));
+                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
 
-                            // if the food has a bowl, give it back to the player
-                            if (held.getItem().hasRecipeRemainder()) {
-                                player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
-                            }
+                        // if the food has a bowl, give it back to the player
+                        if (held.getItem().hasRecipeRemainder()) {
+                            player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
                         }
                     }
                 }
