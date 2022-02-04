@@ -15,9 +15,11 @@ public class AppleSkinEventHandler implements AppleSkinApi {
                 foodValuesEvent -> {
                     if(foodValuesEvent.itemStack.getItem() instanceof StewItem) {
                         ItemStack itemStack = foodValuesEvent.itemStack;
-                        foodValuesEvent.modifiedFoodValues = new FoodValues(
+                        foodValuesEvent.defaultFoodValues = new FoodValues(
                                 StewItem.getHunger(itemStack),
                                 StewItem.getSaturation(itemStack));
+
+                        foodValuesEvent.modifiedFoodValues = foodValuesEvent.defaultFoodValues;
                     }
                 }
         );
