@@ -3,6 +3,8 @@ package com.gitlab.nosrick.crockpot.item;
 import com.gitlab.nosrick.crockpot.CrockPotMod;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
@@ -12,11 +14,11 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -29,6 +31,8 @@ public class StewItem extends Item {
     protected static final String CONTENTS_NBT = "Contents";
     protected static final String HUNGER_NBT = "Hunger";
     protected static final String SATURATION_NBT = "Saturation";
+    protected static final String EFFECT_NBT = "Effect";
+    protected static final String CURSED_NBT = "Cursed";
 
     public StewItem() {
         super(new ModItemSettings()
@@ -77,16 +81,18 @@ public class StewItem extends Item {
         }
     }
 
-    public static List<String> getContents(ItemStack stack) {
-        NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
-        return list.stream().map(NbtElement::asString).collect(Collectors.toList());
-    }
-
     @Override
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if(context.isAdvanced()) {
+        if (getCurseLevel(stack) > 0) {
+            tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.DARK_RED)
+                            .withItalic(true)));
+        }
+
+        if (context.isAdvanced()) {
             if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
                 tooltip.add(new TranslatableText(
                         "item.crockpot.stew.hunger",
@@ -112,6 +118,20 @@ public class StewItem extends Item {
         return stack.getOrCreateNbt().getFloat(SATURATION_NBT);
     }
 
+    public static List<String> getContents(ItemStack stack) {
+        NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
+        return list.stream().map(NbtElement::asString).collect(Collectors.toList());
+    }
+
+    public static StatusEffectInstance getStatusEffect(ItemStack stack) {
+        String effect = stack.getOrCreateNbt().getString(EFFECT_NBT);
+        return new StatusEffectInstance(StatusEffects.NAUSEA, 10, 10);
+    }
+
+    public static int getCurseLevel(ItemStack stack) {
+        return stack.getOrCreateNbt().getInt(CURSED_NBT);
+    }
+
     public static void setContents(ItemStack stack, List<String> contents) {
         NbtList list = new NbtList();
         list.addAll(contents.stream().map(NbtString::of).toList());
@@ -124,5 +144,13 @@ public class StewItem extends Item {
 
     public static void setSaturation(ItemStack stack, float saturation) {
         stack.getOrCreateNbt().putFloat(SATURATION_NBT, saturation);
+    }
+
+    public static void setEffects(ItemStack stack, StatusEffectInstance statusEffect) {
+        stack.getOrCreateNbt().putString(EFFECT_NBT, statusEffect.getTranslationKey());
+    }
+
+    public static void setCurseLevel(ItemStack stack, int curseLevel) {
+        stack.getOrCreateNbt().putInt(CURSED_NBT, curseLevel);
     }
 }

@@ -1,11 +1,15 @@
 package com.gitlab.nosrick.crockpot.blockentity;
 
+import com.gitlab.nosrick.crockpot.CrockPotMod;
 import com.gitlab.nosrick.crockpot.block.CrockPotBlock;
 import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
 import com.gitlab.nosrick.crockpot.util.MathUtil;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.HungerManager;
@@ -17,10 +21,13 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
+import net.minecraft.network.PacketByteBuf;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -36,17 +43,23 @@ public class CrockPotBlockEntity extends BlockEntity {
     protected static final String SATURATION_NBT = "Saturation";
     protected static final String CONTENTS_NBT = "Contents";
     protected static final String NAME_NBT = "Name";
+    protected static final String CURSE_LEVEL = "Curse Level";
+    protected static final String BONUS_LEVELS = "Bonus Levels";
     protected static final String BOILING_TIME = "Boiling Time";
     protected static final String LAST_TIME = "Last Time";
 
+    public static final int MAX_BONUS_STAGES = 5;
     public static final int MAX_PORTIONS = 64;
     public static final int MAX_BOILING_TIME = 20 * 60 * 2;
+    public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
     protected int portions = 0;
     protected int hunger = 0;
     protected float saturation = 0.0F;
     protected List<String> contents = new ArrayList<>();
+    protected int curseLevel = 0;
+    protected int bonusLevels = 0;
 
     protected long boilingTime = 0;
     protected long lastTime = 0;
@@ -68,8 +81,11 @@ public class CrockPotBlockEntity extends BlockEntity {
         this.hunger = tag.getInt(HUNGER_NBT);
         this.saturation = tag.getFloat(SATURATION_NBT);
 
+        this.bonusLevels = tag.getInt(BONUS_LEVELS);
         this.boilingTime = tag.getLong(BOILING_TIME);
         this.lastTime = tag.getLong(LAST_TIME);
+
+        this.curseLevel = tag.getInt(CURSE_LEVEL);
 
         this.contents = new ArrayList<>();
         NbtList list = tag.getList(CONTENTS_NBT, 8);
@@ -87,8 +103,11 @@ public class CrockPotBlockEntity extends BlockEntity {
         nbt.putInt(HUNGER_NBT, this.hunger);
         nbt.putFloat(SATURATION_NBT, this.saturation);
 
+        nbt.putInt(BONUS_LEVELS, this.bonusLevels);
         nbt.putLong(BOILING_TIME, this.boilingTime);
         nbt.putLong(LAST_TIME, this.lastTime);
+
+        nbt.putInt(CURSE_LEVEL, this.curseLevel);
 
         NbtList list = new NbtList();
         this.contents.forEach(
@@ -108,7 +127,7 @@ public class CrockPotBlockEntity extends BlockEntity {
     }
 
     public boolean addFood(ItemStack food) {
-        if (!food.isFood() || food.getItem() instanceof StewItem) {
+        if (!food.isFood()) {
             return false;
         }
 
@@ -120,6 +139,11 @@ public class CrockPotBlockEntity extends BlockEntity {
             }
 
             this.portions++;
+
+            if (food.getItem() instanceof StewItem) {
+                this.curseLevel += 1;
+            }
+
             this.myHungerManager.eat(foodItem, food);
             this.boilingTime = 0;
             this.hunger = this.foodComponent.getHunger();
@@ -154,55 +178,41 @@ public class CrockPotBlockEntity extends BlockEntity {
         if (this.portions > 0) {
             // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
-            float boilingIntensity = CrockPotBlock.getBoilingIntensity(world, state);
-            StewItem.setHunger(stew, this.hunger + MathUtil.goodRounding(this.hunger * boilingIntensity, 2));
-            StewItem.setSaturation(stew, MathUtil.sigFig(this.saturation + (this.saturation * boilingIntensity), 2));
+            float boilingIntensity = this.getBoilingIntensity() / 2f;
+
+            if (curseLevel == 0) {
+                StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
+                StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
+            } else {
+                StewItem.setHunger(stew, (this.hunger - (int) (this.hunger * this.curseLevel * 0.5f)));
+                StewItem.setSaturation(stew, (this.saturation - (this.saturation * this.curseLevel * 0.5f)));
+            }
+
+            StewItem.setCurseLevel(stew, this.curseLevel);
             StewItem.setContents(stew, this.contents);
 
-            /*
-            if(this.contents.size() < 4) {
-                StringJoiner joiner = new StringJoiner("-");
-                for (String content : this.contents) {
-                    TranslatableText text = new TranslatableText(content);
-                    String name = text.toString();
-                    joiner.add(name);
-                }
-                stew.setCustomName(
-                        new TranslatableText("item.crockpot.stew",
-                                CrockPotBlock.getStewDescription(world, state))
-                                .append(" ")
-                                .append(joiner.toString()));
-            }
-            else {
-                stew.setCustomName(
-                        new LiteralText(
-                                CrockPotBlock.getStewDescription(world, state) +
-                                        " " + new TranslatableText(
-                                                "item.crockpot.stew",
-                                        new TranslatableText("item.crockpot.mixed_stew"))));
-            }
-
-             */
-
-            TranslatableText statusText = new TranslatableText(CrockPotBlock.getStewTypeTranslationKey(world, state));
+            TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
             statusText.append(" ");
-            if (this.contents.size() < 4) {
-                List<Text> list = new ArrayList<>();
-                for (int i = 0; i < this.contents.size(); i++) {
-                    String content = this.contents.get(i);
-                    TranslatableText text = new TranslatableText(content);
-                    list.add(text);
-                    if (i < this.contents.size() - 2) {
-                        list.add(new LiteralText(", "));
-                    }
-                    else if (i < this.contents.size() - 1) {
-                        list.add(new LiteralText(" & "));
-                    }
-                }
-
-                list.forEach(statusText::append);
+            if (this.curseLevel > 0) {
+                statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
             } else {
-                statusText.append(new TranslatableText("item.crockpot.mixed_stew"));
+                if (this.contents.size() < 4) {
+                    List<Text> list = new ArrayList<>();
+                    for (int i = 0; i < this.contents.size(); i++) {
+                        String content = this.contents.get(i);
+                        TranslatableText text = new TranslatableText(content);
+                        list.add(text);
+                        if (i < this.contents.size() - 2) {
+                            list.add(new LiteralText(", "));
+                        } else if (i < this.contents.size() - 1) {
+                            list.add(new LiteralText(" & "));
+                        }
+                    }
+
+                    list.forEach(statusText::append);
+                } else {
+                    statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
+                }
             }
 
             TranslatableText text = new TranslatableText("item.crockpot.stew", statusText);
@@ -230,14 +240,36 @@ public class CrockPotBlockEntity extends BlockEntity {
         this.saturation = 0;
         this.portions = 0;
         this.boilingTime = 0;
+
+        this.curseLevel = 0;
+
         world.setBlockState(
                 pos,
                 state
                         .with(CrockPotBlock.HAS_LIQUID, false)
-                        .with(CrockPotBlock.HAS_FOOD, false)
-                        .with(CrockPotBlock.BONUS_LEVELS, 0));
+                        .with(CrockPotBlock.HAS_FOOD, false));
 
         this.markDirty();
+    }
+
+    public float getBoilingIntensity() {
+        return this.bonusLevels / ((float) MAX_BONUS_STAGES);
+    }
+
+    public String getStewTypeTranslationKey() {
+        int bonusLevels = this.bonusLevels;
+
+        if (bonusLevels == CrockPotBlockEntity.MAX_BONUS_STAGES) {
+            return "item.crockpot.stew.hearty";
+        }
+        if (bonusLevels > 2) {
+            return "item.crockpot.stew.filling";
+        }
+        if (bonusLevels > 0) {
+            return "item.crockpot.stew.satisfying";
+        }
+
+        return "item.crockpot.stew.plain";
     }
 
     public boolean isAboveLitHeatSource() {
@@ -251,6 +283,10 @@ public class CrockPotBlockEntity extends BlockEntity {
 
     public int getPortions() {
         return this.portions;
+    }
+
+    public int getBonusLevels() {
+        return this.bonusLevels;
     }
 
     public void decrementPortions() {
@@ -293,11 +329,10 @@ public class CrockPotBlockEntity extends BlockEntity {
             long time = world.getTime();
             blockEntity.boilingTime += time - blockEntity.lastTime;
             blockEntity.lastTime = time;
-            int bonusLevels = blockState.get(CrockPotBlock.BONUS_LEVELS);
 
             if (blockEntity.boilingTime > MAX_BOILING_TIME
-                    && bonusLevels < CrockPotBlock.MAX_BONUS_STAGES) {
-                world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.BONUS_LEVELS, bonusLevels + 1));
+                    && blockEntity.bonusLevels < MAX_BONUS_STAGES) {
+                blockEntity.bonusLevels += 1;
                 blockEntity.boilingTime = 0;
             }
         }
@@ -305,6 +340,32 @@ public class CrockPotBlockEntity extends BlockEntity {
         if (blockEntity.isAboveLitHeatSource() != blockState.get(CrockPotBlock.HAS_FIRE)) {
             world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FIRE, blockEntity.isAboveLitHeatSource()));
         }
+
+        PacketByteBuf buf = PacketByteBufs.create();
+        buf.writeBlockPos(blockEntity.pos);
+        NbtCompound nbt = new NbtCompound();
+        blockEntity.writeNbt(nbt);
+        buf.writeNbt(nbt);
+
+        for(ServerPlayerEntity serverPlayer : PlayerLookup.tracking(blockEntity)) {
+            ServerPlayNetworking.send(serverPlayer, PACKET_ID, buf);
+        }
+    }
+
+    public static int getBonusLevels(World world, BlockPos pos) {
+        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity){
+            return potBlockEntity.bonusLevels;
+        }
+
+        return 0;
+    }
+
+    public static float getBoilingIntensity(World world, BlockPos pos) {
+        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity){
+            return potBlockEntity.getBoilingIntensity();
+        }
+
+        return 0;
     }
 
     private static class CrockPotHungerManager extends HungerManager {

@@ -1,14 +1,16 @@
 {
   "item.crockpot.stew": "%s Stew",
-  "item.crockpot.mixed_stew": "Mixed",
-  "item.crockpot.satisfying_stew": "Satisfying",
-  "item.crockpot.filling_stew": "Filling",
-  "item.crockpot.hearty_stew": "Hearty",
-  "item.crockpot.plain_stew": "Plain",
-  "item.crockpot.mistake_stew": "Horrible Mistake",
-  "block.crockpot.crock_pot": "Crock Pot",
+  "item.crockpot.stew.mixed": "Mixed",
+  "item.crockpot.stew.mistake": "Horrible Mistake",
+  "item.crockpot.stew.cursed": "Cursed",
+  "item.crockpot.stew.plain": "Plain",
+  "item.crockpot.stew.satisfying": "Satisfying",
+  "item.crockpot.stew.filling": "Filling",
+  "item.crockpot.stew.hearty": "Hearty",
   "item.crockpot.stew.hunger": "Hunger: %s",
   "item.crockpot.stew.saturation":  "Saturation: %s",
+
+  "block.crockpot.crock_pot": "Crock Pot",
 
   "crockpot.subtitles.crock_pot_boil": "Crock pot boils",
   "crockpot.subtitles.crock_pot_bubble": "Crock pot bubbles",
