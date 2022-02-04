@@ -1,6 +1,7 @@
 package com.gitlab.nosrick.crockpot.item;
 
 import com.gitlab.nosrick.crockpot.CrockPotMod;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -124,8 +125,6 @@ public class StewItem extends Item {
                                 .withColor(Formatting.GOLD)));
             }
         }
-
-
     }
 
     public static int getHunger(ItemStack stack) {
