@@ -31,6 +31,11 @@ repositories {
         name = 'shedaniel maven'
         url "https://maven.shedaniel.me/"
     }
+
+    maven {
+        name = 'wthit maven'
+        url "https://maven.bai.lol"
+    }
 }
 
 dependencies {
@@ -40,13 +45,17 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    modCompileOnly("squeek.appleskin:appleskin-fabric:mc1.18-2.2.0:api") {
+    modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
     }
-
-    modRuntime("squeek.appleskin:appleskin-fabric:mc1.18-2.2.0") {
+    modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}") {
         exclude module: 'modmenu'
     }
+
+    modCompileOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
+        transitive = false
+    }
+    modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}")
 
     modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 }
