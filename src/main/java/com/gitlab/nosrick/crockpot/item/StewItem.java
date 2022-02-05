@@ -1,7 +1,9 @@
 package com.gitlab.nosrick.crockpot.item;
 
 import com.gitlab.nosrick.crockpot.CrockPotMod;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffect;
@@ -28,8 +30,8 @@ import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class StewItem extends Item {
 
@@ -136,9 +138,12 @@ public class StewItem extends Item {
         return stack.getOrCreateNbt().getFloat(SATURATION_NBT);
     }
 
-    public static List<String> getContents(ItemStack stack) {
+    public static List<Item> getContents(ItemStack stack) {
         NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
-        return list.stream().map(NbtElement::asString).collect(Collectors.toList());
+        List<Item> returnItems = new ArrayList<>();
+        list.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registry.ITEM.get(new Identifier(string))));
+
+        return returnItems;
     }
 
     public static StatusEffectInstance getStatusEffect(ItemStack stack) {
@@ -165,7 +170,14 @@ public class StewItem extends Item {
 
     public static void setContents(ItemStack stack, DefaultedList<ItemStack> contents) {
         NbtList list = new NbtList();
-        list.addAll(contents.stream().map(ItemStack::getTranslationKey).map(NbtString::of).toList());
+        List<String> strings = contents
+                .stream()
+                .map(content -> Registry.ITEM
+                        .getId(content.getItem())
+                        .toString())
+                .toList();
+
+        list.addAll(strings.stream().map(NbtString::of).toList());
         stack.getOrCreateNbt().put(CONTENTS_NBT, list);
     }
 
