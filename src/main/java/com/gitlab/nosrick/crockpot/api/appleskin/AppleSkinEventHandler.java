@@ -39,9 +39,10 @@ public class AppleSkinEventHandler implements AppleSkinApi {
                     if(tooltipOverlayEvent.itemStack.getItem() instanceof StewItem) {
                         List<Item> contents = StewItem.getContents(tooltipOverlayEvent.itemStack);
                         for(int i = 0; i < contents.size(); i++) {
-                            String content = "textures/item/" + Registry.ITEM.getId(contents.get(i)).getPath();
+                            Identifier id = Registry.ITEM.getId(contents.get(i));
+                            String content = "textures/item/" + id.getPath();
                             content = content.replace('.', '/').concat(".png");
-                            RenderSystem.setShaderTexture(0, new Identifier(content));
+                            RenderSystem.setShaderTexture(0, new Identifier(id.getNamespace(), content));
                             int hunger = tooltipOverlayEvent.modifiedFood.hunger;
                             int saturation = (int) (hunger * tooltipOverlayEvent.modifiedFood.saturationModifier);
                             int larger = Math.max(hunger, saturation) / 2;
