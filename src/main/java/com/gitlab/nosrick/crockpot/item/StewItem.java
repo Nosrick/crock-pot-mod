@@ -22,14 +22,13 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 public class StewItem extends Item {
@@ -159,6 +158,12 @@ public class StewItem extends Item {
     public static void setContents(ItemStack stack, List<String> contents) {
         NbtList list = new NbtList();
         list.addAll(contents.stream().map(NbtString::of).toList());
+        stack.getOrCreateNbt().put(CONTENTS_NBT, list);
+    }
+
+    public static void setContents(ItemStack stack, DefaultedList<ItemStack> contents) {
+        NbtList list = new NbtList();
+        list.addAll(contents.stream().map(ItemStack::getTranslationKey).map(NbtString::of).toList());
         stack.getOrCreateNbt().put(CONTENTS_NBT, list);
     }
 
