@@ -17,5 +17,8 @@
 
   "crockpot.subtitles.crock_pot_boil": "Crock pot boils",
   "crockpot.subtitles.crock_pot_bubble": "Crock pot bubbles",
-  "crockpot.subtitles.crock_pot_splash": "Crock pot splashes"
+  "crockpot.subtitles.crock_pot_splash": "Crock pot splashes",
+
+  "tooltip.crockpot.portions": "Portions: %s",
+  "tooltip.crockpot.bonus_levels": "Bonus Levels: %s"
 }

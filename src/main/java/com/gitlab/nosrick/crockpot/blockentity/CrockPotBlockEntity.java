@@ -42,15 +42,14 @@ import java.util.stream.IntStream;
 
 public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventory, SidedInventory {
 
-    protected static final String PORTIONS_NBT = "Portions";
-    protected static final String HUNGER_NBT = "Hunger";
-    protected static final String SATURATION_NBT = "Saturation";
-    protected static final String CONTENTS_NBT = "Contents";
-    protected static final String NAME_NBT = "Name";
-    protected static final String CURSE_LEVEL = "Curse Level";
-    protected static final String BONUS_LEVELS = "Bonus Levels";
-    protected static final String BOILING_TIME = "Boiling Time";
-    protected static final String LAST_TIME = "Last Time";
+    public static final String PORTIONS_NBT = "Portions";
+    public static final String HUNGER_NBT = "Hunger";
+    public static final String SATURATION_NBT = "Saturation";
+    public static final String NAME_NBT = "Name";
+    public static final String CURSE_LEVEL = "Curse Level";
+    public static final String BONUS_LEVELS = "Bonus Levels";
+    public static final String BOILING_TIME = "Boiling Time";
+    public static final String LAST_TIME = "Last Time";
 
     public static final int MAX_BONUS_STAGES = 5;
     public static final int MAX_PORTIONS = 64;
@@ -279,7 +278,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         return null;
     }
 
-    protected DefaultedList<ItemStack> getContents() {
+    public DefaultedList<ItemStack> getContents() {
         DefaultedList<ItemStack> contents = DefaultedList.of();
         contents.addAll(this.items.stream().limit(OUTPUT_SLOT).takeWhile(itemStack -> !itemStack.isEmpty()).toList());
         return contents;
