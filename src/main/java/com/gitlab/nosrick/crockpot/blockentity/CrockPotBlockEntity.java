@@ -2,6 +2,7 @@ package com.gitlab.nosrick.crockpot.blockentity;
 
 import com.gitlab.nosrick.crockpot.CrockPotMod;
 import com.gitlab.nosrick.crockpot.block.CrockPotBlock;
+import com.gitlab.nosrick.crockpot.inventory.ImplementedInventory;
 import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -14,14 +15,12 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
+import net.minecraft.inventory.Inventories;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtString;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
@@ -29,6 +28,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -37,7 +37,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class CrockPotBlockEntity extends BlockEntity {
+public class CrockPotBlockEntity extends BlockEntity implements ImplementedInventory {
 
     protected static final String PORTIONS_NBT = "Portions";
     protected static final String HUNGER_NBT = "Hunger";
@@ -58,7 +58,6 @@ public class CrockPotBlockEntity extends BlockEntity {
     protected int portions = 0;
     protected int hunger = 0;
     protected float saturation = 0.0F;
-    protected List<String> contents = new ArrayList<>();
     protected int curseLevel = 0;
     protected int bonusLevels = 0;
 
@@ -69,30 +68,28 @@ public class CrockPotBlockEntity extends BlockEntity {
 
     protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
 
+    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(MAX_PORTIONS, ItemStack.EMPTY);
+
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
     }
 
     @Override
-    public void readNbt(NbtCompound tag) {
-        super.readNbt(tag);
+    public void readNbt(NbtCompound nbt) {
+        super.readNbt(nbt);
 
-        this.name = tag.getString(NAME_NBT);
-        this.portions = tag.getInt(PORTIONS_NBT);
-        this.hunger = tag.getInt(HUNGER_NBT);
-        this.saturation = tag.getFloat(SATURATION_NBT);
+        this.name = nbt.getString(NAME_NBT);
+        this.portions = nbt.getInt(PORTIONS_NBT);
+        this.hunger = nbt.getInt(HUNGER_NBT);
+        this.saturation = nbt.getFloat(SATURATION_NBT);
 
-        this.bonusLevels = tag.getInt(BONUS_LEVELS);
-        this.boilingTime = tag.getLong(BOILING_TIME);
-        this.lastTime = tag.getLong(LAST_TIME);
+        this.bonusLevels = nbt.getInt(BONUS_LEVELS);
+        this.boilingTime = nbt.getLong(BOILING_TIME);
+        this.lastTime = nbt.getLong(LAST_TIME);
 
-        this.curseLevel = tag.getInt(CURSE_LEVEL);
+        this.curseLevel = nbt.getInt(CURSE_LEVEL);
 
-        this.contents = new ArrayList<>();
-        NbtList list = tag.getList(CONTENTS_NBT, 8);
-        list.stream()
-                .map(NbtElement::asString)
-                .forEach(item -> this.contents.add(item));
+        Inventories.readNbt(nbt, this.items);
     }
 
     @Override
@@ -110,16 +107,12 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         nbt.putInt(CURSE_LEVEL, this.curseLevel);
 
-        NbtList list = new NbtList();
-        this.contents.forEach(
-                item -> list.add(NbtString.of(item)));
-        nbt.put(CONTENTS_NBT, list);
+        Inventories.writeNbt(nbt, this.items);
     }
 
-    // this method gets called when you call fakeHunger.eat
     public void add(int food, float saturationModifier) {
         int hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + food) / this.portions) / 100);
-        float saturation = ((100 * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100);
+        float saturation = ((100f * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100f);
 
         this.foodComponent = new FoodComponent.Builder()
                 .hunger(hunger)
@@ -128,7 +121,7 @@ public class CrockPotBlockEntity extends BlockEntity {
     }
 
     public boolean addFood(ItemStack food) {
-        if (!food.isFood()) {
+        if (!food.isFood() || !this.hasEmptySlot()) {
             return false;
         }
 
@@ -136,7 +129,7 @@ public class CrockPotBlockEntity extends BlockEntity {
 
         if (this.portions < MAX_PORTIONS) {
             if (this.portions == 0) {
-                this.contents = new ArrayList<>();
+                this.items.clear();
             }
 
             this.portions++;
@@ -147,13 +140,12 @@ public class CrockPotBlockEntity extends BlockEntity {
 
             this.myHungerManager.eat(foodItem, food);
             this.boilingTime = 0;
+            this.bonusLevels = 0;
             this.hunger = this.foodComponent.getHunger();
             this.saturation = this.foodComponent.getSaturationModifier();
 
-            String id = foodItem.getTranslationKey();
-
-            if (!contents.contains(id)) {
-                contents.add(id);
+            if (!this.hasStackOfType(foodItem)) {
+                this.setStack(this.getFirstEmptySlot(), new ItemStack(foodItem));
             }
 
             this.markDirty();
@@ -179,21 +171,33 @@ public class CrockPotBlockEntity extends BlockEntity {
         }
 
         if (this.portions > 0) {
-            // create a stew from the pot's contents
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = this.getBoilingIntensity() / 2f;
 
             if (curseLevel == 0) {
                 StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
-                StewItem.setSaturation(stew, this.saturation + (this.saturation * boilingIntensity));
+                StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
+                if(this.bonusLevels == MAX_BONUS_STAGES) {
+                    StewItem.setStatusEffect(
+                            stew,
+                            new StatusEffectInstance(
+                                    StatusEffects.SATURATION,
+                                    60 * 20 * this.bonusLevels,
+                                    this.bonusLevels));
+                }
             } else {
                 StewItem.setHunger(stew, 0);
                 StewItem.setSaturation(stew, 0);
-                StewItem.setStatusEffect(stew, new StatusEffectInstance(StatusEffects.NAUSEA, 30, 1));
+                StewItem.setStatusEffect(
+                        stew,
+                        new StatusEffectInstance(
+                                StatusEffects.NAUSEA,
+                                5 * 20 * this.curseLevel,
+                                this.curseLevel));
             }
 
             StewItem.setCurseLevel(stew, this.curseLevel);
-            StewItem.setContents(stew, this.contents);
+            StewItem.setContents(stew, this.items);
 
             TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
             statusText.append(" ");
@@ -202,20 +206,33 @@ public class CrockPotBlockEntity extends BlockEntity {
             } else if (this.curseLevel > 0) {
                 statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
             } else {
-                if (this.contents.size() < 4) {
-                    List<Text> list = new ArrayList<>();
-                    for (int i = 0; i < this.contents.size(); i++) {
-                        String content = this.contents.get(i);
-                        TranslatableText text = new TranslatableText(content);
-                        list.add(text);
-                        if (i < this.contents.size() - 2) {
-                            list.add(new LiteralText(", "));
-                        } else if (i < this.contents.size() - 1) {
-                            list.add(new LiteralText(" & "));
-                        }
+                if (this.filledSlotCount() < 4) {
+                    String total = "";
+                    List<ItemStack> filledSlots = List.copyOf(this.filledSlots());
+                    for (ItemStack itemStack : filledSlots) {
+                        String content = itemStack.getName().getString();
+                        total = total.concat(content + " ");
                     }
 
-                    list.forEach(statusText::append);
+                    total = total.trim();
+
+                    if (total.length() > 64) {
+                        statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
+                    } else {
+                        List<Text> list = new ArrayList<>();
+                        for (int i = 0; i < filledSlots.size(); i++) {
+                            ItemStack content = filledSlots.get(i);
+                            TranslatableText text = new TranslatableText(content.getTranslationKey());
+                            list.add(text);
+                            if (i < filledSlots.size() - 2) {
+                                list.add(new LiteralText(", "));
+                            } else if (i < filledSlots.size() - 1) {
+                                list.add(new LiteralText(" & "));
+                            }
+                        }
+
+                        list.forEach(statusText::append);
+                    }
                 } else {
                     statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
                 }
@@ -229,7 +246,6 @@ public class CrockPotBlockEntity extends BlockEntity {
 
             this.decrementPortions();
 
-            // if no more portions in the pot, flush out the pot data
             if (this.portions <= 0) {
                 this.flush(world, pos, state);
             }
@@ -243,8 +259,8 @@ public class CrockPotBlockEntity extends BlockEntity {
         return null;
     }
 
-    private void flush(World world, BlockPos pos, BlockState state) {
-        this.contents = new ArrayList<>();
+    public void flush(World world, BlockPos pos, BlockState state) {
+        this.items.clear();
         this.hunger = 0;
         this.saturation = 0;
         this.portions = 0;
@@ -381,6 +397,11 @@ public class CrockPotBlockEntity extends BlockEntity {
         }
 
         return 0;
+    }
+
+    @Override
+    public DefaultedList<ItemStack> getItems() {
+        return this.items;
     }
 
     private static class CrockPotHungerManager extends HungerManager {
