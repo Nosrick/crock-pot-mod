@@ -107,6 +107,7 @@ public class StewItem extends Item {
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_RED)
                             .withItalic(true)));
+            tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
         }
 
         if (context.isAdvanced()) {

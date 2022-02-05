@@ -8,9 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.collection.DefaultedList;
 
 import java.util.Collection;
-import java.util.List;
 
-public interface ImplementedInventory extends Inventory {
+public interface CrockPotInventory extends Inventory {
 
     /**
      * Retrieves the item list of this inventory.
@@ -21,14 +20,14 @@ public interface ImplementedInventory extends Inventory {
     /**
      * Creates an inventory from the item list.
      */
-    static ImplementedInventory of(DefaultedList<ItemStack> items) {
+    static CrockPotInventory of(DefaultedList<ItemStack> items) {
         return () -> items;
     }
 
     /**
      * Creates a new inventory with the specified size.
      */
-    static ImplementedInventory ofSize(int size) {
+    static CrockPotInventory ofSize(int size) {
         return of(DefaultedList.ofSize(size, ItemStack.EMPTY));
     }
 
@@ -37,7 +36,7 @@ public interface ImplementedInventory extends Inventory {
      */
     @Override
     default int size() {
-        return getItems().size();
+        return getItems().size() - 1;
     }
 
     /**
@@ -103,10 +102,6 @@ public interface ImplementedInventory extends Inventory {
         }
 
         return count;
-    }
-
-    default Collection<ItemStack> filledSlots() {
-        return this.getItems().stream().takeWhile(itemStack -> !itemStack.isEmpty()).toList();
     }
 
     /**

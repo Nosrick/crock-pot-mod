@@ -2,7 +2,7 @@ package com.gitlab.nosrick.crockpot.blockentity;
 
 import com.gitlab.nosrick.crockpot.CrockPotMod;
 import com.gitlab.nosrick.crockpot.block.CrockPotBlock;
-import com.gitlab.nosrick.crockpot.inventory.ImplementedInventory;
+import com.gitlab.nosrick.crockpot.inventory.CrockPotInventory;
 import com.gitlab.nosrick.crockpot.item.StewItem;
 import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -16,6 +16,7 @@ import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -30,14 +31,16 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.IntStream;
 
-public class CrockPotBlockEntity extends BlockEntity implements ImplementedInventory {
+public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventory, SidedInventory {
 
     protected static final String PORTIONS_NBT = "Portions";
     protected static final String HUNGER_NBT = "Hunger";
@@ -68,7 +71,9 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
 
     protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
 
-    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(MAX_PORTIONS, ItemStack.EMPTY);
+    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
+    protected static final int INVENTORY_SIZE = 9;
+    protected static final int OUTPUT_SLOT = 8;
 
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
         super(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
@@ -148,6 +153,10 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
                 this.setStack(this.getFirstEmptySlot(), new ItemStack(foodItem));
             }
 
+            ItemStack stew = this.makeStew();
+            stew.increment(this.portions - 1);
+            this.setStack(OUTPUT_SLOT, stew);
+
             this.markDirty();
             food.decrement(1);
 
@@ -170,6 +179,26 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
             return null;
         }
 
+        ItemStack stew = this.makeStew();
+        if (stew != null) {
+            this.decrementPortions();
+            container.decrement(1);
+
+            if (this.portions <= 0) {
+                this.flush(world, pos, state);
+            }
+
+            sendPacketToClient(world, this);
+            this.markDirty();
+
+            return stew;
+        }
+
+        return null;
+    }
+
+    protected ItemStack makeStew() {
+
         if (this.portions > 0) {
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = this.getBoilingIntensity() / 2f;
@@ -177,7 +206,7 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
             if (curseLevel == 0) {
                 StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
                 StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
-                if(this.bonusLevels == MAX_BONUS_STAGES) {
+                if (this.bonusLevels == MAX_BONUS_STAGES) {
                     StewItem.setStatusEffect(
                             stew,
                             new StatusEffectInstance(
@@ -196,8 +225,9 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
                                 this.curseLevel));
             }
 
+            DefaultedList<ItemStack> contents = this.getContents();
             StewItem.setCurseLevel(stew, this.curseLevel);
-            StewItem.setContents(stew, this.items);
+            StewItem.setContents(stew, contents);
 
             TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
             statusText.append(" ");
@@ -206,10 +236,10 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
             } else if (this.curseLevel > 0) {
                 statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
             } else {
+
                 if (this.filledSlotCount() < 4) {
                     String total = "";
-                    List<ItemStack> filledSlots = List.copyOf(this.filledSlots());
-                    for (ItemStack itemStack : filledSlots) {
+                    for (ItemStack itemStack : contents) {
                         String content = itemStack.getName().getString();
                         total = total.concat(content + " ");
                     }
@@ -220,13 +250,13 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
                         statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
                     } else {
                         List<Text> list = new ArrayList<>();
-                        for (int i = 0; i < filledSlots.size(); i++) {
-                            ItemStack content = filledSlots.get(i);
+                        for (int i = 0; i < contents.size(); i++) {
+                            ItemStack content = contents.get(i);
                             TranslatableText text = new TranslatableText(content.getTranslationKey());
                             list.add(text);
-                            if (i < filledSlots.size() - 2) {
+                            if (i < contents.size() - 2) {
                                 list.add(new LiteralText(", "));
-                            } else if (i < filledSlots.size() - 1) {
+                            } else if (i < contents.size() - 1) {
                                 list.add(new LiteralText(" & "));
                             }
                         }
@@ -242,21 +272,17 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
                 statusText = new TranslatableText("item.crockpot.stew", statusText);
             }
             stew.setCustomName(statusText);
-            container.decrement(1);
-
-            this.decrementPortions();
-
-            if (this.portions <= 0) {
-                this.flush(world, pos, state);
-            }
-
-            this.markDirty();
-            sendPacketToClient(world, this);
 
             return stew;
         }
 
         return null;
+    }
+
+    protected DefaultedList<ItemStack> getContents() {
+        DefaultedList<ItemStack> contents = DefaultedList.of();
+        contents.addAll(this.items.stream().limit(OUTPUT_SLOT).takeWhile(itemStack -> !itemStack.isEmpty()).toList());
+        return contents;
     }
 
     public void flush(World world, BlockPos pos, BlockState state) {
@@ -402,6 +428,25 @@ public class CrockPotBlockEntity extends BlockEntity implements ImplementedInven
     @Override
     public DefaultedList<ItemStack> getItems() {
         return this.items;
+    }
+
+    @Override
+    public int[] getAvailableSlots(Direction side) {
+        if (side == Direction.UP) {
+            return IntStream.range(0, OUTPUT_SLOT).toArray();
+        }
+
+        return new int[]{OUTPUT_SLOT};
+    }
+
+    @Override
+    public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
+        return dir == Direction.UP && this.portions < MAX_PORTIONS;
+    }
+
+    @Override
+    public boolean canExtract(int slot, ItemStack stack, Direction dir) {
+        return dir != Direction.UP && this.portions > 0;
     }
 
     private static class CrockPotHungerManager extends HungerManager {

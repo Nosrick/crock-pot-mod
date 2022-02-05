@@ -11,6 +11,8 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.fluid.Fluids;
+import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -24,12 +26,15 @@ import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldAccess;
+import net.minecraft.world.tick.OrderedTick;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Random;
 
-public class CrockPotBlock extends BlockWithEntity {
+public class CrockPotBlock extends BlockWithEntity implements InventoryProvider {
 
     public static final DirectionProperty FACING = DirectionProperty.of("facing");
     public static final BooleanProperty HAS_FIRE = BooleanProperty.of("has_fire");
@@ -115,11 +120,14 @@ public class CrockPotBlock extends BlockWithEntity {
             return ActionResult.CONSUME;
         }
         ItemStack held = player.getMainHandStack();
-        BlockEntity blockEntity = world.getBlockEntity(pos);
+        CrockPotBlockEntity potBlockEntity = (CrockPotBlockEntity) world.getBlockEntity(pos);
 
-        if(held.isEmpty()
-                && player.isSneaking()
-        && blockEntity instanceof CrockPotBlockEntity potBlockEntity) {
+        if (potBlockEntity == null) {
+            return ActionResult.PASS;
+        }
+
+        if (held.isEmpty()
+                && player.isSneaking()) {
             potBlockEntity.flush(world, pos, state);
             return ActionResult.SUCCESS;
         }
@@ -133,33 +141,31 @@ public class CrockPotBlock extends BlockWithEntity {
 
             return ActionResult.SUCCESS;
         } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
-            if (blockEntity instanceof CrockPotBlockEntity pot) {
-                if (held.getItem() == Items.BOWL) {
-                    ItemStack out = pot.take(world, pos, state, held);
-                    if (out != null) {
-                        player.giveItemStack(out);
+            if (held.getItem() == Items.BOWL) {
+                ItemStack out = potBlockEntity.take(world, pos, state, held);
+                if (out != null) {
+                    player.giveItemStack(out);
 
-                        if (pot.getPortions() > 0) {
-                            world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
-                        } else {
-                            world.setBlockState(
-                                    pos,
-                                    state
-                                            .with(HAS_FOOD, false)
-                                            .with(HAS_LIQUID, false));
-                            world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
-                        }
-                    }
-                } else if (held.isFood()) {
-                    boolean result = pot.addFood(held);
-                    if (result) {
-                        world.setBlockState(pos, state.with(HAS_FOOD, true));
+                    if (potBlockEntity.getPortions() > 0) {
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                    } else {
+                        world.setBlockState(
+                                pos,
+                                state
+                                        .with(HAS_FOOD, false)
+                                        .with(HAS_LIQUID, false));
+                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                    }
+                }
+            } else if (held.isFood()) {
+                boolean result = potBlockEntity.addFood(held);
+                if (result) {
+                    world.setBlockState(pos, state.with(HAS_FOOD, true));
+                    world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
 
-                        // if the food has a bowl, give it back to the player
-                        if (held.getItem().hasRecipeRemainder()) {
-                            player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
-                        }
+                    // if the food has a bowl, give it back to the player
+                    if (held.getItem().hasRecipeRemainder()) {
+                        player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
                     }
                 }
 
@@ -171,6 +177,22 @@ public class CrockPotBlock extends BlockWithEntity {
 
     }
 
+    @Override
+    public BlockState getStateForNeighborUpdate(
+            BlockState state,
+            Direction direction,
+            BlockState newState,
+            WorldAccess world,
+            BlockPos pos,
+            BlockPos posFrom) {
+
+        if (direction == Direction.DOWN) {
+            return state.with(HAS_FIRE, this.hasTrayHeatSource(newState));
+        }
+
+        return state;
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
@@ -179,5 +201,14 @@ public class CrockPotBlock extends BlockWithEntity {
 
     protected boolean hasTrayHeatSource(BlockState state) {
         return Tags.HEAT_SOURCES.contains(state.getBlock());
+    }
+
+    @Override
+    public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
+        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
+            return potBlockEntity;
+        }
+
+        return null;
     }
 }
