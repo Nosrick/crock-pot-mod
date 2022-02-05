@@ -115,6 +115,14 @@ public class CrockPotBlock extends BlockWithEntity {
             return ActionResult.CONSUME;
         }
         ItemStack held = player.getMainHandStack();
+        BlockEntity blockEntity = world.getBlockEntity(pos);
+
+        if(held.isEmpty()
+                && player.isSneaking()
+        && blockEntity instanceof CrockPotBlockEntity potBlockEntity) {
+            potBlockEntity.flush(world, pos, state);
+            return ActionResult.SUCCESS;
+        }
 
         if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
             world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
@@ -125,7 +133,6 @@ public class CrockPotBlock extends BlockWithEntity {
 
             return ActionResult.SUCCESS;
         } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
-            BlockEntity blockEntity = world.getBlockEntity(pos);
             if (blockEntity instanceof CrockPotBlockEntity pot) {
                 if (held.getItem() == Items.BOWL) {
                     ItemStack out = pot.take(world, pos, state, held);
