@@ -24,7 +24,7 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
 
     @Override
     public void appendServerData(NbtCompound data, ServerPlayerEntity player, World world, BlockEntity blockEntity) {
-        if(blockEntity instanceof CrockPotBlockEntity crockPotBlock) {
+        if (blockEntity instanceof CrockPotBlockEntity crockPotBlock) {
             data.putInt(CrockPotBlockEntity.PORTIONS_NBT, crockPotBlock.getPortions());
             data.putInt(CrockPotBlockEntity.BONUS_LEVELS, crockPotBlock.getBonusLevels());
             Inventories.writeNbt(data, crockPotBlock.getContents());
@@ -33,7 +33,7 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
 
     @Override
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
-        if(accessor.getBlockEntity() instanceof CrockPotBlockEntity crockPotBlockEntity) {
+        if (accessor.getBlockEntity() instanceof CrockPotBlockEntity crockPotBlockEntity) {
             NbtCompound nbt = accessor.getServerData();
             int portions = nbt.getInt(CrockPotBlockEntity.PORTIONS_NBT);
             int bonusLevels = nbt.getInt(CrockPotBlockEntity.BONUS_LEVELS);
@@ -43,7 +43,9 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             List<Item> contents = items.stream().takeWhile(itemStack -> !itemStack.isEmpty()).map(ItemStack::getItem).toList();
             tooltip.addLine(new TranslatableText("tooltip.crockpot.portions", portions));
             tooltip.addLine(new TranslatableText("tooltip.crockpot.bonus_levels", bonusLevels));
-            tooltip.addLine(new ItemRenderTooltipComponent(contents));
+            if (!contents.isEmpty()) {
+                tooltip.addLine(new ItemRenderTooltipComponent(contents));
+            }
         }
     }
 }
