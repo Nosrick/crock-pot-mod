@@ -69,7 +69,10 @@ public class StewItem extends Item {
 
         if (user instanceof PlayerEntity player) {
             player.getHungerManager().eat(this, stack);
-            player.addStatusEffect(getStatusEffect(stack));
+            StatusEffectInstance statusEffectInstance = getStatusEffect(stack);
+            if(statusEffectInstance != null) {
+                player.addStatusEffect(statusEffectInstance);
+            }
             player.incrementStat(Stats.USED.getOrCreateStat(this));
 
             if (!player.getAbilities().creativeMode) {
