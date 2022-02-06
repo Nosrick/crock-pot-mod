@@ -11,15 +11,12 @@
 <p style="text-align: center;">&nbsp;</p>
 <p style="text-align: center;"><span style="color: #000000; font-size: 14px;">Just, uh... don't reboil your old stew.</span></p>
 <p style="text-align: center;">&nbsp;</p>
-<p style="text-align: center;"><span style="color: #000000; font-size: 14px;">Screenshots:</span></p>
-<div class="spoiler">
 <p><img src="https://i.imgur.com/rfe3Czy.gif" alt="" width="854" height="480" /></p>
 <p>&nbsp;</p>
 <p><img src="https://i.imgur.com/UkyRlsS.gif" alt="Boil, boil, toil and trouble." width="400" height="400" /></p>
 </div>
 <p>&nbsp;</p>
 <p style="text-align: center;">A special thanks to <a href="https://www.curseforge.com/members/emilyploszaj/projects" target="_blank" rel="noopener noreferrer">EmilyPloszaj</a>, without whom this would not have been possible.</p>
-<p>&nbsp;</p>
 <p>&nbsp;</p>
 <p style="text-align: center;"><span style="color: #000000; font-size: 14px;">Includes Cloth Config, AppleSkin and WTHIT tooltip compatibility.</span></p>
 <p style="text-align: center;">&nbsp;</p>
