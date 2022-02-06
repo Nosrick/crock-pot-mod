@@ -19,13 +19,13 @@
   "environment": "*",
   "entrypoints": {
     "main": [
-      "com.gitlab.nosrick.crockpot.CrockPotMod"
+      "com.github.nosrick.crockpot.CrockPotMod"
     ],
     "client": [
-      "com.gitlab.nosrick.crockpot.CrockPotModClient"
+      "com.github.nosrick.crockpot.CrockPotModClient"
     ],
     "appleskin": [
-      "com.gitlab.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
+      "com.github.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
     ]
   },
   "mixins": [
@@ -42,7 +42,7 @@
   "custom": {
     "waila:plugins": {
       "id": "crockpot:wthit",
-      "initializer": "com.gitlab.nosrick.crockpot.api.wthit.WthitPlugin"
+      "initializer": "com.github.nosrick.crockpot.api.wthit.WthitPlugin"
     }
   }
 }
