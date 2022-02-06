@@ -12,6 +12,7 @@ import net.minecraft.util.registry.Registry;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+@SuppressWarnings("unchecked")
 public enum BlockEntityTypesRegistry {
 
     CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT);
@@ -45,7 +46,6 @@ public enum BlockEntityTypesRegistry {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityType<T> get() {
         return (BlockEntityType<T>) get(blockEntityClass);
     }
