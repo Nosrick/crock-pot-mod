@@ -36,6 +36,11 @@ repositories {
         name = 'wthit maven'
         url "https://maven.bai.lol"
     }
+
+    maven {
+        name = 'terraformers maven'
+        url "https://maven.terraformersmc.com/releases"
+    }
 }
 
 dependencies {
@@ -45,6 +50,8 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+    //These are all the optional dependencies
+    //Appleskin
     modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
     }
@@ -52,11 +59,21 @@ dependencies {
         exclude module: 'modmenu'
     }
 
+    //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
         transitive = false
     }
     modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}")
 
+    //Cloth Config
+    modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
+        exclude(group: "net.fabricmc.fabric-api")
+    }
+
+    //ModMenu
+    modImplementation("com.terraformersmc:modmenu:${project.modmenu_version}")
+
+    //Not really required but useful for testing
     modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
 }
 

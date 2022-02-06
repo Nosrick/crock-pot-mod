@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot.blockentity;
 
+import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.inventory.CrockPotInventory;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
@@ -50,10 +51,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public static final String BONUS_LEVELS = "Bonus Levels";
     public static final String BOILING_TIME = "Boiling Time";
     public static final String LAST_TIME = "Last Time";
-
-    public static final int MAX_BONUS_STAGES = 5;
-    public static final int MAX_PORTIONS = 64;
-    public static final int MAX_BOILING_TIME = 20 * 60 * 2;
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
@@ -131,7 +128,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         Item foodItem = food.getItem();
 
-        if (this.portions < MAX_PORTIONS) {
+        if (this.portions < ConfigManager.maxPortionsPerPot()) {
             if (this.portions == 0) {
                 this.items.clear();
             }
@@ -202,10 +199,11 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = this.getBoilingIntensity() / 2f;
 
-            if (curseLevel == 0) {
+            if (!ConfigManager.useCursedStew() || this.curseLevel < ConfigManager.stewMinNegativeLevelsEffect()) {
                 StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
                 StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
-                if (this.bonusLevels == MAX_BONUS_STAGES) {
+                if (ConfigManager.useItemPositiveEffects()
+                        && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()) {
                     StewItem.setStatusEffect(
                             stew,
                             new StatusEffectInstance(
@@ -216,26 +214,32 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             } else {
                 StewItem.setHunger(stew, 0);
                 StewItem.setSaturation(stew, 0);
-                StewItem.setStatusEffect(
-                        stew,
-                        new StatusEffectInstance(
-                                StatusEffects.NAUSEA,
-                                5 * 20 * this.curseLevel,
-                                this.curseLevel));
+                if (ConfigManager.useItemNegativeEffects()) {
+                    int duration = ConfigManager.baseNauseaDuration() * 20 * this.curseLevel;
+                    StewItem.setStatusEffect(
+                            stew,
+                            new StatusEffectInstance(
+                                    StatusEffects.NAUSEA,
+                                    ConfigManager.cappedNauseaDuration()
+                                            ? Math.min(ConfigManager.maxNauseaDuration(), duration)
+                                            : duration,
+                                    Math.min(this.curseLevel, 5)));
+                }
             }
 
             DefaultedList<ItemStack> contents = this.getContents();
-            StewItem.setCurseLevel(stew, this.curseLevel);
+            StewItem.setCurseLevel(stew, ConfigManager.useCursedStew() ? this.curseLevel : 0);
             StewItem.setContents(stew, contents);
 
             TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
             statusText.append(" ");
-            if (this.curseLevel > 5) {
+            if (ConfigManager.useCursedStew()
+                    && this.curseLevel >= ConfigManager.minCowlLevel()) {
                 statusText.append(new TranslatableText("item.crockpot.stew.cowl"));
-            } else if (this.curseLevel > 0) {
+            } else if (ConfigManager.useCursedStew()
+                    && this.curseLevel >= ConfigManager.stewMinNegativeLevelsEffect()) {
                 statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
             } else {
-
                 if (this.filledSlotCount() < 4) {
                     String total = "";
                     for (ItemStack itemStack : contents) {
@@ -245,13 +249,18 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
                     total = total.trim();
 
-                    if (total.length() > 64) {
+                    if (total.length() > ConfigManager.maxStewNameLength()) {
                         statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
                     } else {
                         List<Text> list = new ArrayList<>();
                         for (int i = 0; i < contents.size(); i++) {
                             ItemStack content = contents.get(i);
-                            TranslatableText text = new TranslatableText(content.getTranslationKey());
+
+                            TranslatableText text = new TranslatableText(
+                                    content.getItem() instanceof StewItem
+                                            ? "item.crockpot.stew_name"
+                                            : content.getTranslationKey());
+
                             list.add(text);
                             if (i < contents.size() - 2) {
                                 list.add(new LiteralText(", "));
@@ -267,7 +276,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 }
             }
 
-            if (this.curseLevel <= 5) {
+            if (!ConfigManager.useCursedStew()
+                    || this.curseLevel < ConfigManager.minCowlLevel()) {
                 statusText = new TranslatableText("item.crockpot.stew", statusText);
             }
             stew.setCustomName(statusText);
@@ -306,19 +316,19 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     public float getBoilingIntensity() {
-        return this.bonusLevels / ((float) MAX_BONUS_STAGES);
+        return this.bonusLevels / ((float) ConfigManager.maxBonusLevels());
     }
 
     public String getStewTypeTranslationKey() {
         int bonusLevels = this.bonusLevels;
 
-        if (bonusLevels == CrockPotBlockEntity.MAX_BONUS_STAGES) {
+        if (bonusLevels >= ConfigManager.minHeartyLevels()) {
             return "item.crockpot.stew.hearty";
         }
-        if (bonusLevels > 2) {
+        if (bonusLevels >= ConfigManager.minFillingLevels()) {
             return "item.crockpot.stew.filling";
         }
-        if (bonusLevels > 0) {
+        if (bonusLevels >= ConfigManager.minSatisfyingLevels()) {
             return "item.crockpot.stew.satisfying";
         }
 
@@ -383,8 +393,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             blockEntity.boilingTime += time - blockEntity.lastTime;
             blockEntity.lastTime = time;
 
-            if (blockEntity.boilingTime > MAX_BOILING_TIME
-                    && blockEntity.bonusLevels < MAX_BONUS_STAGES) {
+            if (blockEntity.boilingTime > ConfigManager.boilTimePerLevel()
+                    && blockEntity.bonusLevels < ConfigManager.maxBonusLevels()) {
                 blockEntity.bonusLevels += 1;
                 blockEntity.boilingTime = 0;
             }
@@ -441,7 +451,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return dir == Direction.UP && this.portions < MAX_PORTIONS;
+        return dir == Direction.UP && this.portions < ConfigManager.maxPortionsPerPot();
     }
 
     @Override

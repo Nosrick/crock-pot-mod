@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.item;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.config.ConfigManager;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
@@ -67,7 +68,7 @@ public class StewItem extends Item {
         if (user instanceof PlayerEntity player) {
             player.getHungerManager().eat(this, stack);
             StatusEffectInstance statusEffectInstance = getStatusEffect(stack);
-            if(statusEffectInstance != null) {
+            if (statusEffectInstance != null) {
                 player.addStatusEffect(statusEffectInstance);
             }
             player.incrementStat(Stats.USED.getOrCreateStat(this));
@@ -97,14 +98,14 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if (getCurseLevel(stack) > 5) {
+        if (getCurseLevel(stack) > ConfigManager.minCowlLevel()) {
             tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_GRAY)
                             .withItalic(true)
                             .withBold(true)));
             tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
-        } else if (getCurseLevel(stack) > 0) {
+        } else if (getCurseLevel(stack) > ConfigManager.stewMinNegativeLevelsEffect()) {
             tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_RED)
@@ -112,21 +113,19 @@ public class StewItem extends Item {
             tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
         }
 
-        if (context.isAdvanced()) {
-            if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
-                tooltip.add(new TranslatableText(
-                        "item.crockpot.stew.hunger",
-                        getHunger(stack))
-                        .setStyle(Style.EMPTY
-                                .withColor(Formatting.YELLOW)));
+        if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
+            tooltip.add(new TranslatableText(
+                    "item.crockpot.stew.hunger",
+                    getHunger(stack))
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.YELLOW)));
 
-                tooltip.add(new TranslatableText(
-                        "item.crockpot.stew.saturation",
-                        String.format("%.2f",
-                                getSaturation(stack)))
-                        .setStyle(Style.EMPTY
-                                .withColor(Formatting.GOLD)));
-            }
+            tooltip.add(new TranslatableText(
+                    "item.crockpot.stew.saturation",
+                    String.format("%.2f",
+                            getSaturation(stack)))
+                    .setStyle(Style.EMPTY
+                            .withColor(Formatting.GOLD)));
         }
     }
 

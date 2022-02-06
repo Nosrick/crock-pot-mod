@@ -26,6 +26,9 @@
     ],
     "appleskin": [
       "com.github.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
+    ],
+    "modmenu": [
+      "com.github.nosrick.crockpot.api.modmenu.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -37,6 +40,10 @@
     "fabric": "*",
     "minecraft": "1.18.x",
     "java": ">=17"
+  },
+  "recommends": {
+    "modmenu": ">=3.0.0",
+    "cloth-config": ">=6.1.48"
   },
 
   "custom": {

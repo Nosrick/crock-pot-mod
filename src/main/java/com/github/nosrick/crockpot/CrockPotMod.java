@@ -27,6 +27,7 @@ public class CrockPotMod implements ModInitializer {
 
     @Override
     public void onInitialize() {
+
         LOGGER.info("REV UP THOSE CROCK POTS BOIS");
 
         CrockPotSoundRegistry.registerAll();
