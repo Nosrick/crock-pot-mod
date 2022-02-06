@@ -10,9 +10,13 @@ public class Tags {
 
     private Tags(){}
 
-    public static final Tag.Identified<Block> HEAT_SOURCES = create("heat_sources", TagFactory.BLOCK);
+    public static final Tag.Identified<Block> HEAT_SOURCES = create(new Identifier("c", "heat_sources"), TagFactory.BLOCK);
 
     private static <E> Tag.Identified<E> create(String pathName, TagFactory<E> tagFactory){
         return tagFactory.create(new Identifier(CrockPotMod.MOD_ID, pathName));
+    }
+
+    private static <E> Tag.Identified<E> create(Identifier id, TagFactory<E> tagFactory) {
+        return tagFactory.create(id);
     }
 }
