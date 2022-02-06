@@ -2,6 +2,7 @@ package com.gitlab.nosrick.crockpot.item;
 
 import com.gitlab.nosrick.crockpot.CrockPotMod;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.item.TooltipContext;
@@ -44,7 +45,7 @@ public class StewItem extends Item {
     protected static final String CURSED_NBT = "Cursed";
 
     public StewItem() {
-        super(new ModItemSettings()
+        super(new FabricItemSettings()
                 .food(
                         new FoodComponent.Builder()
                                 .build())
@@ -96,15 +97,14 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if(getCurseLevel(stack) > 5) {
+        if (getCurseLevel(stack) > 5) {
             tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_GRAY)
                             .withItalic(true)
                             .withBold(true)));
             tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
-        }
-        else if (getCurseLevel(stack) > 0) {
+        } else if (getCurseLevel(stack) > 0) {
             tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.DARK_RED)
@@ -149,7 +149,7 @@ public class StewItem extends Item {
     public static StatusEffectInstance getStatusEffect(ItemStack stack) {
         String name = stack.getOrCreateNbt().getString(EFFECT_NAME_NBT);
         StatusEffect test = Registry.STATUS_EFFECT.get(new Identifier(name));
-        if(test == null) {
+        if (test == null) {
             return null;
         }
 
@@ -195,9 +195,9 @@ public class StewItem extends Item {
 
     public static void setStatusEffect(ItemStack stack, StatusEffectInstance statusEffectInstance) {
         Identifier statusId = Registry.STATUS_EFFECT.getId(statusEffectInstance.getEffectType());
-        if(statusId != null) {
+        if (statusId != null) {
             stack.getOrCreateNbt().putString(EFFECT_NAME_NBT, statusId.toString());
-            stack.getOrCreateNbt().putInt(EFFECT_DURATION_NBT , statusEffectInstance.getDuration());
+            stack.getOrCreateNbt().putInt(EFFECT_DURATION_NBT, statusEffectInstance.getDuration());
             stack.getOrCreateNbt().putInt(EFFECT_AMP_NBT, statusEffectInstance.getAmplifier());
         }
     }
