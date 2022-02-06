@@ -32,24 +32,6 @@ public class AppleSkinEventHandler implements AppleSkinApi {
                 }
         );
 
-        TooltipOverlayEvent.Render.EVENT.register(
-                tooltipOverlayEvent -> {
-                    if(tooltipOverlayEvent.itemStack.getItem() instanceof StewItem) {
-                        List<Item> contents = StewItem.getContents(tooltipOverlayEvent.itemStack);
-                        for(int i = 0; i < contents.size(); i++) {
-                            Identifier id = Registry.ITEM.getId(contents.get(i));
-                            String content = "textures/item/" + id.getPath();
-                            content = content.replace('.', '/').concat(".png");
-                            RenderSystem.setShaderTexture(0, new Identifier(id.getNamespace(), content));
-                            int hunger = tooltipOverlayEvent.modifiedFood.hunger;
-                            int saturation = (int) (hunger * tooltipOverlayEvent.modifiedFood.saturationModifier);
-                            int larger = Math.max(hunger, saturation) / 2;
-                            DrawableHelper.drawTexture(tooltipOverlayEvent.matrixStack, tooltipOverlayEvent.x + (larger * 8) + i * 8, tooltipOverlayEvent.y, 0, 0, 16, 16, 16, 16);
-                        }
-                    }
-                }
-        );
-
         CrockPotMod.MODS_LOADED.add("appleskin");
     }
 }

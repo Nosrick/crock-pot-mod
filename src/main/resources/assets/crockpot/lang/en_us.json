@@ -4,7 +4,7 @@
   "item.crockpot.stew.mixed": "Mixed",
   "item.crockpot.stew.mistake": "Horrible Mistake",
   "item.crockpot.stew.cursed": "Cursed",
-  "item.crockpot.stew.cursed_description": "You probably shouldn't reheat stew, you know",
+  "item.crockpot.stew.cursed_description": "Boiled one too many times",
   "item.crockpot.stew.cowl": "Cowl Mam-gu",
   "item.crockpot.stew.cowl_description": "Not fit for consumption!",
   "item.crockpot.stew.plain": "Plain",
@@ -22,6 +22,8 @@
 
   "tooltip.crockpot.portions": "Portions: %s",
   "tooltip.crockpot.bonus_levels": "Bonus Levels: %s",
+  "tooltip.crockpot.effect": "Effect: %ss",
+  "tooltip.crockpot.contents": "Contents: ",
 
   "text.autoconfig.crockpot.option.maxBonusLevels": "Maximum bonus levels",
   "text.autoconfig.crockpot.option.cowlCurseLevels": "Cowl curse levels",
@@ -29,7 +31,7 @@
   "text.autoconfig.crockpot.option.boilTicksPerLevel": "Number of ticks per bonus level",
   "text.autoconfig.crockpot.option.maxPortions": "Maximum portions in one pot",
   "text.autoconfig.crockpot.option.itemPositiveEffects": "Give good stew positive effects",
-  "text.autoconfig.crockpot.option.itemMinPositiveBonusLeve": "Minimum bonus levels for positive effects",
+  "text.autoconfig.crockpot.option.itemMinPositiveBonusLevel": "Minimum bonus levels for positive effects",
   "text.autoconfig.crockpot.option.itemNegativeEffects": "Give cursed stew negative effects",
   "text.autoconfig.crockpot.option.itemMinNegativeCurseLevel": "Minimum curse levels for negative effects",
   "text.autoconfig.crockpot.option.maxStewNameLength": "'Mixed Stew' name length cutoff",

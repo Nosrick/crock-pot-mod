@@ -57,11 +57,6 @@ public class CrockPotConfig implements ConfigData {
     public static synchronized CrockPotConfig getConfig() {
         if (!REGISTERED) {
             AutoConfig.register(CrockPotConfig.class, GsonConfigSerializer::new);
-            AutoConfig.getConfigHolder(CrockPotConfig.class).registerSaveListener((manager, data) -> {
-                System.out.println("SAVING CROCKPOT CONFIG");
-
-                return ActionResult.SUCCESS;
-            });
             REGISTERED = true;
         }
 

@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.item;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.client.tooltip.StewContentsTooltip;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
@@ -24,6 +25,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
@@ -98,34 +100,48 @@ public class StewItem extends Item {
     public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
         super.appendTooltip(stack, world, tooltip, context);
 
-        if (getCurseLevel(stack) > ConfigManager.minCowlLevel()) {
-            tooltip.set(0, new LiteralText(tooltip.get(0).getString())
-                    .setStyle(Style.EMPTY
-                            .withColor(Formatting.DARK_GRAY)
-                            .withItalic(true)
-                            .withBold(true)));
-            tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
-        } else if (getCurseLevel(stack) > ConfigManager.stewMinNegativeLevelsEffect()) {
-            tooltip.set(0, new LiteralText(tooltip.get(0).getString())
-                    .setStyle(Style.EMPTY
-                            .withColor(Formatting.DARK_RED)
-                            .withItalic(true)));
-            tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
+        if (ConfigManager.useCursedStew()) {
+            if (getCurseLevel(stack) > ConfigManager.minCowlLevel()) {
+                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                        .setStyle(Style.EMPTY
+                                .withColor(Formatting.DARK_GRAY)
+                                .withItalic(true)
+                                .withBold(true)));
+                tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
+            } else if (getCurseLevel(stack) > ConfigManager.stewMinNegativeLevelsEffect()) {
+                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                        .setStyle(Style.EMPTY
+                                .withColor(Formatting.DARK_RED)
+                                .withItalic(true)));
+                tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
+            }
         }
 
         if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
+            int hunger = getHunger(stack);
+            int saturation = MathHelper.floor(hunger * getSaturation(stack) * 2f);
+
             tooltip.add(new TranslatableText(
-                    "item.crockpot.stew.hunger",
-                    getHunger(stack))
+                    "item.crockpot.stew.hunger", hunger)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.YELLOW)));
 
             tooltip.add(new TranslatableText(
-                    "item.crockpot.stew.saturation",
-                    String.format("%.2f",
-                            getSaturation(stack)))
+                    "item.crockpot.stew.saturation", saturation)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.GOLD)));
+        }
+        tooltip.add(new StewContentsTooltip(stack));
+
+        StatusEffectInstance effectInstance = getStatusEffect(stack);
+        if (effectInstance != null) {
+            tooltip.add(new TranslatableText("tooltip.crockpot.effect",
+                    new TranslatableText(effectInstance.getTranslationKey())
+                            .append(new LiteralText(" " + (effectInstance.getAmplifier() + 1) + " - " + (effectInstance.getDuration() / 20))))
+                    .setStyle(Style.EMPTY)
+                    .formatted(effectInstance.getEffectType().isBeneficial()
+                            ? Formatting.GREEN
+                            : Formatting.RED));
         }
     }
 
