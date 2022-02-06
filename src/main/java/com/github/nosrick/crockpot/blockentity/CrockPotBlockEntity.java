@@ -1,12 +1,12 @@
-package com.gitlab.nosrick.crockpot.blockentity;
+package com.github.nosrick.crockpot.blockentity;
 
-import com.gitlab.nosrick.crockpot.CrockPotMod;
-import com.gitlab.nosrick.crockpot.block.CrockPotBlock;
-import com.gitlab.nosrick.crockpot.inventory.CrockPotInventory;
-import com.gitlab.nosrick.crockpot.item.StewItem;
-import com.gitlab.nosrick.crockpot.registry.BlockEntityTypesRegistry;
-import com.gitlab.nosrick.crockpot.registry.CrockPotSoundRegistry;
-import com.gitlab.nosrick.crockpot.registry.ItemRegistry;
+import com.github.nosrick.crockpot.inventory.CrockPotInventory;
+import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.block.CrockPotBlock;
+import com.github.nosrick.crockpot.item.StewItem;
+import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
+import com.github.nosrick.crockpot.registry.ItemRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -290,6 +290,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         this.saturation = 0;
         this.portions = 0;
         this.boilingTime = 0;
+        this.bonusLevels = 0;
 
         this.curseLevel = 0;
 
