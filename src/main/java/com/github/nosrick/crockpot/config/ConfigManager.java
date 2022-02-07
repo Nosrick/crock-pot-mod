@@ -42,7 +42,7 @@ public class ConfigManager {
 
     public static int boilTimePerLevel() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.boilTicksPerLevel;
+            return CrockPotConfig.getConfig().gameplay.boilSecondsPerLevel * 20;
         }
 
         return 20 * 60 * 2;

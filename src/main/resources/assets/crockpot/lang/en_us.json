@@ -32,7 +32,7 @@
   "text.autoconfig.crockpot.option.gameplay.maxBonusLevels": "Maximum bonus levels",
   "text.autoconfig.crockpot.option.gameplay.cowlCurseLevels": "Cowl curse levels",
   "text.autoconfig.crockpot.option.gameplay.cursedStew": "Make cursed stew",
-  "text.autoconfig.crockpot.option.gameplay.boilTicksPerLevel": "Number of ticks per bonus level",
+  "text.autoconfig.crockpot.option.gameplay.boilSecondsPerLevel": "Number of seconds per bonus level",
   "text.autoconfig.crockpot.option.gameplay.maxPortions": "Maximum portions in one pot",
   "text.autoconfig.crockpot.option.gameplay.itemPositiveEffects": "Give good stew positive effects",
   "text.autoconfig.crockpot.option.gameplay.itemMinPositiveBonusLevel": "Minimum bonus levels for positive effects",

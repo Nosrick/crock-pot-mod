@@ -26,14 +26,13 @@ public class CrockPotConfig implements ConfigData {
     public static class GameplayCategory implements ConfigData {
         public int maxBonusLevels = 5;
 
-        @Comment("How much is too much?")
+        @Comment("How gross is too gross?")
         public int cowlCurseLevels = 5;
 
         @Comment("Is reboiling stew really all that bad?")
         public boolean cursedStew = true;
 
-        @Comment("Remember; 20 ticks per Minecraft second!")
-        public int boilTicksPerLevel = 20 * 60 * 2;
+        public int boilSecondsPerLevel = 60 * 2;
         public int maxPortions = 64;
 
         public boolean itemPositiveEffects = true;
@@ -49,14 +48,20 @@ public class CrockPotConfig implements ConfigData {
         @Comment("It's probably a good idea to keep this enabled")
         public boolean cappedNauseaDuration = true;
 
+        @Comment("Too much of a good thing, right?")
         public boolean cappedPositiveDuration = true;
+
+        @Comment("Number of seconds to add to the saturation effect per bonus level")
         public int basePositiveDuration = 5;
 
         public int maxNauseaDuration = baseNauseaDuration * 20 * cowlCurseLevels;
         public int maxPositiveDuration = basePositiveDuration * 20 * maxBonusLevels;
 
+        @Comment("Minimum bonus levels before a stew can be called 'satisfying'")
         public int minSatisfyingLevel = 1;
+        @Comment("Minimum bonus levels before a stew can be called 'filling'")
         public int minFillingLevel = 3;
+        @Comment("Minimum bonus levels before a stew can be called 'hearty'")
         public int minHeartyLevel = 5;
     }
 
