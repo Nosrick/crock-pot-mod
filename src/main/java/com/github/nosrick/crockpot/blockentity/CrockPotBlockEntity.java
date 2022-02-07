@@ -405,7 +405,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             if (blockEntity.boilingTime > ConfigManager.boilTimePerLevel()
                     && blockEntity.bonusLevels < ConfigManager.maxBonusLevels()) {
                 blockEntity.bonusLevels += 1;
-                blockEntity.boilingTime = 0;
+                blockEntity.boilingTime -= ConfigManager.boilTimePerLevel();
             }
         }
 
