@@ -3,6 +3,7 @@ package com.github.nosrick.crockpot.client.render.block.model;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.config.ConfigManager;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
@@ -53,7 +54,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         float lastX = xRot;
         float lastZ = zRot;
 
-        if(time % 3 < 1f) {
+        if (time % 3 < 1f) {
             yTrans = random.nextFloat();
             xRot = random.nextFloat() - 0.5f;
             zRot = random.nextFloat() - 0.5f;
@@ -66,14 +67,16 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
 
         matrices.push();
+        if (ConfigManager.animateBoilingLid()) {
             matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
-                matrices.multiply(
+            matrices.multiply(
                     Quaternion.fromEulerXyzDegrees(rotation));
-                lidModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)), light, overlay);
+        }
+        lidModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)), light, overlay);
         matrices.pop();
     }
 
-    public static TexturedModelData createModelData() {
+    public static TexturedModelData createPotModelData() {
         var data = new ModelData();
         data.getRoot().addChild("crock_pot_lid_bottom",
                 ModelPartBuilder

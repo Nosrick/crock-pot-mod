@@ -18,7 +18,7 @@ public class ConfigManager {
 
     public static boolean useCursedStew() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().cursedStew;
+            return CrockPotConfig.getConfig().gameplay.cursedStew;
         }
 
         return true;
@@ -26,7 +26,7 @@ public class ConfigManager {
 
     public static boolean useItemPositiveEffects() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().itemPositiveEffects;
+            return CrockPotConfig.getConfig().gameplay.itemPositiveEffects;
         }
 
         return true;
@@ -34,7 +34,7 @@ public class ConfigManager {
 
     public static boolean useItemNegativeEffects() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().itemNegativeEffects;
+            return CrockPotConfig.getConfig().gameplay.itemNegativeEffects;
         }
 
         return true;
@@ -42,7 +42,7 @@ public class ConfigManager {
 
     public static int boilTimePerLevel() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().boilTicksPerLevel;
+            return CrockPotConfig.getConfig().gameplay.boilTicksPerLevel;
         }
 
         return 20 * 60 * 2;
@@ -50,7 +50,7 @@ public class ConfigManager {
 
     public static int minCowlLevel() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().cowlCurseLevels;
+            return CrockPotConfig.getConfig().gameplay.cowlCurseLevels;
         }
 
         return 5;
@@ -58,7 +58,7 @@ public class ConfigManager {
 
     public static int maxBonusLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().maxBonusLevels;
+            return CrockPotConfig.getConfig().gameplay.maxBonusLevels;
         }
 
         return 5;
@@ -66,7 +66,7 @@ public class ConfigManager {
 
     public static int maxPortionsPerPot() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().maxPortions;
+            return CrockPotConfig.getConfig().gameplay.maxPortions;
         }
 
         return 64;
@@ -74,7 +74,7 @@ public class ConfigManager {
 
     public static int stewMinPositiveLevelsEffect() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().itemMinPositiveBonusLevel;
+            return CrockPotConfig.getConfig().gameplay.itemMinPositiveBonusLevel;
         }
 
         return 5;
@@ -82,7 +82,7 @@ public class ConfigManager {
 
     public static int stewMinNegativeLevelsEffect() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().itemMinNegativeCurseLevel;
+            return CrockPotConfig.getConfig().gameplay.itemMinNegativeCurseLevel;
         }
 
         return 1;
@@ -90,7 +90,7 @@ public class ConfigManager {
 
     public static int maxStewNameLength() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().maxStewNameLength;
+            return CrockPotConfig.getConfig().gameplay.maxStewNameLength;
         }
 
         return 32;
@@ -98,7 +98,7 @@ public class ConfigManager {
 
     public static int baseNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().baseNauseaDuration;
+            return CrockPotConfig.getConfig().gameplay.baseNauseaDuration;
         }
 
         return 5;
@@ -106,7 +106,7 @@ public class ConfigManager {
 
     public static boolean cappedNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().cappedNauseaDuration;
+            return CrockPotConfig.getConfig().gameplay.cappedNauseaDuration;
         }
 
         return true;
@@ -114,15 +114,39 @@ public class ConfigManager {
 
     public static int maxNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().maxNauseaDuration;
+            return CrockPotConfig.getConfig().gameplay.maxNauseaDuration;
         }
 
         return baseNauseaDuration() * 20 * minCowlLevel();
     }
 
+    public static int basePositiveDuration() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().gameplay.basePositiveDuration;
+        }
+
+        return 5;
+    }
+
+    public static boolean cappedPositiveDuration() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().gameplay.cappedPositiveDuration;
+        }
+
+        return true;
+    }
+
+    public static int maxPositiveDuration() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().gameplay.maxPositiveDuration;
+        }
+
+        return basePositiveDuration() * 20 * maxBonusLevels();
+    }
+
     public static int minSatisfyingLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().minSatisfyingLevel;
+            return CrockPotConfig.getConfig().gameplay.minSatisfyingLevel;
         }
 
         return 1;
@@ -130,7 +154,7 @@ public class ConfigManager {
 
     public static int minFillingLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().minFillingLevel;
+            return CrockPotConfig.getConfig().gameplay.minFillingLevel;
         }
 
         return 3;
@@ -138,9 +162,89 @@ public class ConfigManager {
 
     public static int minHeartyLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().minHeartyLevel;
+            return CrockPotConfig.getConfig().gameplay.minHeartyLevel;
         }
 
         return 5;
+    }
+
+    public static float soundEffectVolume() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().sound.soundEffectVolume;
+        }
+
+        return 0.3f;
+    }
+
+    public static int bubbleSoundChance() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().sound.bubbleSoundChance;
+        }
+
+        return 100;
+    }
+
+    public static int boilSoundChance() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().sound.boilSoundChance;
+        }
+
+        return 100;
+    }
+
+    public static boolean useBubbleSound() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().sound.useBubbleSound;
+        }
+
+        return true;
+    }
+
+    public static boolean useBoilSound() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().sound.useBoilSound;
+        }
+
+        return true;
+    }
+
+    public static int bubbleParticleChance() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().graphics.bubbleParticleChance;
+        }
+
+        return 50;
+    }
+
+    public static int boilParticleChance() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().graphics.boilParticleChance;
+        }
+
+        return 50;
+    }
+
+    public static boolean useBoilParticles() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().graphics.useBoilParticles;
+        }
+
+        return true;
+    }
+
+    public static boolean useBubbleParticles() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().graphics.useBubbleParticles;
+        }
+
+        return true;
+    }
+
+    public static boolean animateBoilingLid() {
+        if(clothPresent()) {
+            return CrockPotConfig.getConfig().graphics.animateBoilingLid;
+        }
+
+        return true;
     }
 }

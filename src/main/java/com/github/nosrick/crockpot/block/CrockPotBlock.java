@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import net.fabricmc.api.EnvType;
@@ -95,16 +96,18 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         if (world.isClient
                 && state.get(CrockPotBlock.HAS_FIRE)) {
-            if (state.get(CrockPotBlock.HAS_LIQUID)
-                    && random.nextFloat() < .05f) {
+            if (ConfigManager.useBoilParticles()
+                    && state.get(CrockPotBlock.HAS_LIQUID)
+                    && random.nextInt(ConfigManager.boilParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
                 double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
                 world.addParticle(ParticleTypes.EFFECT, baseX, baseY, baseZ, .0d, .0d, .0d);
             }
 
-            if (state.get(CrockPotBlock.HAS_FOOD)
-                    && random.nextFloat() < .05f) {
+            if (ConfigManager.useBubbleParticles()
+                    && state.get(CrockPotBlock.HAS_FOOD)
+                    && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
                 double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
@@ -131,12 +134,16 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             return ActionResult.SUCCESS;
         }
 
+        float volume = ConfigManager.soundEffectVolume();
+
         if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
             world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
-            world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, 0.8F, 1.0F);
-            held.decrement(1);
-            player.giveItemStack(new ItemStack(Items.BUCKET));
+            world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, volume, 1.0F);
+            if (!player.isCreative()) {
+                held.decrement(1);
+                player.giveItemStack(new ItemStack(Items.BUCKET));
+            }
 
             return ActionResult.SUCCESS;
         } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
@@ -146,21 +153,21 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     player.giveItemStack(out);
 
                     if (potBlockEntity.getPortions() > 0) {
-                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
                     } else {
                         world.setBlockState(
                                 pos,
                                 state
                                         .with(HAS_FOOD, false)
                                         .with(HAS_LIQUID, false));
-                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                        world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, volume, 1.0F);
                     }
                 }
             } else if (held.isFood()) {
                 boolean result = potBlockEntity.addFood(held);
                 if (result) {
                     world.setBlockState(pos, state.with(HAS_FOOD, true));
-                    world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, 0.5F, 1.0F);
+                    world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
 
                     // if the food has a bowl, give it back to the player
                     if (held.getItem().hasRecipeRemainder()) {
@@ -203,7 +210,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
     @Override
     public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
-        if(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
+        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
             return potBlockEntity;
         }
 

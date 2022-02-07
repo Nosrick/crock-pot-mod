@@ -135,7 +135,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
             this.portions++;
 
-            if (food.getItem() instanceof StewItem) {
+            if (food.getItem() instanceof StewItem
+                    && ConfigManager.useCursedStew()) {
                 this.curseLevel += 1;
             }
 
@@ -204,12 +205,15 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
                 if (ConfigManager.useItemPositiveEffects()
                         && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()) {
+                    int duration = ConfigManager.basePositiveDuration() * 20 * this.bonusLevels;
                     StewItem.setStatusEffect(
                             stew,
                             new StatusEffectInstance(
                                     StatusEffects.SATURATION,
-                                    60 * 20 * this.bonusLevels,
-                                    this.bonusLevels));
+                                    ConfigManager.cappedPositiveDuration()
+                                            ? Math.min(ConfigManager.maxPositiveDuration(), duration)
+                                            : duration,
+                                    Math.min(this.bonusLevels, 5)));
                 }
             } else {
                 StewItem.setHunger(stew, 0);
@@ -368,17 +372,21 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         Random random = world.random;
 
-        if (blockState.get(CrockPotBlock.HAS_LIQUID)) {
-            if (random.nextFloat() < 0.01f) {
+        float volume = ConfigManager.soundEffectVolume();
+
+        if (ConfigManager.useBoilSound()
+                && blockState.get(CrockPotBlock.HAS_LIQUID)) {
+            if (random.nextInt(ConfigManager.boilSoundChance()) == 0) {
                 float variation = random.nextFloat() / 5f - 0.1f;
-                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
             }
         }
 
-        if (blockState.get(CrockPotBlock.HAS_FOOD)) {
-            if (random.nextFloat() < 0.01f) {
+        if (ConfigManager.useBubbleSound()
+                && blockState.get(CrockPotBlock.HAS_FOOD)) {
+            if (random.nextInt(ConfigManager.bubbleSoundChance()) == 0) {
                 float variation = random.nextFloat() / 5f - 0.1f;
-                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, 0.5f, 1.0f + variation);
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
             }
         }
     }

@@ -7,7 +7,6 @@ import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
-import net.minecraft.util.ActionResult;
 
 @Config(name = CrockPotMod.MOD_ID)
 public class CrockPotConfig implements ConfigData {
@@ -19,36 +18,83 @@ public class CrockPotConfig implements ConfigData {
     @ConfigEntry.Gui.Excluded
     private static boolean REGISTERED = false;
 
-    public int maxBonusLevels = 5;
+    @ConfigEntry.Category("gameplay")
+    @ConfigEntry.Gui.TransitiveObject
+    public GameplayCategory gameplay = new GameplayCategory();
 
-    @Comment("How much is too much?")
-    public int cowlCurseLevels = 5;
+    @Config(name = "gameplay")
+    public static class GameplayCategory implements ConfigData {
+        public int maxBonusLevels = 5;
 
-    @Comment("Is reboiling stew really all that bad?")
-    public boolean cursedStew = true;
+        @Comment("How much is too much?")
+        public int cowlCurseLevels = 5;
 
-    @Comment("Remember; 20 ticks per Minecraft second!")
-    public int boilTicksPerLevel = 20 * 60 * 2;
-    public int maxPortions = 64;
+        @Comment("Is reboiling stew really all that bad?")
+        public boolean cursedStew = true;
 
-    public boolean itemPositiveEffects = true;
-    public int itemMinPositiveBonusLevel = 5;
-    public boolean itemNegativeEffects = true;
-    public int itemMinNegativeCurseLevel = 1;
+        @Comment("Remember; 20 ticks per Minecraft second!")
+        public int boilTicksPerLevel = 20 * 60 * 2;
+        public int maxPortions = 64;
 
-    public int maxStewNameLength = 32;
+        public boolean itemPositiveEffects = true;
+        public int itemMinPositiveBonusLevel = 5;
+        public boolean itemNegativeEffects = true;
+        public int itemMinNegativeCurseLevel = 2;
 
-    @Comment("Number of seconds added to the nausea effect per curse level")
-    public int baseNauseaDuration = 5;
+        public int maxStewNameLength = 32;
 
-    @Comment("It's probably a good idea to keep this enabled")
-    public boolean cappedNauseaDuration = true;
+        @Comment("Number of seconds added to the nausea effect per curse level")
+        public int baseNauseaDuration = 5;
 
-    public int maxNauseaDuration = baseNauseaDuration * 20 * cowlCurseLevels;
+        @Comment("It's probably a good idea to keep this enabled")
+        public boolean cappedNauseaDuration = true;
 
-    public int minSatisfyingLevel = 1;
-    public int minFillingLevel = 3;
-    public int minHeartyLevel = 5;
+        public boolean cappedPositiveDuration = true;
+        public int basePositiveDuration = 5;
+
+        public int maxNauseaDuration = baseNauseaDuration * 20 * cowlCurseLevels;
+        public int maxPositiveDuration = basePositiveDuration * 20 * maxBonusLevels;
+
+        public int minSatisfyingLevel = 1;
+        public int minFillingLevel = 3;
+        public int minHeartyLevel = 5;
+    }
+
+    @ConfigEntry.Category("sound")
+    @ConfigEntry.Gui.TransitiveObject
+    public SoundEffects sound = new SoundEffects();
+
+    @Config(name = "sound")
+    public static class SoundEffects implements ConfigData {
+        @Comment("This is a 1/X chance of sound per tick")
+        public int boilSoundChance = 100;
+
+        @Comment("The default value is about 5% per second")
+        public int bubbleSoundChance = 100;
+
+        public boolean useBoilSound = true;
+        public boolean useBubbleSound = true;
+
+        public float soundEffectVolume = 0.3f;
+    }
+
+    @ConfigEntry.Category("graphics")
+    @ConfigEntry.Gui.TransitiveObject
+    public GraphicsCategory graphics = new GraphicsCategory();
+
+    @Config(name = "graphics")
+    public static class GraphicsCategory implements ConfigData {
+        @Comment("This is a 1/X chance of a particle per tick")
+        public int boilParticleChance = 50;
+
+        @Comment("The default value is about 10% per tick")
+        public int bubbleParticleChance = 50;
+
+        public boolean useBoilParticles = true;
+        public boolean useBubbleParticles = true;
+
+        public boolean animateBoilingLid = true;
+    }
 
     public static boolean isRegistered() {
         return REGISTERED;
