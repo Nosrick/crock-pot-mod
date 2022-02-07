@@ -45,6 +45,10 @@
     "modmenu": ">=3.0.0",
     "cloth-config": ">=6.1.48"
   },
+  "suggests": {
+    "farmersdelight": ">=0.2.0",
+    "appleskin": ">=mc1.18-2.2.0"
+  },
 
   "custom": {
     "waila:plugins": {

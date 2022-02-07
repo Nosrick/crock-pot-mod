@@ -4,6 +4,10 @@
     "minecraft:lava",
     "minecraft:magma_block",
     "#minecraft:campfires",
-    "#minecraft:fire"
+    "#minecraft:fire",
+    {
+      "id": "#farmersdelight:heat_sources",
+      "required": false
+    }
   ]
 }

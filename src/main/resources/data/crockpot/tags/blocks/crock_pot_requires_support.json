@@ -3,6 +3,10 @@
   "values": [
     "minecraft:lava",
     "#minecraft:campfires",
-    "#minecraft:fire"
+    "#minecraft:fire",
+    {
+      "id": "#farmersdelight:tray_heat_sources",
+      "required": false
+    }
   ]
 }
