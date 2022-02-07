@@ -3,6 +3,7 @@
   "values": [
     "minecraft:lava",
     "minecraft:magma_block",
+    "minecraft:lava_cauldron",
     "#minecraft:campfires",
     "#minecraft:fire",
     {
