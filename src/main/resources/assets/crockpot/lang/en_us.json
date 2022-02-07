@@ -41,7 +41,7 @@
   "text.autoconfig.crockpot.option.gameplay.maxStewNameLength": "'Mixed Stew' name length cutoff",
   "text.autoconfig.crockpot.option.gameplay.baseNauseaDuration": "Base nausea duration",
   "text.autoconfig.crockpot.option.gameplay.cappedNauseaDuration": "Cap nausea effect duration",
-  "text.autoconfig.crockpot.option.gameplay.maxNauseaDuration": "Maximum nausea duration (in ticks)",
+  "text.autoconfig.crockpot.option.gameplay.maxNauseaDuration": "Maximum nausea duration",
   "text.autoconfig.crockpot.option.gameplay.cappedPositiveDuration": "Cap positive effects duration",
   "text.autoconfig.crockpot.option.gameplay.basePositiveDuration": "Base positive effects duration",
   "text.autoconfig.crockpot.option.gameplay.maxPositiveDuration": "Maximum positive effects duration",
