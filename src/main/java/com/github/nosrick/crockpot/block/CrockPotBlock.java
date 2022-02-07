@@ -37,7 +37,7 @@ import java.util.Random;
 public class CrockPotBlock extends BlockWithEntity implements InventoryProvider {
 
     public static final DirectionProperty FACING = DirectionProperty.of("facing");
-    public static final BooleanProperty HAS_FIRE = BooleanProperty.of("has_fire");
+    public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
@@ -52,7 +52,6 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 this.getStateManager()
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
-                        .with(HAS_FIRE, false)
                         .with(HAS_FOOD, false));
     }
 
@@ -70,7 +69,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, HAS_FIRE, HAS_FOOD);
+        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, HAS_FOOD);
     }
 
     @Nullable
@@ -81,7 +80,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         return getDefaultState()
                 .with(FACING, context.getPlayerFacing().getOpposite())
-                .with(HAS_FIRE, hasTrayHeatSource(world.getBlockState(blockPos.down())));
+                .with(NEEDS_SUPPORT, needsSupport(world.getBlockState(blockPos.down())));
     }
 
     @Override
@@ -93,10 +92,14 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             return;
         }
 
+        if (world.isClient) {
+            CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) world.getBlockEntity(pos);
+            if(crockPotBlockEntity == null) {
+                return;
+            }
 
-        if (world.isClient
-                && state.get(CrockPotBlock.HAS_FIRE)) {
             if (ConfigManager.useBoilParticles()
+                    && crockPotBlockEntity.isAboveLitHeatSource()
                     && state.get(CrockPotBlock.HAS_LIQUID)
                     && random.nextInt(ConfigManager.boilParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
@@ -106,6 +109,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
 
             if (ConfigManager.useBubbleParticles()
+                    && crockPotBlockEntity.isAboveLitHeatSource()
                     && state.get(CrockPotBlock.HAS_FOOD)
                     && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
@@ -146,7 +150,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
 
             return ActionResult.SUCCESS;
-        } else if (state.get(HAS_LIQUID) && state.get(HAS_FIRE)) {
+        } else if (state.get(HAS_LIQUID) && potBlockEntity.isAboveLitHeatSource()) {
             if (held.getItem() == Items.BOWL) {
                 ItemStack out = potBlockEntity.take(world, pos, state, held);
                 if (out != null) {
@@ -192,7 +196,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             BlockPos posFrom) {
 
         if (direction == Direction.DOWN) {
-            return state.with(HAS_FIRE, this.hasTrayHeatSource(newState));
+            return state.with(NEEDS_SUPPORT, this.needsSupport(newState));
         }
 
         return state;
@@ -204,8 +208,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
         return world.isClient ? null : checkType(type, BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntity::tick);
     }
 
-    protected boolean hasTrayHeatSource(BlockState state) {
-        return Tags.HEAT_SOURCES.contains(state.getBlock());
+    protected boolean needsSupport(BlockState state) {
+        return Tags.CROCK_POT_REQUIRES_SUPPORT.contains(state.getBlock());
     }
 
     @Override

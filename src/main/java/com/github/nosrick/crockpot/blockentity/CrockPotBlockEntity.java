@@ -8,6 +8,7 @@ import com.github.nosrick.crockpot.item.StewItem;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
+import com.github.nosrick.crockpot.tag.Tags;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -345,7 +346,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         }
 
         BlockState checkState = world.getBlockState(pos);
-        return checkState.get(CrockPotBlock.HAS_FIRE);
+        return Tags.HEAT_SOURCES.contains(checkState.getBlock());
     }
 
     public int getPortions() {
@@ -395,7 +396,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
-        if (blockState.get(CrockPotBlock.HAS_FIRE)
+        if (blockEntity.isAboveLitHeatSource()
                 && blockState.get(CrockPotBlock.HAS_FOOD)) {
             long time = world.getTime();
             blockEntity.boilingTime += time - blockEntity.lastTime;
@@ -406,10 +407,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 blockEntity.bonusLevels += 1;
                 blockEntity.boilingTime = 0;
             }
-        }
-
-        if (blockEntity.isAboveLitHeatSource() != blockState.get(CrockPotBlock.HAS_FIRE)) {
-            world.setBlockState(blockEntity.pos, blockState.with(CrockPotBlock.HAS_FIRE, blockEntity.isAboveLitHeatSource()));
         }
 
         sendPacketToClient(world, blockEntity);
