@@ -101,14 +101,14 @@ public class StewItem extends Item {
         super.appendTooltip(stack, world, tooltip, context);
 
         if (ConfigManager.useCursedStew()) {
-            if (getCurseLevel(stack) > ConfigManager.minCowlLevel()) {
+            if (getCurseLevel(stack) >= ConfigManager.minCowlLevel()) {
                 tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_GRAY)
                                 .withItalic(true)
                                 .withBold(true)));
                 tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
-            } else if (getCurseLevel(stack) > ConfigManager.stewMinNegativeLevelsEffect()) {
+            } else if (getCurseLevel(stack) >= ConfigManager.stewMinNegativeLevelsEffect()) {
                 tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_RED)
@@ -163,14 +163,14 @@ public class StewItem extends Item {
 
     public static StatusEffectInstance getStatusEffect(ItemStack stack) {
         String name = stack.getOrCreateNbt().getString(EFFECT_NAME_NBT);
-        StatusEffect test = Registry.STATUS_EFFECT.get(new Identifier(name));
-        if (test == null) {
+        StatusEffect statusEffect = Registry.STATUS_EFFECT.get(new Identifier(name));
+        if (statusEffect == null) {
             return null;
         }
 
         int duration = stack.getOrCreateNbt().getInt(EFFECT_DURATION_NBT);
         int amp = stack.getOrCreateNbt().getInt(EFFECT_AMP_NBT);
-        return new StatusEffectInstance(test, duration, amp);
+        return new StatusEffectInstance(statusEffect, duration, amp);
     }
 
     public static int getCurseLevel(ItemStack stack) {
