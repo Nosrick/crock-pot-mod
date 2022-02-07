@@ -1,4 +1,4 @@
-package com.github.nosrick.crockpot.api.cloth;
+package com.github.nosrick.crockpot.compat.cloth;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import me.shedaniel.autoconfig.AutoConfig;

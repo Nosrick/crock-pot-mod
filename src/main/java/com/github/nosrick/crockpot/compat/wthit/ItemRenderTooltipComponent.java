@@ -1,4 +1,4 @@
-package com.github.nosrick.crockpot.api.wthit;
+package com.github.nosrick.crockpot.compat.wthit;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import mcp.mobius.waila.api.ITooltipComponent;

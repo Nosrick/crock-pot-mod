@@ -1,4 +1,4 @@
-package com.github.nosrick.crockpot.api.wthit;
+package com.github.nosrick.crockpot.compat.wthit;
 
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;

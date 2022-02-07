@@ -1,7 +1,7 @@
 package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
-import com.github.nosrick.crockpot.api.cloth.CrockPotConfig;
+import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
 

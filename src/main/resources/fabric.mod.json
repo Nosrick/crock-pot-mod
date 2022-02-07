@@ -25,10 +25,10 @@
       "com.github.nosrick.crockpot.CrockPotModClient"
     ],
     "appleskin": [
-      "com.github.nosrick.crockpot.api.appleskin.AppleSkinEventHandler"
+      "com.github.nosrick.crockpot.compat.appleskin.AppleSkinEventHandler"
     ],
     "modmenu": [
-      "com.github.nosrick.crockpot.api.modmenu.ModMenuIntegration"
+      "com.github.nosrick.crockpot.compat.modmenu.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -49,7 +49,7 @@
   "custom": {
     "waila:plugins": {
       "id": "crockpot:wthit",
-      "initializer": "com.github.nosrick.crockpot.api.wthit.WthitPlugin"
+      "initializer": "com.github.nosrick.crockpot.compat.wthit.WthitPlugin"
     }
   }
 }
