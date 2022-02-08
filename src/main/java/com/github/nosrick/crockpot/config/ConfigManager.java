@@ -114,7 +114,7 @@ public class ConfigManager {
 
     public static int maxNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxNauseaDuration;
+            return CrockPotConfig.getConfig().gameplay.maxNauseaDuration * 20;
         }
 
         return baseNauseaDuration() * 20 * minCowlLevel();
@@ -138,7 +138,7 @@ public class ConfigManager {
 
     public static int maxPositiveDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxPositiveDuration;
+            return CrockPotConfig.getConfig().gameplay.maxPositiveDuration * 20;
         }
 
         return basePositiveDuration() * 20 * maxBonusLevels();
