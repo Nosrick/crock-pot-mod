@@ -27,6 +27,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +53,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 this.getStateManager()
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
-                        .with(HAS_FOOD, false));
+                        .with(HAS_FOOD, false)
+                        .with(NEEDS_SUPPORT, false));
     }
 
     @Nullable
@@ -84,6 +86,34 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     }
 
     @Override
+    public boolean emitsRedstonePower(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+
+        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
+            switch (potBlockEntity.getRedstoneOutputType()) {
+                case PORTIONS -> {
+                    int portions = potBlockEntity.getPortions();
+                    return portions > 0
+                            ? Math.round(15 * ((float) portions / (float) ConfigManager.maxPortionsPerPot()))
+                            : 0;
+                }
+                case BONUS_LEVELS -> {
+                    int bonusLevels = potBlockEntity.getBonusLevels();
+                    return bonusLevels > 0
+                            ? Math.round(15 * ((float) bonusLevels / (float) ConfigManager.maxBonusLevels()))
+                            : 0;
+                }
+            }
+        }
+
+        return 0;
+    }
+
+    @Override
     @Environment(EnvType.CLIENT)
     public void randomDisplayTick(BlockState state, World world, BlockPos pos, Random random) {
         super.randomDisplayTick(state, world, pos, random);
@@ -94,12 +124,12 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         if (world.isClient) {
             CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) world.getBlockEntity(pos);
-            if(crockPotBlockEntity == null) {
+            if (crockPotBlockEntity == null) {
                 return;
             }
 
             if (ConfigManager.useBoilParticles()
-                    && crockPotBlockEntity.isAboveLitHeatSource()
+                    && crockPotBlockEntity.canBoil()
                     && state.get(CrockPotBlock.HAS_LIQUID)
                     && random.nextInt(ConfigManager.boilParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
@@ -109,7 +139,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
 
             if (ConfigManager.useBubbleParticles()
-                    && crockPotBlockEntity.isAboveLitHeatSource()
+                    && crockPotBlockEntity.canBoil()
                     && state.get(CrockPotBlock.HAS_FOOD)
                     && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
@@ -132,9 +162,27 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             return ActionResult.PASS;
         }
 
-        if (held.isEmpty()
-                && player.isSneaking()) {
-            potBlockEntity.flush(world, pos, state);
+        if (held.isEmpty()) {
+            if (player.isSneaking()) {
+                potBlockEntity.flush();
+                return ActionResult.SUCCESS;
+            } else {
+                potBlockEntity.setRedstoneOutputType(
+                        CrockPotBlockEntity.RedstoneOutputType.getByValue(
+                                potBlockEntity.getRedstoneOutputType().value + 1));
+
+                return ActionResult.SUCCESS;
+            }
+        }
+
+        if (!potBlockEntity.isElectric()
+                && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
+            potBlockEntity.setElectric(true);
+
+            if (!player.isCreative()) {
+                held.decrement(1);
+            }
+
             return ActionResult.SUCCESS;
         }
 
@@ -150,9 +198,9 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
 
             return ActionResult.SUCCESS;
-        } else if (state.get(HAS_LIQUID) && potBlockEntity.isAboveLitHeatSource()) {
+        } else if (state.get(HAS_LIQUID) && potBlockEntity.canBoil()) {
             if (held.getItem() == Items.BOWL) {
-                ItemStack out = potBlockEntity.take(world, pos, state, held);
+                ItemStack out = potBlockEntity.take(world, held, player);
                 if (out != null) {
                     player.giveItemStack(out);
 
@@ -168,7 +216,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     }
                 }
             } else if (held.isFood()) {
-                boolean result = potBlockEntity.addFood(held);
+                boolean result = potBlockEntity.addFood(held, player);
                 if (result) {
                     world.setBlockState(pos, state.with(HAS_FOOD, true));
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);

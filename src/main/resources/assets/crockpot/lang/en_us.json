@@ -24,6 +24,12 @@
   "tooltip.crockpot.bonus_levels": "Bonus Levels: %s",
   "tooltip.crockpot.effect": "Effect: %ss",
   "tooltip.crockpot.contents": "Contents: ",
+  "tooltip.crockpot.powered": "Powered",
+  "tooltip.crockpot.unpowered": "Not powered",
+
+  "values.crockpot.redstone_output.type": "Signal Type: %s",
+  "values.crockpot.redstone_output.bonus_levels": "Bonus Levels",
+  "values.crockpot.redstone_output.portions": "Portions",
 
   "text.autoconfig.crockpot.title": "Crock Pot Options",
   "text.autoconfig.crockpot.category.default": "General",
@@ -63,6 +69,4 @@
   "text.autoconfig.crockpot.option.graphics.useBoilParticles": "Use boil particles",
   "text.autoconfig.crockpot.option.graphics.useBubbleParticles": "Use bubble particles",
   "text.autoconfig.crockpot.option.graphics.animateBoilingLid": "Animate the lid"
-
-
 }

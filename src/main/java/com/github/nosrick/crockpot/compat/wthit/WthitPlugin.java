@@ -43,6 +43,10 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             List<Item> contents = items.stream().takeWhile(itemStack -> !itemStack.isEmpty()).map(ItemStack::getItem).toList();
             tooltip.addLine(new TranslatableText("tooltip.crockpot.portions", portions));
             tooltip.addLine(new TranslatableText("tooltip.crockpot.bonus_levels", bonusLevels));
+
+            tooltip.addLine(new TranslatableText("values.crockpot.redstone_output.type",
+                    crockPotBlockEntity.getRedstoneOutputType().localName));
+
             if (!contents.isEmpty()) {
                 tooltip.addLine(new ItemRenderTooltipComponent(contents));
             }

@@ -63,7 +63,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         Vec3f rotation = new Vec3f(lastX * 5, 0, lastZ * 5);
         Vec3f newRotation = new Vec3f(xRot * 5, 0, zRot * 5);
         rotation.lerp(newRotation, tickDelta);
-        float boilingIntensity = CrockPotBlockEntity.getBoilingIntensity(world, entity.getPos());
+        float boilingIntensity = entity.getBoilingIntensity();
         rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
 
         matrices.push();

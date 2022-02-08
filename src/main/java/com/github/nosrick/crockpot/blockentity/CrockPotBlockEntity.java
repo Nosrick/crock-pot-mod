@@ -14,9 +14,11 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.FoodComponent;
@@ -31,15 +33,14 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.IntStream;
 
 public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventory, SidedInventory {
@@ -52,6 +53,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public static final String BONUS_LEVELS = "Bonus Levels";
     public static final String BOILING_TIME = "Boiling Time";
     public static final String LAST_TIME = "Last Time";
+    public static final String REDSTONE_OUTPUT = "Redstone Output";
+    public static final String ELECTRIC = "Electric";
+
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
@@ -64,6 +68,10 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     protected long boilingTime = 0;
     protected long lastTime = 0;
 
+    protected boolean isElectric = false;
+
+    protected RedstoneOutputType redstoneOutputType = RedstoneOutputType.BONUS_LEVELS;
+
     protected FoodComponent foodComponent;
 
     protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
@@ -72,8 +80,48 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     protected static final int INVENTORY_SIZE = 9;
     protected static final int OUTPUT_SLOT = 8;
 
+    public enum RedstoneOutputType implements StringIdentifiable {
+        BONUS_LEVELS("values.crockpot.redstone_output.bonus_levels", "bonus_levels", 0),
+        PORTIONS("values.crockpot.redstone_output.portions", "portions", 1);
+
+        private static final Map<Integer, RedstoneOutputType> VALUES = new HashMap<>();
+
+        public final int value;
+        public final String name;
+        public final TranslatableText localName;
+
+        static {
+            for (RedstoneOutputType type : values()) {
+                VALUES.put(type.value, type);
+            }
+        }
+
+        RedstoneOutputType(String translationKey, String name, int value) {
+            this.name = name;
+            this.localName = new TranslatableText(translationKey);
+            this.value = value;
+        }
+
+        public static RedstoneOutputType getByValue(int value) {
+            if (VALUES.containsKey(value)) {
+                return VALUES.get(value);
+            }
+
+            return VALUES.get(0);
+        }
+
+        @Override
+        public String asString() {
+            return this.name;
+        }
+    }
+
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
-        super(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
+        this(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
+    }
+
+    protected CrockPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+        super(type, pos, state);
     }
 
     @Override
@@ -90,6 +138,10 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         this.lastTime = nbt.getLong(LAST_TIME);
 
         this.curseLevel = nbt.getInt(CURSE_LEVEL);
+
+        this.isElectric = nbt.getBoolean(ELECTRIC);
+
+        this.redstoneOutputType = RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT));
 
         Inventories.readNbt(nbt, this.items);
     }
@@ -109,6 +161,10 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         nbt.putInt(CURSE_LEVEL, this.curseLevel);
 
+        nbt.putBoolean(ELECTRIC, this.isElectric);
+
+        nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
+
         Inventories.writeNbt(nbt, this.items);
     }
 
@@ -122,7 +178,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 .build();
     }
 
-    public boolean addFood(ItemStack food) {
+    public boolean addFood(ItemStack food, PlayerEntity player) {
         if (!food.isFood() || !this.hasEmptySlot()) {
             return false;
         }
@@ -156,9 +212,16 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             this.setStack(OUTPUT_SLOT, stew);
 
             this.markDirty();
-            food.decrement(1);
 
-            sendPacketToClient(this.getWorld(), this);
+            if(this.hasWorld()) {
+                this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+            }
+
+            if (!player.isCreative()) {
+                food.decrement(1);
+            }
+
+            sendPacketToClient(this);
 
             return true;
         }
@@ -167,7 +230,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     @Nullable
-    public ItemStack take(World world, BlockPos pos, BlockState state, ItemStack container) {
+    public ItemStack take(World world, ItemStack container, PlayerEntity player) {
 
         if (world.isClient) {
             return null;
@@ -179,15 +242,21 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         ItemStack stew = this.makeStew();
         if (stew != null) {
-            this.decrementPortions();
-            container.decrement(1);
-
-            if (this.portions <= 0) {
-                this.flush(world, pos, state);
+            if (!player.isCreative()) {
+                this.decrementPortions();
+                container.decrement(1);
             }
 
-            sendPacketToClient(world, this);
+            if (this.portions <= 0) {
+                this.flush();
+            }
             this.markDirty();
+
+            if(this.hasWorld()) {
+                this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+            }
+
+            sendPacketToClient(this);
 
             return stew;
         }
@@ -299,7 +368,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         return contents;
     }
 
-    public void flush(World world, BlockPos pos, BlockState state) {
+    public void flush() {
         this.items.clear();
         this.hunger = 0;
         this.saturation = 0;
@@ -309,19 +378,47 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         this.curseLevel = 0;
 
-        world.setBlockState(
-                pos,
-                state
-                        .with(CrockPotBlock.HAS_LIQUID, false)
-                        .with(CrockPotBlock.HAS_FOOD, false));
-
+        if (this.hasWorld()) {
+            this.getWorld().setBlockState(
+                    this.pos,
+                    this.getCachedState()
+                            .with(CrockPotBlock.HAS_FOOD, false)
+                            .with(CrockPotBlock.HAS_LIQUID, false));
+        }
         this.markDirty();
 
-        sendPacketToClient(this.getWorld(), this);
+        sendPacketToClient(this);
     }
 
     public float getBoilingIntensity() {
-        return this.bonusLevels / ((float) ConfigManager.maxBonusLevels());
+        return this.bonusLevels > 0
+                ? this.bonusLevels / ((float) ConfigManager.maxBonusLevels())
+                : 0;
+    }
+
+    public void setRedstoneOutputType(RedstoneOutputType type) {
+        this.redstoneOutputType = type;
+        this.markDirty();
+        if (this.hasWorld()) {
+            this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+        }
+    }
+
+    public void setElectric(boolean value) {
+        this.isElectric = value;
+        this.markDirty();
+    }
+
+    public boolean isElectric() {
+        return this.isElectric;
+    }
+
+    public boolean canBoil() {
+        return this.isElectric || this.isAboveLitHeatSource();
+    }
+
+    public RedstoneOutputType getRedstoneOutputType() {
+        return this.redstoneOutputType;
     }
 
     public String getStewTypeTranslationKey() {
@@ -396,23 +493,27 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
-        if (blockEntity.isAboveLitHeatSource()
+        if (blockEntity.canBoil()
                 && blockState.get(CrockPotBlock.HAS_FOOD)) {
             long time = world.getTime();
-            blockEntity.boilingTime += time - blockEntity.lastTime;
+            if(blockEntity.lastTime != 0) {
+                blockEntity.boilingTime += time - blockEntity.lastTime;
+            }
             blockEntity.lastTime = time;
 
             if (blockEntity.boilingTime > ConfigManager.boilTimePerLevel()
                     && blockEntity.bonusLevels < ConfigManager.maxBonusLevels()) {
                 blockEntity.bonusLevels += 1;
                 blockEntity.boilingTime -= ConfigManager.boilTimePerLevel();
+                blockEntity.markDirty();
+                world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
             }
         }
 
-        sendPacketToClient(world, blockEntity);
+        sendPacketToClient(blockEntity);
     }
 
-    protected static void sendPacketToClient(World world, CrockPotBlockEntity blockEntity) {
+    protected static void sendPacketToClient(CrockPotBlockEntity blockEntity) {
         PacketByteBuf buf = PacketByteBufs.create();
         buf.writeBlockPos(blockEntity.pos);
         NbtCompound nbt = new NbtCompound();
@@ -422,22 +523,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         for (ServerPlayerEntity serverPlayer : PlayerLookup.tracking(blockEntity)) {
             ServerPlayNetworking.send(serverPlayer, PACKET_ID, buf);
         }
-    }
-
-    public static int getBonusLevels(World world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
-            return potBlockEntity.bonusLevels;
-        }
-
-        return 0;
-    }
-
-    public static float getBoilingIntensity(World world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
-            return potBlockEntity.getBoilingIntensity();
-        }
-
-        return 0;
     }
 
     @Override
