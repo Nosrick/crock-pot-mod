@@ -3,9 +3,12 @@ package com.github.nosrick.crockpot.client.render.block.model;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.client.colours.CrockPotBlockColourProvider;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -14,6 +17,7 @@ import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.ColorHelper;
 import net.minecraft.util.math.Quaternion;
 import net.minecraft.util.math.Vec3f;
 import net.minecraft.world.World;
@@ -35,7 +39,14 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     }
 
     @Override
-    public void render(CrockPotBlockEntity entity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+    public void render(
+            CrockPotBlockEntity entity,
+            float tickDelta,
+            MatrixStack matrices,
+            VertexConsumerProvider vertexConsumers,
+            int light,
+            int overlay) {
+
         World world = entity.getWorld();
 
         if (world == null || MinecraftClient.getInstance().isPaused()) {
@@ -72,7 +83,25 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             matrices.multiply(
                     Quaternion.fromEulerXyzDegrees(rotation));
         }
-        lidModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)), light, overlay);
+
+        int colour = entity.isElectric()
+                ? CrockPotBlockColourProvider.ELECTRIC_COLOUR
+                : CrockPotBlockColourProvider.POT_COLOUR;
+
+        float r, g, b, a;
+        r = ColorHelper.Argb.getRed(colour) / 255f;
+        g = ColorHelper.Argb.getGreen(colour) / 255f;
+        b = ColorHelper.Argb.getBlue(colour) / 255f;
+        a = ColorHelper.Argb.getAlpha(colour) / 255f;
+        lidModel.render(
+                matrices,
+                vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)),
+                light,
+                overlay,
+                r,
+                g,
+                b,
+                a);
         matrices.pop();
     }
 

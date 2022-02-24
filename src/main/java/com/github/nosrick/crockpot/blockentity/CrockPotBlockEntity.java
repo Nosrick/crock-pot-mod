@@ -407,6 +407,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public void setElectric(boolean value) {
         this.isElectric = value;
         this.markDirty();
+        sendPacketToClient(this);
     }
 
     public boolean isElectric() {
