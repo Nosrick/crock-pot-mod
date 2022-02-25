@@ -9,9 +9,6 @@ import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -27,10 +24,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -57,7 +52,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public static final String BOILING_TIME = "Boiling Time";
     public static final String LAST_TIME = "Last Time";
     public static final String REDSTONE_OUTPUT = "Redstone Output";
-    public static final String ELECTRIC = "Electric";
 
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
@@ -70,8 +64,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     protected long boilingTime = 0;
     protected long lastTime = 0;
-
-    protected boolean isElectric = false;
 
     protected RedstoneOutputType redstoneOutputType = RedstoneOutputType.BONUS_LEVELS;
 
@@ -140,8 +132,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         this.curseLevel = nbt.getInt(CURSE_LEVEL);
 
-        this.isElectric = nbt.getBoolean(ELECTRIC);
-
         this.redstoneOutputType = RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT));
 
         Inventories.readNbt(nbt, this.items);
@@ -161,8 +151,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         nbt.putLong(LAST_TIME, this.lastTime);
 
         nbt.putInt(CURSE_LEVEL, this.curseLevel);
-
-        nbt.putBoolean(ELECTRIC, this.isElectric);
 
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
@@ -408,7 +396,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     public boolean canBoil() {
-        return this.isElectric || this.isAboveLitHeatSource();
+        return this.getCachedState().get(CrockPotBlock.ELECTRIC) || this.isAboveLitHeatSource();
     }
 
     public RedstoneOutputType getRedstoneOutputType() {
