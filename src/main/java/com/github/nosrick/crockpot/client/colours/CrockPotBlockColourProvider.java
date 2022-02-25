@@ -19,28 +19,20 @@ public class CrockPotBlockColourProvider implements BlockColorProvider {
     @Override
     public int getColor(BlockState state, @Nullable BlockRenderView world, @Nullable BlockPos pos, int tintIndex) {
 
-        if(world == null){
+        if (world == null) {
             return 0;
         }
 
-        CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) world.getBlockEntity(pos);
-        if(crockPotBlockEntity == null) {
-            return 0;
-        }
-
-        if(tintIndex == 0) {
+        if (tintIndex == 0) {
             if (state.get(CrockPotBlock.ELECTRIC)) {
                 return ELECTRIC_COLOUR;
             }
 
             return POT_COLOUR;
-        }
-        else if(tintIndex == 1) {
-            if(state.get(CrockPotBlock.HAS_FOOD)) {
+        } else if (tintIndex == 1) {
+            if (state.get(CrockPotBlock.HAS_FOOD)) {
                 return FOOD_COLOUR;
-            }
-            else
-            {
+            } else {
                 return WATER_COLOUR;
             }
         }
