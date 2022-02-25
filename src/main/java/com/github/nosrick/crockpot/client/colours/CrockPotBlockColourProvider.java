@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot.client.colours;
 
+import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.color.block.BlockColorProvider;
@@ -28,14 +29,14 @@ public class CrockPotBlockColourProvider implements BlockColorProvider {
         }
 
         if(tintIndex == 0) {
-            if (crockPotBlockEntity.isElectric()) {
+            if (state.get(CrockPotBlock.ELECTRIC)) {
                 return ELECTRIC_COLOUR;
             }
 
             return POT_COLOUR;
         }
         else if(tintIndex == 1) {
-            if(crockPotBlockEntity.getPortions() > 0) {
+            if(state.get(CrockPotBlock.HAS_FOOD)) {
                 return FOOD_COLOUR;
             }
             else

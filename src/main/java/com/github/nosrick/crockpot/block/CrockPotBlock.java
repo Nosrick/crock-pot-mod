@@ -39,8 +39,9 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
     public static final DirectionProperty FACING = DirectionProperty.of("facing");
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
-    public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
+    public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
+    public static final BooleanProperty ELECTRIC = BooleanProperty.of("electric");
 
     public CrockPotBlock() {
         super(FabricBlockSettings
@@ -54,7 +55,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
                         .with(HAS_FOOD, false)
-                        .with(NEEDS_SUPPORT, false));
+                        .with(NEEDS_SUPPORT, false)
+                        .with(ELECTRIC, false));
     }
 
     @Nullable
@@ -71,7 +73,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, HAS_FOOD);
+        builder.add(FACING, HAS_LIQUID, HAS_FOOD, NEEDS_SUPPORT, ELECTRIC);
     }
 
     @Nullable
@@ -140,7 +142,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
             if (ConfigManager.useBubbleParticles()
                     && crockPotBlockEntity.canBoil()
-                    && state.get(CrockPotBlock.HAS_FOOD)
+                    && state.get(HAS_FOOD)
                     && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
@@ -175,9 +177,9 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
         }
 
-        if (!potBlockEntity.isElectric()
+        if (!state.get(CrockPotBlock.ELECTRIC)
                 && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
-            potBlockEntity.setElectric(true);
+            world.setBlockState(pos, state.with(ELECTRIC, true));
 
             if (!player.isCreative()) {
                 held.decrement(1);
@@ -204,14 +206,10 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 if (out != null) {
                     player.giveItemStack(out);
 
-                    if (potBlockEntity.getPortions() > 0) {
+                    if (state.get(HAS_FOOD)) {
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
                     } else {
-                        world.setBlockState(
-                                pos,
-                                state
-                                        .with(HAS_FOOD, false)
-                                        .with(HAS_LIQUID, false));
+                        potBlockEntity.flush();
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, volume, 1.0F);
                     }
                 }

@@ -26,7 +26,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
@@ -126,8 +129,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     @Override
     public void readNbt(NbtCompound nbt) {
-        super.readNbt(nbt);
-
         this.name = nbt.getString(NAME_NBT);
         this.portions = nbt.getInt(PORTIONS_NBT);
         this.hunger = nbt.getInt(HUNGER_NBT);
@@ -144,12 +145,12 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         this.redstoneOutputType = RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT));
 
         Inventories.readNbt(nbt, this.items);
+
+        super.readNbt(nbt);
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
-        super.writeNbt(nbt);
-
         nbt.putString(NAME_NBT, this.name);
         nbt.putInt(PORTIONS_NBT, this.portions);
         nbt.putInt(HUNGER_NBT, this.hunger);
@@ -166,6 +167,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
         Inventories.writeNbt(nbt, this.items);
+
+        super.writeNbt(nbt);
     }
 
     public void add(int food, float saturationModifier) {
@@ -213,7 +216,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
             this.markDirty();
 
-            if(this.hasWorld()) {
+            if (this.hasWorld()) {
                 this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
             }
 
@@ -221,7 +224,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 food.decrement(1);
             }
 
-            sendPacketToClient(this);
+            //sendPacketToClient(this);
 
             return true;
         }
@@ -252,11 +255,11 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             }
             this.markDirty();
 
-            if(this.hasWorld()) {
+            if (this.hasWorld()) {
                 this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
             }
 
-            sendPacketToClient(this);
+            //sendPacketToClient(this);
 
             return stew;
         }
@@ -382,12 +385,12 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             this.getWorld().setBlockState(
                     this.pos,
                     this.getCachedState()
-                            .with(CrockPotBlock.HAS_FOOD, false)
-                            .with(CrockPotBlock.HAS_LIQUID, false));
+                            .with(CrockPotBlock.HAS_LIQUID, false)
+                            .with(CrockPotBlock.HAS_FOOD, false));
         }
         this.markDirty();
 
-        sendPacketToClient(this);
+        //sendPacketToClient(this);
     }
 
     public float getBoilingIntensity() {
@@ -402,16 +405,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         if (this.hasWorld()) {
             this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
         }
-    }
-
-    public void setElectric(boolean value) {
-        this.isElectric = value;
-        this.markDirty();
-        sendPacketToClient(this);
-    }
-
-    public boolean isElectric() {
-        return this.isElectric;
     }
 
     public boolean canBoil() {
@@ -464,8 +457,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             return;
         }
 
-        if (!world.isClient
-                && blockEntity instanceof CrockPotBlockEntity crockPotBlockEntity) {
+        CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) blockEntity;
+
+        if (!world.isClient) {
             serverTick(world, crockPotBlockEntity);
         }
 
@@ -482,7 +476,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         }
 
         if (ConfigManager.useBubbleSound()
-                && blockState.get(CrockPotBlock.HAS_FOOD)) {
+                && crockPotBlockEntity.getPortions() > 0) {
             if (random.nextInt(ConfigManager.bubbleSoundChance()) == 0) {
                 float variation = random.nextFloat() / 5f - 0.1f;
                 world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
@@ -495,9 +489,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
         if (blockEntity.canBoil()
-                && blockState.get(CrockPotBlock.HAS_FOOD)) {
+                && blockEntity.getPortions() > 0) {
             long time = world.getTime();
-            if(blockEntity.lastTime != 0) {
+            if (blockEntity.lastTime != 0) {
                 blockEntity.boilingTime += time - blockEntity.lastTime;
             }
             blockEntity.lastTime = time;
@@ -507,23 +501,23 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 blockEntity.bonusLevels += 1;
                 blockEntity.boilingTime -= ConfigManager.boilTimePerLevel();
                 blockEntity.markDirty();
+                world.updateListeners(blockEntity.pos, blockState, blockState, 0);
                 world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
             }
         }
 
-        sendPacketToClient(blockEntity);
+        //sendPacketToClient(blockEntity);
     }
 
-    protected static void sendPacketToClient(CrockPotBlockEntity blockEntity) {
-        PacketByteBuf buf = PacketByteBufs.create();
-        buf.writeBlockPos(blockEntity.pos);
-        NbtCompound nbt = new NbtCompound();
-        blockEntity.writeNbt(nbt);
-        buf.writeNbt(nbt);
+    @Nullable
+    @Override
+    public Packet<ClientPlayPacketListener> toUpdatePacket() {
+        return BlockEntityUpdateS2CPacket.create(this);
+    }
 
-        for (ServerPlayerEntity serverPlayer : PlayerLookup.tracking(blockEntity)) {
-            ServerPlayNetworking.send(serverPlayer, PACKET_ID, buf);
-        }
+    @Override
+    public NbtCompound toInitialChunkDataNbt() {
+        return this.createNbt();
     }
 
     @Override

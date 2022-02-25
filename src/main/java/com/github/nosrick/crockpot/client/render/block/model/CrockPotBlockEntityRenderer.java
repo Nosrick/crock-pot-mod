@@ -84,7 +84,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                     Quaternion.fromEulerXyzDegrees(rotation));
         }
 
-        int colour = entity.isElectric()
+        int colour = entity.getCachedState().get(CrockPotBlock.ELECTRIC)
                 ? CrockPotBlockColourProvider.ELECTRIC_COLOUR
                 : CrockPotBlockColourProvider.POT_COLOUR;
 
