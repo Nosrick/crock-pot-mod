@@ -31,6 +31,8 @@
   "values.crockpot.redstone_output.bonus_levels": "Bonus Levels",
   "values.crockpot.redstone_output.portions": "Portions",
 
+  "itemGroup.crockpot.main": "Crock Pot",
+
   "text.autoconfig.crockpot.title": "Crock Pot Options",
   "text.autoconfig.crockpot.category.default": "General",
 
