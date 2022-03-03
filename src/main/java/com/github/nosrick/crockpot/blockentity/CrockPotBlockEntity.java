@@ -425,7 +425,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         }
 
         BlockState checkState = world.getBlockState(pos.down());
-        return Tags.HEAT_SOURCES.contains(checkState.getBlock());
+
+        return checkState.isIn(Tags.HEAT_SOURCES);
     }
 
     public int getPortions() {

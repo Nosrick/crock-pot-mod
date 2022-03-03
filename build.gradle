@@ -60,11 +60,12 @@ dependencies {
     }
 
     //Farmer's Delight
+    /*
     modImplementation("curse.maven:farmers-delight-fabric-482834:${project.farmersdelight_version}") {
         transitive = false
     }
     modRuntimeOnly("curse.maven:farmers-delight-fabric-482834:${project.farmersdelight_version}")
-
+    */
 
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {

@@ -255,7 +255,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     }
 
     protected boolean needsSupport(BlockState state) {
-        return Tags.CROCK_POT_REQUIRES_SUPPORT.contains(state.getBlock());
+        return state.isIn(Tags.CROCK_POT_REQUIRES_SUPPORT);
     }
 
     @Override
