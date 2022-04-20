@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot.compat.modmenu;
 
+import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
@@ -12,10 +13,7 @@ public class ModMenuIntegration implements ModMenuApi
 {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if(!CrockPotConfig.isRegistered())
-        {
-            CrockPotConfig.getConfig();
-        }
+        ClothConfigManager.registerAutoConfig();
 
         return screen -> AutoConfig.getConfigScreen(CrockPotConfig.class, screen).get();
     }

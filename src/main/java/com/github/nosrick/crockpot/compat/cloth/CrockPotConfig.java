@@ -6,17 +6,13 @@ import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
 import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 @Config(name = CrockPotMod.MOD_ID)
 public class CrockPotConfig implements ConfigData {
 
-    public CrockPotConfig() {
-        CrockPotMod.MODS_LOADED.add("cloth");
-    }
-
-    @ConfigEntry.Gui.Excluded
-    private static boolean REGISTERED = false;
+    public String resetMe = "Delete me to reset.";
 
     @ConfigEntry.Category("gameplay")
     @ConfigEntry.Gui.TransitiveObject
@@ -100,18 +96,5 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
-    }
-
-    public static boolean isRegistered() {
-        return REGISTERED;
-    }
-
-    public static synchronized CrockPotConfig getConfig() {
-        if (!REGISTERED) {
-            AutoConfig.register(CrockPotConfig.class, GsonConfigSerializer::new);
-            REGISTERED = true;
-        }
-
-        return AutoConfig.getConfigHolder(CrockPotConfig.class).getConfig();
     }
 }
