@@ -11,8 +11,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class CrockPotBlockColourProvider implements BlockColorProvider {
 
-    public static int POT_COLOUR = ColorHelper.Argb.getArgb(255, 223, 113, 38);
-    public static int ELECTRIC_COLOUR = ColorHelper.Argb.getArgb(255, 172, 50, 50);
+    public static int POT_COLOUR = ColorHelper.Argb.getArgb(255, 253, 143, 68);
+    public static int ELECTRIC_COLOUR = ColorHelper.Argb.getArgb(255, 222, 100, 100);
     public static int WATER_COLOUR = ColorHelper.Argb.getArgb(255, 91, 110, 225);
     public static int FOOD_COLOUR = ColorHelper.Argb.getArgb(255, 102, 57, 49);
 
