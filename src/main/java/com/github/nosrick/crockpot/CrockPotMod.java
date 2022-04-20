@@ -19,6 +19,8 @@ public class CrockPotMod implements ModInitializer {
     public static final String MOD_ID = "crockpot";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
+    public static final Identifier CROCK_POT_CHANNEL = new Identifier(MOD_ID, "crockpot_blockentity_update");
+
     public static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder.build(
             new Identifier(MOD_ID, "main"),
             () -> new ItemStack(ItemRegistry.CROCK_POT.get()));
