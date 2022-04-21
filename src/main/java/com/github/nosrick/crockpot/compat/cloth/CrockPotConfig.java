@@ -20,6 +20,13 @@ public class CrockPotConfig implements ConfigData {
 
     @Config(name = "gameplay")
     public static class GameplayCategory implements ConfigData {
+
+        @Comment("Should a redstone crock pot need power?")
+        public boolean redstoneNeedsPower = false;
+
+        @Comment("What's the minimum signal strength a redstone pot needs?")
+        public int redstonePowerThreshold = 8;
+
         public int maxBonusLevels = 5;
 
         @Comment("How gross is too gross?")

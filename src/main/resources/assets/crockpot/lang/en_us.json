@@ -56,6 +56,8 @@
   "text.autoconfig.crockpot.option.gameplay.minSatisfyingLevel": "Minimum 'satisfying stew' level",
   "text.autoconfig.crockpot.option.gameplay.minFillingLevel": "Minimum 'filling stew' level",
   "text.autoconfig.crockpot.option.gameplay.minHeartyLevel": "Minimum 'hearty stew' level",
+  "text.autoconfig.crockpot.option.gameplay.redstoneNeedsPower": "Redstone pot needs power",
+  "text.autoconfig.crockpot.option.gameplay.redstonePowerThreshold": "Redstone pot signal threshold",
 
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",

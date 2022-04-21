@@ -248,4 +248,20 @@ public class ConfigManager {
 
         return true;
     }
+
+    public static boolean redstoneNeedsPower() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.redstoneNeedsPower;
+        }
+
+        return false;
+    }
+
+    public static int redstonePowerThreshold() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.redstonePowerThreshold;
+        }
+
+        return 8;
+    }
 }

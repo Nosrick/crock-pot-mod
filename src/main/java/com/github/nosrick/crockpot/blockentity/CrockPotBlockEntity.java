@@ -400,18 +400,15 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         this.redstoneOutputType = type;
         this.markDirty();
 
-        if(!this.hasWorld())
-        {
+        if (!this.hasWorld()) {
             return;
         }
 
-        if(this.world.isClient)
-        {
+        if (this.world.isClient) {
             return;
         }
 
-        for(ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) this.world, this.pos))
-        {
+        for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) this.world, this.pos)) {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeBlockPos(this.pos);
             buf.writeEnumConstant(this.redstoneOutputType);
@@ -420,7 +417,19 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     public boolean canBoil() {
-        return this.getCachedState().get(CrockPotBlock.ELECTRIC) || this.isAboveLitHeatSource();
+        if (this.getCachedState().get(CrockPotBlock.ELECTRIC)) {
+            if (ConfigManager.redstoneNeedsPower()) {
+                if (this.hasWorld()
+                        && this.world.getReceivedRedstonePower(this.pos) > ConfigManager.redstonePowerThreshold()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return this.isAboveLitHeatSource();
     }
 
     public RedstoneOutputType getRedstoneOutputType() {
@@ -518,8 +527,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
             }
         }
-
-        //sendPacketToClient(blockEntity);
+        else {
+            blockEntity.lastTime = world.getTime();
+        }
     }
 
     @Nullable
