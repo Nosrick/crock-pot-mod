@@ -13,11 +13,8 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -191,7 +188,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         float volume = ConfigManager.soundEffectVolume();
 
-        if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
+        if (!state.get(HAS_LIQUID)
+                && held.getItem() == Items.WATER_BUCKET) {
             world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
             world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, volume, 1.0F);
