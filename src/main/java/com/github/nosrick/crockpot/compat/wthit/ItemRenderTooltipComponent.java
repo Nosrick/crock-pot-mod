@@ -16,6 +16,8 @@ import java.util.List;
 
 public class ItemRenderTooltipComponent implements ITooltipComponent {
 
+    protected static ResourceManager RESOURCE_MANAGER;
+
     protected List<Item> contents;
 
     public ItemRenderTooltipComponent(List<Item> contents) {
@@ -34,6 +36,10 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
 
     @Override
     public void render(MatrixStack matrices, int x, int y, float delta) {
+        if(RESOURCE_MANAGER == null) {
+            RESOURCE_MANAGER = MinecraftClient.getInstance().getResourceManager();
+        }
+
         for(int i = 0; i < contents.size(); i++) {
             Identifier id = Registry.ITEM.getId(contents.get(i));
             String namespace = id.getNamespace();
@@ -41,9 +47,8 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
             String content = "textures/item/" + itemName;
             Identifier assetLocation = new Identifier(namespace, content);
 
-            ResourceManager resourceManager = MinecraftClient.getInstance().getResourceManager();
             if(!namespace.equalsIgnoreCase("minecraft")
-                    && !resourceManager.containsResource(assetLocation)) {
+                    && !RESOURCE_MANAGER.containsResource(assetLocation)) {
                 //HERE BE DRAGONS
                 //We'll probably make a big list of things that don't follow conventions here
                 content = "textures/items/" + itemName;
