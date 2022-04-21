@@ -34,6 +34,8 @@
   "itemGroup.crockpot.main": "Crock Pot",
 
   "text.autoconfig.crockpot.title": "Crock Pot Options",
+  "text.autoconfig.crockpot.option.resetMe": "Reset the config?",
+
   "text.autoconfig.crockpot.category.default": "General",
 
   "text.autoconfig.crockpot.category.gameplay": "Gameplay",
