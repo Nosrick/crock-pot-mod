@@ -264,4 +264,12 @@ public class ConfigManager {
 
         return 8;
     }
+
+    public static boolean canFillWithWaterBottle() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.canFillWithWaterBottle;
+        }
+
+        return true;
+    }
 }

@@ -18,6 +18,9 @@ public class CrockPotConfig implements ConfigData {
     @Config(name = "gameplay")
     public static class GameplayCategory implements ConfigData {
 
+        @Comment("A bottle is the same as a bucket, right?")
+        public boolean canFillWithWaterBottle = true;
+
         @Comment("Should a redstone crock pot need power?")
         public boolean redstoneNeedsPower = false;
 

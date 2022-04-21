@@ -201,7 +201,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.BUCKET));
                 }
-            } else if (heldItem instanceof PotionItem
+            } else if (ConfigManager.canFillWithWaterBottle()
+                    && heldItem instanceof PotionItem
                     && PotionUtil.getPotion(held) == Potions.WATER) {
                 if (!player.isCreative()) {
                     held.decrement(1);
