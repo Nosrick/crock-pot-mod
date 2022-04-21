@@ -20,7 +20,7 @@ public class ClothConfigManager {
     public static void registerAutoConfig(){
         if(holder == null) {
             holder = AutoConfig.register(CrockPotConfig.class, JanksonConfigSerializer::new);
-            if(holder.getConfig().resetMe == null || holder.getConfig().resetMe.isEmpty())
+            if(holder.getConfig().nothing == null || holder.getConfig().nothing.isEmpty())
             {
                 DEFAULT.accept(holder.getConfig());
             }

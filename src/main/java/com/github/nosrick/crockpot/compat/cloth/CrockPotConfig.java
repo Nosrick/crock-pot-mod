@@ -1,18 +1,15 @@
 package com.github.nosrick.crockpot.compat.cloth;
 
 import com.github.nosrick.crockpot.CrockPotMod;
-import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
-import me.shedaniel.autoconfig.serializer.JanksonConfigSerializer;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 @Config(name = CrockPotMod.MOD_ID)
 public class CrockPotConfig implements ConfigData {
 
-    public String resetMe = "Delete me to reset.";
+    public String nothing = "Move along.";
 
     @ConfigEntry.Category("gameplay")
     @ConfigEntry.Gui.TransitiveObject
