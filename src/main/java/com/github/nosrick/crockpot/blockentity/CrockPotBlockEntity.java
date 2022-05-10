@@ -9,6 +9,13 @@ import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
+import com.github.nosrick.crockpot.util.BlockStateUtils;
+import mcp.mobius.waila.api.__internal__.ApiSide;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -24,8 +31,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.network.Packet;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
@@ -377,7 +387,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                             .with(CrockPotBlock.HAS_FOOD, false));
         }
         this.markDirty();
-
         //sendPacketToClient(this);
     }
 
@@ -390,13 +399,37 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public void setRedstoneOutputType(RedstoneOutputType type) {
         this.redstoneOutputType = type;
         this.markDirty();
-        if (this.hasWorld()) {
-            this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+
+        if (!this.hasWorld()) {
+            return;
+        }
+
+        if (this.world.isClient) {
+            return;
+        }
+
+        for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) this.world, this.pos)) {
+            PacketByteBuf buf = PacketByteBufs.create();
+            buf.writeBlockPos(this.pos);
+            buf.writeEnumConstant(this.redstoneOutputType);
+            ServerPlayNetworking.send(player, CrockPotMod.CROCK_POT_CHANNEL, buf);
         }
     }
 
     public boolean canBoil() {
-        return this.getCachedState().get(CrockPotBlock.ELECTRIC) || this.isAboveLitHeatSource();
+        if (this.getCachedState().get(CrockPotBlock.ELECTRIC)) {
+            if (ConfigManager.redstoneNeedsPower()) {
+                if (this.hasWorld()
+                        && this.world.getReceivedRedstonePower(this.pos) > ConfigManager.redstonePowerThreshold()) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        return this.isAboveLitHeatSource();
     }
 
     public RedstoneOutputType getRedstoneOutputType() {
@@ -425,7 +458,8 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         }
 
         BlockState checkState = world.getBlockState(pos.down());
-        return Tags.HEAT_SOURCES.contains(checkState.getBlock());
+
+        return checkState.isIn(Tags.HEAT_SOURCES);
     }
 
     public int getPortions() {
@@ -493,8 +527,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                 world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
             }
         }
-
-        //sendPacketToClient(blockEntity);
+        else {
+            blockEntity.lastTime = world.getTime();
+        }
     }
 
     @Nullable

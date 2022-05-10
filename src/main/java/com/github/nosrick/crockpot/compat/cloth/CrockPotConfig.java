@@ -1,22 +1,15 @@
 package com.github.nosrick.crockpot.compat.cloth;
 
 import com.github.nosrick.crockpot.CrockPotMod;
-import me.shedaniel.autoconfig.AutoConfig;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.annotation.ConfigEntry;
-import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 
 @Config(name = CrockPotMod.MOD_ID)
 public class CrockPotConfig implements ConfigData {
 
-    public CrockPotConfig() {
-        CrockPotMod.MODS_LOADED.add("cloth");
-    }
-
-    @ConfigEntry.Gui.Excluded
-    private static boolean REGISTERED = false;
+    public String nothing = "Move along.";
 
     @ConfigEntry.Category("gameplay")
     @ConfigEntry.Gui.TransitiveObject
@@ -24,6 +17,16 @@ public class CrockPotConfig implements ConfigData {
 
     @Config(name = "gameplay")
     public static class GameplayCategory implements ConfigData {
+
+        @Comment("A bottle is the same as a bucket, right?")
+        public boolean canFillWithWaterBottle = true;
+
+        @Comment("Should a redstone crock pot need power?")
+        public boolean redstoneNeedsPower = false;
+
+        @Comment("What's the minimum signal strength a redstone pot needs?")
+        public int redstonePowerThreshold = 8;
+
         public int maxBonusLevels = 5;
 
         @Comment("How gross is too gross?")
@@ -100,18 +103,5 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
-    }
-
-    public static boolean isRegistered() {
-        return REGISTERED;
-    }
-
-    public static synchronized CrockPotConfig getConfig() {
-        if (!REGISTERED) {
-            AutoConfig.register(CrockPotConfig.class, GsonConfigSerializer::new);
-            REGISTERED = true;
-        }
-
-        return AutoConfig.getConfigHolder(CrockPotConfig.class).getConfig();
     }
 }

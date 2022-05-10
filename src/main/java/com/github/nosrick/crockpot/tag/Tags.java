@@ -10,10 +10,7 @@ public class Tags {
 
     private Tags(){}
 
-    public static Tag.Identified<Block> HEAT_SOURCES = create(
-            new Identifier("c", "heat_sources"),
-            TagFactory.BLOCK);
-
+    public static Tag.Identified<Block> HEAT_SOURCES = create(new Identifier("c", "heat_sources"), TagFactory.BLOCK);
     public static Tag.Identified<Block> CROCK_POT_REQUIRES_SUPPORT = create(
             new Identifier(CrockPotMod.MOD_ID, "crock_pot_requires_support"),
             TagFactory.BLOCK);

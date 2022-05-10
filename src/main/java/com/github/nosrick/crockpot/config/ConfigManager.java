@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
@@ -9,7 +10,7 @@ public class ConfigManager {
 
     protected static boolean clothPresent() {
         boolean cloth = CrockPotMod.MODS_LOADED.contains("cloth");
-        if(cloth != clothPresent){
+        if(cloth != clothPresent) {
             clothPresent = cloth;
         }
 
@@ -18,7 +19,7 @@ public class ConfigManager {
 
     public static boolean useCursedStew() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.cursedStew;
+            return ClothConfigManager.getConfig().gameplay.cursedStew;
         }
 
         return true;
@@ -26,7 +27,7 @@ public class ConfigManager {
 
     public static boolean useItemPositiveEffects() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.itemPositiveEffects;
+            return ClothConfigManager.getConfig().gameplay.itemPositiveEffects;
         }
 
         return true;
@@ -34,7 +35,7 @@ public class ConfigManager {
 
     public static boolean useItemNegativeEffects() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.itemNegativeEffects;
+            return ClothConfigManager.getConfig().gameplay.itemNegativeEffects;
         }
 
         return true;
@@ -42,7 +43,7 @@ public class ConfigManager {
 
     public static int boilTimePerLevel() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.boilSecondsPerLevel * 20;
+            return ClothConfigManager.getConfig().gameplay.boilSecondsPerLevel * 20;
         }
 
         return 20 * 60 * 2;
@@ -50,7 +51,7 @@ public class ConfigManager {
 
     public static int minCowlLevel() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.cowlCurseLevels;
+            return ClothConfigManager.getConfig().gameplay.cowlCurseLevels;
         }
 
         return 5;
@@ -58,7 +59,7 @@ public class ConfigManager {
 
     public static int maxBonusLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxBonusLevels;
+            return ClothConfigManager.getConfig().gameplay.maxBonusLevels;
         }
 
         return 5;
@@ -66,7 +67,7 @@ public class ConfigManager {
 
     public static int maxPortionsPerPot() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxPortions;
+            return ClothConfigManager.getConfig().gameplay.maxPortions;
         }
 
         return 64;
@@ -74,7 +75,7 @@ public class ConfigManager {
 
     public static int stewMinPositiveLevelsEffect() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.itemMinPositiveBonusLevel;
+            return ClothConfigManager.getConfig().gameplay.itemMinPositiveBonusLevel;
         }
 
         return 5;
@@ -82,7 +83,7 @@ public class ConfigManager {
 
     public static int stewMinNegativeLevelsEffect() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.itemMinNegativeCurseLevel;
+            return ClothConfigManager.getConfig().gameplay.itemMinNegativeCurseLevel;
         }
 
         return 1;
@@ -90,7 +91,7 @@ public class ConfigManager {
 
     public static int maxStewNameLength() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxStewNameLength;
+            return ClothConfigManager.getConfig().gameplay.maxStewNameLength;
         }
 
         return 32;
@@ -98,7 +99,7 @@ public class ConfigManager {
 
     public static int baseNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.baseNauseaDuration;
+            return ClothConfigManager.getConfig().gameplay.baseNauseaDuration;
         }
 
         return 5;
@@ -106,7 +107,7 @@ public class ConfigManager {
 
     public static boolean cappedNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.cappedNauseaDuration;
+            return ClothConfigManager.getConfig().gameplay.cappedNauseaDuration;
         }
 
         return true;
@@ -114,7 +115,7 @@ public class ConfigManager {
 
     public static int maxNauseaDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxNauseaDuration * 20;
+            return ClothConfigManager.getConfig().gameplay.maxNauseaDuration * 20;
         }
 
         return baseNauseaDuration() * 20 * minCowlLevel();
@@ -122,7 +123,7 @@ public class ConfigManager {
 
     public static int basePositiveDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.basePositiveDuration;
+            return ClothConfigManager.getConfig().gameplay.basePositiveDuration;
         }
 
         return 5;
@@ -130,7 +131,7 @@ public class ConfigManager {
 
     public static boolean cappedPositiveDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.cappedPositiveDuration;
+            return ClothConfigManager.getConfig().gameplay.cappedPositiveDuration;
         }
 
         return true;
@@ -138,7 +139,7 @@ public class ConfigManager {
 
     public static int maxPositiveDuration() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.maxPositiveDuration * 20;
+            return ClothConfigManager.getConfig().gameplay.maxPositiveDuration * 20;
         }
 
         return basePositiveDuration() * 20 * maxBonusLevels();
@@ -146,7 +147,7 @@ public class ConfigManager {
 
     public static int minSatisfyingLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.minSatisfyingLevel;
+            return ClothConfigManager.getConfig().gameplay.minSatisfyingLevel;
         }
 
         return 1;
@@ -154,7 +155,7 @@ public class ConfigManager {
 
     public static int minFillingLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.minFillingLevel;
+            return ClothConfigManager.getConfig().gameplay.minFillingLevel;
         }
 
         return 3;
@@ -162,7 +163,7 @@ public class ConfigManager {
 
     public static int minHeartyLevels() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().gameplay.minHeartyLevel;
+            return ClothConfigManager.getConfig().gameplay.minHeartyLevel;
         }
 
         return 5;
@@ -170,7 +171,7 @@ public class ConfigManager {
 
     public static float soundEffectVolume() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().sound.soundEffectVolume;
+            return ClothConfigManager.getConfig().sound.soundEffectVolume;
         }
 
         return 0.3f;
@@ -178,7 +179,7 @@ public class ConfigManager {
 
     public static int bubbleSoundChance() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().sound.bubbleSoundChance;
+            return ClothConfigManager.getConfig().sound.bubbleSoundChance;
         }
 
         return 100;
@@ -186,7 +187,7 @@ public class ConfigManager {
 
     public static int boilSoundChance() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().sound.boilSoundChance;
+            return ClothConfigManager.getConfig().sound.boilSoundChance;
         }
 
         return 100;
@@ -194,7 +195,7 @@ public class ConfigManager {
 
     public static boolean useBubbleSound() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().sound.useBubbleSound;
+            return ClothConfigManager.getConfig().sound.useBubbleSound;
         }
 
         return true;
@@ -202,7 +203,7 @@ public class ConfigManager {
 
     public static boolean useBoilSound() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().sound.useBoilSound;
+            return ClothConfigManager.getConfig().sound.useBoilSound;
         }
 
         return true;
@@ -210,7 +211,7 @@ public class ConfigManager {
 
     public static int bubbleParticleChance() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().graphics.bubbleParticleChance;
+            return ClothConfigManager.getConfig().graphics.bubbleParticleChance;
         }
 
         return 50;
@@ -218,7 +219,7 @@ public class ConfigManager {
 
     public static int boilParticleChance() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().graphics.boilParticleChance;
+            return ClothConfigManager.getConfig().graphics.boilParticleChance;
         }
 
         return 50;
@@ -226,7 +227,7 @@ public class ConfigManager {
 
     public static boolean useBoilParticles() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().graphics.useBoilParticles;
+            return ClothConfigManager.getConfig().graphics.useBoilParticles;
         }
 
         return true;
@@ -234,7 +235,7 @@ public class ConfigManager {
 
     public static boolean useBubbleParticles() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().graphics.useBubbleParticles;
+            return ClothConfigManager.getConfig().graphics.useBubbleParticles;
         }
 
         return true;
@@ -242,7 +243,31 @@ public class ConfigManager {
 
     public static boolean animateBoilingLid() {
         if(clothPresent()) {
-            return CrockPotConfig.getConfig().graphics.animateBoilingLid;
+            return ClothConfigManager.getConfig().graphics.animateBoilingLid;
+        }
+
+        return true;
+    }
+
+    public static boolean redstoneNeedsPower() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.redstoneNeedsPower;
+        }
+
+        return false;
+    }
+
+    public static int redstonePowerThreshold() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.redstonePowerThreshold;
+        }
+
+        return 8;
+    }
+
+    public static boolean canFillWithWaterBottle() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.canFillWithWaterBottle;
         }
 
         return true;

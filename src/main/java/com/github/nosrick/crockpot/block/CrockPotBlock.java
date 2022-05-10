@@ -13,10 +13,12 @@ import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.ItemPlacementContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
+import net.minecraft.potion.Potions;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -27,6 +29,7 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -190,16 +193,31 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         float volume = ConfigManager.soundEffectVolume();
 
-        if (!state.get(HAS_LIQUID) && held.getItem() == Items.WATER_BUCKET) {
+        if (!state.get(HAS_LIQUID)) {
+            Item heldItem = held.getItem();
+
+            if (heldItem == Items.WATER_BUCKET) {
+                if (!player.isCreative()) {
+                    held.decrement(1);
+                    player.giveItemStack(new ItemStack(Items.BUCKET));
+                }
+            } else if (ConfigManager.canFillWithWaterBottle()
+                    && heldItem instanceof PotionItem
+                    && PotionUtil.getPotion(held) == Potions.WATER) {
+                if (!player.isCreative()) {
+                    held.decrement(1);
+                    player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));
+                }
+            } else {
+                return ActionResult.FAIL;
+            }
+
             world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
             world.playSound(null, pos, SoundEvents.ITEM_BUCKET_EMPTY, SoundCategory.PLAYERS, volume, 1.0F);
-            if (!player.isCreative()) {
-                held.decrement(1);
-                player.giveItemStack(new ItemStack(Items.BUCKET));
-            }
 
             return ActionResult.SUCCESS;
+
         } else if (state.get(HAS_LIQUID) && potBlockEntity.canBoil()) {
             if (held.getItem() == Items.BOWL) {
                 ItemStack out = potBlockEntity.take(world, held, player);
@@ -255,7 +273,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     }
 
     protected boolean needsSupport(BlockState state) {
-        return Tags.CROCK_POT_REQUIRES_SUPPORT.contains(state.getBlock());
+        return state.isIn(Tags.CROCK_POT_REQUIRES_SUPPORT);
     }
 
     @Override
