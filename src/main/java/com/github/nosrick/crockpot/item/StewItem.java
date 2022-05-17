@@ -16,8 +16,6 @@ import net.minecraft.item.Items;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.stat.Stats;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
@@ -28,7 +26,6 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -44,6 +41,8 @@ public class StewItem extends Item {
     protected static final String EFFECT_AMP_NBT = "Effect Amplification";
     protected static final String CURSED_NBT = "Cursed";
 
+    protected static FoodComponent foodComponent;
+
     public StewItem() {
         super(new FabricItemSettings()
                 .food(
@@ -52,21 +51,22 @@ public class StewItem extends Item {
                 .recipeRemainder(Items.BOWL));
     }
 
+    protected static void makeFoodComponentFromStack(ItemStack stack) {
+        foodComponent = new FoodComponent.Builder()
+                .hunger(StewItem.getHunger(stack))
+                .saturationModifier(StewItem.getSaturation(stack))
+                .statusEffect(StewItem.getStatusEffect(stack), 100f)
+                .build();
+    }
+
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         ItemStack container = new ItemStack(stack.getItem().getRecipeRemainder());
 
-        world.emitGameEvent(GameEvent.EAT, user);
-        world.playSound(
-                user.getX(),
-                user.getY(),
-                user.getZ(),
-                user.getEatSound(stack),
-                SoundCategory.NEUTRAL,
-                1.0f,
-                1.0f,
-                true);
+        makeFoodComponentFromStack(stack);
+        super.finishUsing(stack, world, user);
 
+        /*
         if (user instanceof PlayerEntity player) {
             player.getHungerManager().eat(this, stack);
             StatusEffectInstance statusEffectInstance = getStatusEffect(stack);
@@ -79,6 +79,7 @@ public class StewItem extends Item {
                 stack.decrement(1);
             }
         }
+         */
 
         if (stack.isEmpty()) {
             return container;
@@ -215,5 +216,14 @@ public class StewItem extends Item {
             stack.getOrCreateNbt().putInt(EFFECT_DURATION_NBT, statusEffectInstance.getDuration());
             stack.getOrCreateNbt().putInt(EFFECT_AMP_NBT, statusEffectInstance.getAmplifier());
         }
+    }
+
+    @Nullable
+    @Override
+    public FoodComponent getFoodComponent() {
+        if(foodComponent == null) {
+            foodComponent = new FoodComponent.Builder().build();
+        }
+        return foodComponent;
     }
 }
