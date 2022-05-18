@@ -42,6 +42,9 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
+    //THIS IS GROSS
+    public static final BooleanProperty UPDATE_ME = BooleanProperty.of("update_me");
+
     public CrockPotBlock() {
         super(FabricBlockSettings
                 .of(Material.METAL)
@@ -70,7 +73,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT);
+        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, UPDATE_ME);
     }
 
     @Nullable
@@ -176,8 +179,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
         if (!potBlockEntity.isElectric()
                 && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
+            world.setBlockState(pos, state.with(UPDATE_ME, !state.get(UPDATE_ME)));
             potBlockEntity.setElectric(true);
-            world.setBlockState(pos, state.with(HAS_LIQUID, state.get(HAS_LIQUID)), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD | Block.FORCE_STATE);
 
             if (!player.isCreative()) {
                 held.decrement(1);
