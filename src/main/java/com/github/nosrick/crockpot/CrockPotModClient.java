@@ -27,11 +27,14 @@ public class CrockPotModClient implements ClientModInitializer {
 
         ClientPlayNetworking.registerGlobalReceiver(CrockPotMod.CROCK_POT_CHANNEL, (client, handler, buf, responseSender) -> {
             BlockPos pos = buf.readBlockPos();
-            CrockPotBlockEntity.RedstoneOutputType outputType = buf.readEnumConstant(CrockPotBlockEntity.RedstoneOutputType.class);
-            BlockEntity blockEntity = client.world.getBlockEntity(pos);
+            NbtCompound nbt = buf.readNbt();
 
-            if(blockEntity instanceof CrockPotBlockEntity crockPotBlockEntity){
-                crockPotBlockEntity.setRedstoneOutputType(outputType);
+            if(nbt == null){
+                return;
+            }
+
+            if(client.world.getBlockEntity(pos) instanceof CrockPotBlockEntity crockPotBlockEntity){
+                crockPotBlockEntity.readNbt(nbt);
             }
         });
     }
