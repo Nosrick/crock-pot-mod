@@ -1,0 +1,19 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:water_bucket",
+    "minecraft:powder_snow_bucket",
+    {
+      "id": "early_buckets:wooden_water_bucket",
+      "required": false
+    },
+    {
+      "id": "early_buckets:clay_water_bucket",
+      "required": false
+    },
+    {
+      "id": "early_buckets:ceramic_water_bucket",
+      "required": false
+    }
+  ]
+}
