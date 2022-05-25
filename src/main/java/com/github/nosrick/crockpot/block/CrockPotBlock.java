@@ -211,9 +211,6 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     }
                 }
             }
-            else if(held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
-                //Just continue to do the thing
-            }
             else if (ConfigManager.canFillWithWaterBottle()
                     && heldItem instanceof PotionItem
                     && PotionUtil.getPotion(held) == Potions.WATER) {
@@ -221,7 +218,11 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));
                 }
-            } else {
+            }
+            else if(!held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
+                return ActionResult.FAIL;
+            }
+            else {
                 return ActionResult.FAIL;
             }
 
