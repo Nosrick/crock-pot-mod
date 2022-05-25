@@ -15,10 +15,8 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
-import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
@@ -29,7 +27,6 @@ import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
@@ -40,11 +37,12 @@ import java.util.Random;
 @SuppressWarnings("deprecation")
 public class CrockPotBlock extends BlockWithEntity implements InventoryProvider {
 
-    public static final DirectionProperty FACING = DirectionProperty.of("facing");
+    public static final DirectionProperty FACING = DirectionProperty.of("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
-    public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
-    public static final BooleanProperty ELECTRIC = BooleanProperty.of("electric");
+
+    //THIS IS GROSS
+    public static final BooleanProperty UPDATE_ME = BooleanProperty.of("update_me");
 
     public CrockPotBlock() {
         super(FabricBlockSettings
@@ -57,9 +55,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 this.getStateManager()
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
-                        .with(HAS_FOOD, false)
-                        .with(NEEDS_SUPPORT, false)
-                        .with(ELECTRIC, false));
+                        .with(NEEDS_SUPPORT, false));
     }
 
     @Nullable
@@ -76,7 +72,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, HAS_FOOD, NEEDS_SUPPORT, ELECTRIC);
+        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, UPDATE_ME);
     }
 
     @Nullable
@@ -145,7 +141,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
             if (ConfigManager.useBubbleParticles()
                     && crockPotBlockEntity.canBoil()
-                    && state.get(HAS_FOOD)
+                    && crockPotBlockEntity.hasFood()
                     && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
@@ -180,9 +176,10 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             }
         }
 
-        if (!state.get(CrockPotBlock.ELECTRIC)
+        if (!potBlockEntity.isElectric()
                 && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
-            world.setBlockState(pos, state.with(ELECTRIC, true));
+            world.setBlockState(pos, state.with(UPDATE_ME, !state.get(UPDATE_ME)));
+            potBlockEntity.setElectric(true);
 
             if (!player.isCreative()) {
                 held.decrement(1);
@@ -224,7 +221,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 if (out != null) {
                     player.giveItemStack(out);
 
-                    if (state.get(HAS_FOOD)) {
+                    if (potBlockEntity.hasFood()) {
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
                     } else {
                         potBlockEntity.flush();
@@ -234,7 +231,6 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             } else if (held.isFood()) {
                 boolean result = potBlockEntity.addFood(held, player);
                 if (result) {
-                    world.setBlockState(pos, state.with(HAS_FOOD, true));
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
 
                     // if the food has a bowl, give it back to the player

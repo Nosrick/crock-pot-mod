@@ -47,15 +47,13 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             int light,
             int overlay) {
 
-        World world = entity.getWorld();
-
-        if (world == null || MinecraftClient.getInstance().isPaused()) {
+        if (!entity.hasFood()) {
             return;
         }
 
-        BlockState state = entity.getCachedState();
+        World world = entity.getWorld();
 
-        if (!state.get(CrockPotBlock.HAS_FOOD)) {
+        if (world == null || MinecraftClient.getInstance().isPaused()) {
             return;
         }
 
@@ -84,7 +82,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                     Quaternion.fromEulerXyzDegrees(rotation));
         }
 
-        int colour = entity.getCachedState().get(CrockPotBlock.ELECTRIC)
+        int colour = entity.isElectric()
                 ? CrockPotBlockColourProvider.ELECTRIC_COLOUR
                 : CrockPotBlockColourProvider.POT_COLOUR;
 
@@ -93,6 +91,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         g = ColorHelper.Argb.getGreen(colour) / 255f;
         b = ColorHelper.Argb.getBlue(colour) / 255f;
         a = ColorHelper.Argb.getAlpha(colour) / 255f;
+
         lidModel.render(
                 matrices,
                 vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)),
