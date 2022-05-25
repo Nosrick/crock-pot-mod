@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.compat.early_game_buckets.EarlyGameBucketsCompat;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
@@ -193,19 +194,35 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
         if (!state.get(HAS_LIQUID)) {
             Item heldItem = held.getItem();
 
-            if (heldItem == Items.WATER_BUCKET) {
+            if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
-                    held.decrement(1);
-                    player.giveItemStack(new ItemStack(Items.BUCKET));
+                    if(EarlyGameBucketsCompat.isLoaded()
+                        && EarlyGameBucketsCompat.isEarlyGameBucket(held))
+                    {
+                        ItemStack emptyContainer = EarlyGameBucketsCompat.getEmptyItem(held, player);
+                        held.decrement(1);
+                        player.giveItemStack(emptyContainer);
+                    }
+                    else if(heldItem instanceof BucketItem)
+                    {
+                        ItemStack emptyContainer = BucketItem.getEmptiedStack(held, player);
+                        held.decrement(1);
+                        player.giveItemStack(emptyContainer);
+                    }
                 }
-            } else if (ConfigManager.canFillWithWaterBottle()
+            }
+            else if (ConfigManager.canFillWithWaterBottle()
                     && heldItem instanceof PotionItem
                     && PotionUtil.getPotion(held) == Potions.WATER) {
                 if (!player.isCreative()) {
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));
                 }
-            } else {
+            }
+            else if(!held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
+                return ActionResult.FAIL;
+            }
+            else {
                 return ActionResult.FAIL;
             }
 

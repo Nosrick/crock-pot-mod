@@ -15,6 +15,11 @@ public class Tags {
     public static TagKey<Block> CROCK_POT_REQUIRES_SUPPORT = createBlockTag(
             new Identifier(CrockPotMod.MOD_ID, "crock_pot_requires_support"));
 
+    public static TagKey<Item> CONSUMABLE_WATER_SOURCES_ITEMS = createItemTag(new Identifier(CrockPotMod.MOD_ID, "consumable_water_sources"));
+    public static TagKey<Block> CONSUMABLE_WATER_SOURCES_BLOCKS = createBlockTag(new Identifier(CrockPotMod.MOD_ID, "consumable_water_sources"));
+    public static TagKey<Item> INFINITE_WATER_SOURCES_ITEMS = createItemTag(new Identifier(CrockPotMod.MOD_ID, "infinite_water_sources"));
+    public static TagKey<Block> INFINITE_WATER_SOURCES_BLOCKS = createBlockTag(new Identifier(CrockPotMod.MOD_ID, "infinite_water_sources"));
+
     private static TagKey<Block> createBlockTag(Identifier id) {
         return TagKey.of(Registry.BLOCK_KEY, id);
     }

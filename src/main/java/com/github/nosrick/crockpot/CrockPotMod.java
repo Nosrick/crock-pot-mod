@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot;
 
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
+import com.github.nosrick.crockpot.compat.early_game_buckets.EarlyGameBucketsCompat;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -44,6 +45,10 @@ public class CrockPotMod implements ModInitializer {
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
             ClothConfigManager.registerAutoConfig();
+        }
+
+        if(FabricLoader.getInstance().isModLoaded("early_buckets")){
+            EarlyGameBucketsCompat.markAsLoaded();
         }
     }
 }
