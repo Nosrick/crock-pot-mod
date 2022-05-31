@@ -222,9 +222,6 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
             else if(!held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
                 return ActionResult.FAIL;
             }
-            else {
-                return ActionResult.FAIL;
-            }
 
             world.setBlockState(pos, state.with(HAS_LIQUID, true), 3);
 
