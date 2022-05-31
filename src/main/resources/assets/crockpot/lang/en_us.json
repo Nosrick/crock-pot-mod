@@ -30,6 +30,7 @@
   "values.crockpot.redstone_output.type": "Signal Type: %s",
   "values.crockpot.redstone_output.bonus_levels": "Bonus Levels",
   "values.crockpot.redstone_output.portions": "Portions",
+  "values.crockpot.redstone_output.none": "None",
 
   "itemGroup.crockpot.main": "Crock Pot",
 
