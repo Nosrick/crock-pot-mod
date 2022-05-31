@@ -62,6 +62,7 @@
   "text.autoconfig.crockpot.option.gameplay.redstoneNeedsPower": "Redstone pot needs power",
   "text.autoconfig.crockpot.option.gameplay.redstonePowerThreshold": "Redstone pot signal threshold",
   "text.autoconfig.crockpot.option.gameplay.canFillWithWaterBottle": "Pots can be filled with a water bottle",
+  "text.autoconfig.crockpot.option.gameplay.ingredientSlots": "Number of usable inventory slots in the pot",
 
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",
