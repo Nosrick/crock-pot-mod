@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot.blockentity;
 
 import com.github.nosrick.crockpot.config.ConfigManager;
-import com.github.nosrick.crockpot.inventory.CrockPotInventory;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.item.StewItem;
@@ -9,10 +8,6 @@ import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
-import com.github.nosrick.crockpot.util.BlockStateUtils;
-import mcp.mobius.waila.api.__internal__.ApiSide;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -69,8 +64,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
-    protected int portions = 0;
     protected int hunger = 0;
+
+    protected int cachedPortions = 0;
+    protected boolean portionsDirty = false;
+
     protected float saturation = 0.0F;
     protected int curseLevel = 0;
     protected int bonusLevels = 0;
@@ -138,7 +136,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     @Override
     public void readNbt(NbtCompound nbt) {
         this.name = nbt.getString(NAME_NBT);
-        this.portions = nbt.getInt(PORTIONS_NBT);
         this.hunger = nbt.getInt(HUNGER_NBT);
         this.saturation = nbt.getFloat(SATURATION_NBT);
 
@@ -153,13 +150,14 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         Inventories.readNbt(nbt, this.items);
 
+        this.markPortionsDirty();
+
         super.readNbt(nbt);
     }
 
     @Override
     protected void writeNbt(NbtCompound nbt) {
         nbt.putString(NAME_NBT, this.name);
-        nbt.putInt(PORTIONS_NBT, this.portions);
         nbt.putInt(HUNGER_NBT, this.hunger);
         nbt.putFloat(SATURATION_NBT, this.saturation);
 
@@ -178,8 +176,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public void add(int food, float saturationModifier) {
-        int hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + food) / this.portions) / 100);
-        float saturation = ((100f * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100f);
+        int portions = this.getPortions();
+        int hunger = Math.round((100f * (((portions - 1) * this.hunger) + food) / portions) / 100);
+        float saturation = ((100f * (((portions - 1) * this.saturation) + saturationModifier) / portions) / 100f);
 
         this.foodComponent = new FoodComponent.Builder()
                 .hunger(hunger)
@@ -200,10 +199,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             return false;
         }
 
-        if (this.portions >= ConfigManager.maxPortionsPerPot()) {
+        if (this.getPortions() >= ConfigManager.maxPortionsPerPot()) {
             return false;
         }
-
 
         return true;
     }
@@ -223,11 +221,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         Item foodItem = food.getItem();
-        if (this.portions == 0) {
-            this.items.clear();
-        }
-
-        this.portions++;
 
         if (food.getItem() instanceof StewItem
                 && ConfigManager.useCursedStew()) {
@@ -244,6 +237,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             this.items.set(this.getFirstEmptySlot(), new ItemStack(foodItem));
         }
 
+        this.markPortionsDirty();
         this.markDirty();
 
         if (this.hasWorld()) {
@@ -273,9 +267,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 container.decrement(1);
             }
 
-            if (this.portions <= 0) {
+            if (this.getPortions() <= 0) {
                 this.flush();
             }
+
             this.markDirty();
 
             if (this.hasWorld()) {
@@ -292,7 +287,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected ItemStack makeStew() {
 
-        if (this.portions > 0) {
+        if (this.getPortions() > 0) {
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = this.getBoilingIntensity() / 2f;
 
@@ -385,7 +380,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             return stew;
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public DefaultedList<ItemStack> getContents() {
@@ -395,10 +390,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public void flush() {
-        this.items.clear();
         this.hunger = 0;
         this.saturation = 0;
-        this.portions = 0;
         this.boilingTime = 0;
         this.bonusLevels = 0;
 
@@ -410,12 +403,13 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     this.getCachedState()
                             .with(CrockPotBlock.HAS_LIQUID, false));
         }
-        this.markDirty();
+
+        this.clear();
         this.updateNearby();
     }
 
     public boolean hasFood() {
-        return this.portions > 0;
+        return this.getPortions() > 0;
     }
 
     public boolean isElectric() {
@@ -516,7 +510,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public int getPortions() {
-        return this.portions;
+        return this.getFullStackCount();
     }
 
     public int getBonusLevels() {
@@ -524,7 +518,28 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public void decrementPortions(int amount) {
-        this.portions -= amount;
+        int ticker = amount;
+        DefaultedList<ItemStack> contents = this.getContents();
+        for (ItemStack content : contents) {
+            if (ticker <= 0) {
+                return;
+            }
+
+            if (content.getCount() >= ticker) {
+                content.decrement(ticker);
+                ticker = 0;
+            } else {
+                ticker -= content.getCount();
+                content.decrement(content.getCount());
+            }
+        }
+
+        this.markPortionsDirty();
+        this.markDirty();
+
+        if(this.getPortions() == 0) {
+            this.flush();
+        }
     }
 
     public static void tick(World world, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
@@ -564,11 +579,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
         if (blockEntity.canBoil()) {
-            int currentPortions = blockEntity.getFullStackCount();
-            if (blockEntity.portions != currentPortions) {
-                blockEntity.portions = currentPortions;
-            }
-
             if (blockEntity.getPortions() > 0) {
                 long time = world.getTime();
                 if (blockEntity.lastTime != 0) {
@@ -590,8 +600,16 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
     }
 
+    protected void markPortionsDirty() {
+        this.portionsDirty = true;
+    }
+
     //Sums the number of items in each stack in the pot
     public int getFullStackCount() {
+        if(!this.portionsDirty) {
+            return this.cachedPortions;
+        }
+
         int total = 0;
 
         if (!this.isEmpty()) {
@@ -603,6 +621,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
         }
 
+        this.cachedPortions = total;
+        this.portionsDirty = false;
         return total;
     }
 
@@ -631,8 +651,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public ItemStack getStack(int slot) {
         if (slot < this.size()) {
             return this.items.get(slot);
-        } else if (slot == this.size()) {
-            return this.makeStew();
+        } else if (slot == OUTPUT_SLOT && this.getPortions() > 0) {
+            ItemStack stew = this.makeStew();
+            this.decrementPortions(1);
+            return stew;
         }
 
         return ItemStack.EMPTY;
@@ -643,7 +665,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         if (slot < this.size()) {
             ItemStack result = Inventories.splitStack(this.items, slot, amount);
             if (!result.isEmpty()) {
-                markDirty();
+                this.markPortionsDirty();
+                this.markDirty();
             }
         } else if (slot == this.size()) {
             ItemStack stew = this.makeStew();
@@ -652,6 +675,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 int count = amount - 1;
                 stew.increment(count);
             }
+            this.markPortionsDirty();
+            this.markDirty();
             return stew;
         }
         return ItemStack.EMPTY;
@@ -670,6 +695,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 currentStack.increment(stack.getCount());
             }
             this.addFood(stack);
+            this.markPortionsDirty();
+            this.markDirty();
         }
     }
 
@@ -681,6 +708,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     @Override
     public void clear() {
         this.items.clear();
+        this.markPortionsDirty();
+        this.markDirty();
     }
 
     @Override
@@ -697,7 +726,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         boolean result = dir == Direction.UP
                 && this.canBoil()
                 && this.getCachedState().get(CrockPotBlock.HAS_LIQUID)
-                && this.portions < ConfigManager.maxPortionsPerPot()
+                && this.getPortions() < ConfigManager.maxPortionsPerPot()
                 && (this.hasEmptySlot() || this.hasStackOfType(stack.getItem()));
 
         return result;
@@ -705,7 +734,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return dir != Direction.UP && this.portions > 0;
+        return dir != Direction.UP && this.getPortions() > 0;
     }
 
     protected int filledSlotCount() {
