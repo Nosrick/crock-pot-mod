@@ -18,10 +18,8 @@ import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
@@ -56,7 +54,7 @@ public class StewItem extends Item {
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         ItemStack container = new ItemStack(stack.getItem().getRecipeRemainder());
 
-        world.emitGameEvent(GameEvent.EAT, user);
+        world.emitGameEvent(user, GameEvent.EAT, user.getBlockPos());
         world.playSound(
                 user.getX(),
                 user.getY(),
@@ -102,18 +100,18 @@ public class StewItem extends Item {
 
         if (ConfigManager.useCursedStew()) {
             if (getCurseLevel(stack) >= ConfigManager.minCowlLevel()) {
-                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                tooltip.set(0, Text.literal(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_GRAY)
                                 .withItalic(true)
                                 .withBold(true)));
-                tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
+                tooltip.add(Text.translatable("item.crockpot.stew.cowl_description"));
             } else if (getCurseLevel(stack) >= ConfigManager.stewMinNegativeLevelsEffect()) {
-                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
+                tooltip.set(0, Text.literal(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_RED)
                                 .withItalic(true)));
-                tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
+                tooltip.add(Text.translatable("item.crockpot.stew.cursed_description"));
             }
         }
 
@@ -121,23 +119,23 @@ public class StewItem extends Item {
             int hunger = getHunger(stack);
             int saturation = MathHelper.floor(hunger * getSaturation(stack) * 2f);
 
-            tooltip.add(new TranslatableText(
+            tooltip.add(Text.translatable(
                     "item.crockpot.stew.hunger", hunger)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.YELLOW)));
 
-            tooltip.add(new TranslatableText(
+            tooltip.add(Text.translatable(
                     "item.crockpot.stew.saturation", saturation)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.GOLD)));
         }
-        tooltip.add(new StewContentsTooltip(stack));
+        tooltip.add(StewContentsTooltip.of(stack));
 
         StatusEffectInstance effectInstance = getStatusEffect(stack);
         if (effectInstance != null) {
-            tooltip.add(new TranslatableText("tooltip.crockpot.effect",
-                    new TranslatableText(effectInstance.getTranslationKey())
-                            .append(new LiteralText(" " + (effectInstance.getAmplifier() + 1) + " - " + (effectInstance.getDuration() / 20))))
+            tooltip.add(Text.translatable("tooltip.crockpot.effect",
+                            Text.translatable(effectInstance.getTranslationKey())
+                            .append(Text.literal(" " + (effectInstance.getAmplifier() + 1) + " - " + (effectInstance.getDuration() / 20))))
                     .setStyle(Style.EMPTY)
                     .formatted(effectInstance.getEffectType().isBeneficial()
                             ? Formatting.GREEN

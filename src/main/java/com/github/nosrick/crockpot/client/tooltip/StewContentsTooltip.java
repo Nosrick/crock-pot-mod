@@ -10,29 +10,29 @@ import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.text.CharacterVisitor;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.OrderedText;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 import net.minecraft.util.math.Matrix4f;
 
 import java.util.List;
 
-public class StewContentsTooltip extends LiteralText implements OrderedText, TooltipComponent {
+public class StewContentsTooltip extends MutableText implements OrderedText, TooltipComponent {
 
     protected List<Item> contents;
     protected ItemStack stewStack;
-    protected TranslatableText contentsString;
+    protected MutableText contentsString;
 
-    public StewContentsTooltip(ItemStack stack) {
-        super("");
+     StewContentsTooltip(ItemStack stack) {
         this.stewStack = stack;
         this.contents = StewItem.getContents(stack);
-        this.contentsString = new TranslatableText("tooltip.crockpot.contents");
+        this.contentsString = Text.translatable("tooltip.crockpot.contents");
+    }
+
+    public static StewContentsTooltip of(ItemStack stack) {
+        return new StewContentsTooltip(stack);
     }
 
     @Override
-    public LiteralText copy() {
+    public MutableText copy() {
         return new StewContentsTooltip(this.stewStack);
     }
 
