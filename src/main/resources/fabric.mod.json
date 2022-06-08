@@ -36,17 +36,17 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.13.3",
+    "fabricloader": ">=0.14.6",
     "fabric": "*",
-    "minecraft": "1.18.x",
+    "minecraft": "1.19",
     "java": ">=16"
   },
   "recommends": {
-    "modmenu": ">=3.0.0",
-    "cloth-config": ">=6.1.48"
+    "modmenu": ">=4.0.0",
+    "cloth-config": ">=7.0.65"
   },
   "suggests": {
-    "appleskin": ">=mc1.18.2-2.4.0"
+    "appleskin": ">=mc1.19-2.4.0"
   },
 
   "custom": {

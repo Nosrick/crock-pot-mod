@@ -11,17 +11,21 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.*;
+import net.minecraft.util.Language;
 import net.minecraft.util.math.Matrix4f;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class StewContentsTooltip extends MutableText implements OrderedText, TooltipComponent {
+public class StewContentsTooltip implements Text, OrderedText, TooltipComponent {
 
     protected List<Item> contents;
     protected ItemStack stewStack;
     protected MutableText contentsString;
+    protected Language language;
+    protected OrderedText ordered;
 
-     StewContentsTooltip(ItemStack stack) {
+    StewContentsTooltip(ItemStack stack) {
         this.stewStack = stack;
         this.contents = StewItem.getContents(stack);
         this.contentsString = Text.translatable("tooltip.crockpot.contents");
@@ -32,14 +36,35 @@ public class StewContentsTooltip extends MutableText implements OrderedText, Too
     }
 
     @Override
-    public MutableText copy() {
-        return new StewContentsTooltip(this.stewStack);
+    public Style getStyle()
+    {
+        return Style.EMPTY;
+    }
+
+    @Override
+    public TextContent getContent()
+    {
+        return TextContent.EMPTY;
+    }
+
+    static List<Text> emptySiblings = new ArrayList<Text>();
+
+    @Override
+    public List<Text> getSiblings()
+    {
+        return emptySiblings;
     }
 
     @Override
     public OrderedText asOrderedText()
     {
-        return this;
+        Language language = Language.getInstance();
+        if (this.language != language) {
+            this.ordered = language.reorder(this);
+            this.language = language;
+        }
+
+        return this.ordered;
     }
 
     @Override
