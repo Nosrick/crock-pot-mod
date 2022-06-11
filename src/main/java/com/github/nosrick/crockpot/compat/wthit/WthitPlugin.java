@@ -8,10 +8,8 @@ import net.minecraft.inventory.Inventories;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
-import net.minecraft.world.World;
 
 import java.util.List;
 
@@ -23,8 +21,8 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
     }
 
     @Override
-    public void appendServerData(NbtCompound data, ServerPlayerEntity player, World world, BlockEntity blockEntity) {
-        if (blockEntity instanceof CrockPotBlockEntity crockPotBlock) {
+    public void appendServerData(NbtCompound data, IServerAccessor<BlockEntity> accessor, IPluginConfig config) {
+        if (accessor.getTarget() instanceof CrockPotBlockEntity crockPotBlock) {
             data.putInt(CrockPotBlockEntity.PORTIONS_NBT, crockPotBlock.getPortions());
             data.putInt(CrockPotBlockEntity.BONUS_LEVELS, crockPotBlock.getBonusLevels());
             Inventories.writeNbt(data, crockPotBlock.getContents());
@@ -41,10 +39,10 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             Inventories.readNbt(nbt, items);
 
             List<Item> contents = items.stream().takeWhile(itemStack -> !itemStack.isEmpty()).map(ItemStack::getItem).toList();
-            tooltip.addLine(new TranslatableText("tooltip.crockpot.portions", portions));
-            tooltip.addLine(new TranslatableText("tooltip.crockpot.bonus_levels", bonusLevels));
+            tooltip.addLine(Text.translatable("tooltip.crockpot.portions", portions));
+            tooltip.addLine(Text.translatable("tooltip.crockpot.bonus_levels", bonusLevels));
 
-            tooltip.addLine(new TranslatableText("values.crockpot.redstone_output.type",
+            tooltip.addLine(Text.translatable("values.crockpot.redstone_output.type",
                     crockPotBlockEntity.getRedstoneOutputType().localName));
 
             if (!contents.isEmpty()) {

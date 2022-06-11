@@ -48,7 +48,7 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
             Identifier assetLocation = new Identifier(namespace, content);
 
             if(!namespace.equalsIgnoreCase("minecraft")
-                    && !RESOURCE_MANAGER.containsResource(assetLocation)) {
+                    && RESOURCE_MANAGER.getResource(assetLocation).isEmpty()) {
                 //HERE BE DRAGONS
                 //We'll probably make a big list of things that don't follow conventions here
                 content = "textures/items/" + itemName;
