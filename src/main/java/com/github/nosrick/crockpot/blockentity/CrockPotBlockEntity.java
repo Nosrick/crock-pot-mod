@@ -33,14 +33,14 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
-import net.minecraft.text.LiteralText;
+import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -97,7 +97,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         public final int value;
         public final String name;
-        public final TranslatableText localName;
+        public final Text localName;
 
         static {
             for (RedstoneOutputType type : values()) {
@@ -107,7 +107,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         RedstoneOutputType(String translationKey, String name, int value) {
             this.name = name;
-            this.localName = new TranslatableText(translationKey);
+            this.localName = Text.translatable(translationKey);
             this.value = value;
         }
 
@@ -326,14 +326,14 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             StewItem.setCurseLevel(stew, ConfigManager.useCursedStew() ? this.curseLevel : 0);
             StewItem.setContents(stew, contents);
 
-            TranslatableText statusText = new TranslatableText(this.getStewTypeTranslationKey());
+            MutableText statusText = Text.translatable(this.getStewTypeTranslationKey());
             statusText.append(" ");
             if (ConfigManager.useCursedStew()
                     && this.curseLevel >= ConfigManager.minCowlLevel()) {
-                statusText.append(new TranslatableText("item.crockpot.stew.cowl"));
+                statusText.append(Text.translatable("item.crockpot.stew.cowl"));
             } else if (ConfigManager.useCursedStew()
                     && this.curseLevel >= ConfigManager.stewMinNegativeLevelsEffect()) {
-                statusText.append(new TranslatableText("item.crockpot.stew.cursed"));
+                statusText.append(Text.translatable("item.crockpot.stew.cursed"));
             } else {
                 if (this.filledSlotCount() < 4) {
                     String total = "";
@@ -345,35 +345,35 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     total = total.trim();
 
                     if (total.length() > ConfigManager.maxStewNameLength()) {
-                        statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
+                        statusText.append(Text.translatable("item.crockpot.stew.mixed"));
                     } else {
                         List<Text> list = new ArrayList<>();
                         for (int i = 0; i < contents.size(); i++) {
                             ItemStack content = contents.get(i);
 
-                            TranslatableText text = new TranslatableText(
+                            Text text = Text.translatable(
                                     content.getItem() instanceof StewItem
                                             ? "item.crockpot.stew_name"
                                             : content.getTranslationKey());
 
                             list.add(text);
                             if (i < contents.size() - 2) {
-                                list.add(new LiteralText(", "));
+                                list.add(Text.of(", "));
                             } else if (i < contents.size() - 1) {
-                                list.add(new LiteralText(" & "));
+                                list.add(Text.of(" & "));
                             }
                         }
 
                         list.forEach(statusText::append);
                     }
                 } else {
-                    statusText.append(new TranslatableText("item.crockpot.stew.mixed"));
+                    statusText.append(Text.translatable("item.crockpot.stew.mixed"));
                 }
             }
 
             if (!ConfigManager.useCursedStew()
                     || this.curseLevel < ConfigManager.minCowlLevel()) {
-                statusText = new TranslatableText("item.crockpot.stew", statusText);
+                statusText = Text.translatable("item.crockpot.stew", statusText);
             }
             stew.setCustomName(statusText);
 
