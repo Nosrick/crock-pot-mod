@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.HungerManager;
@@ -21,15 +22,17 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
-import net.minecraft.item.FoodComponent;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
+import net.minecraft.potion.Potions;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -40,6 +43,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +57,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public static final String HUNGER_NBT = "Hunger";
     public static final String SATURATION_NBT = "Saturation";
     public static final String NAME_NBT = "Name";
+    public static final String EFFECTS_NBT = "Effects";
     public static final String CURSE_LEVEL = "Curse Level";
     public static final String BONUS_LEVELS = "Bonus Levels";
     public static final String BOILING_TIME = "Boiling Time";
@@ -85,6 +90,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
 
     protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
+
+    protected List<StatusEffectInstance> potionEffects = List.of();
+
     protected static final int INVENTORY_SIZE = ConfigManager.ingredientSlots();
     protected static final int OUTPUT_SLOT = INVENTORY_SIZE + 1;
 
@@ -131,6 +139,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected CrockPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+        this.potionEffects = new ArrayList<>();
     }
 
     @Override
@@ -149,6 +158,20 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT)));
 
         Inventories.readNbt(nbt, this.items);
+
+        this.potionEffects.clear();
+
+        if (nbt.contains(EFFECTS_NBT)) {
+            NbtList nbtList = nbt.getList(EFFECTS_NBT, NbtElement.LIST_TYPE);
+            for (int i = 0; i < nbtList.size(); i++) {
+                NbtCompound nbtCompound = nbtList.getCompound(i);
+                StatusEffectInstance statusEffectInstance = StatusEffectInstance.fromNbt(nbtCompound);
+                if (statusEffectInstance == null) {
+                    continue;
+                }
+                this.potionEffects.add(statusEffectInstance);
+            }
+        }
 
         this.markPortionsDirty();
 
@@ -172,6 +195,15 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         Inventories.writeNbt(nbt, this.items);
 
+        if (!this.potionEffects.isEmpty()) {
+            NbtList effectsList = nbt.getList(EFFECTS_NBT, NbtElement.LIST_TYPE);
+            for (StatusEffectInstance statusEffect : this.potionEffects) {
+                effectsList.add(statusEffect.writeNbt(new NbtCompound()));
+            }
+
+            nbt.put(EFFECTS_NBT, effectsList);
+        }
+
         super.writeNbt(nbt);
     }
 
@@ -187,7 +219,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean canAddFood(ItemStack food) {
-        if (!food.isFood()) {
+        if((!ConfigManager.canAddPotions()
+            && food.getItem() instanceof PotionItem
+            || this.potionEffects.size() >= ConfigManager.effectPerPot())
+            || !food.isFood())
+        {
             return false;
         }
 
@@ -216,6 +252,23 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean addFood(ItemStack food) {
+        if (ConfigManager.canAddPotions()) {
+            Potion potion = PotionUtil.getPotion(food);
+            if (this.potionEffects.size() <= ConfigManager.effectPerPot()) {
+                this.potionEffects.addAll(potion.getEffects()
+                        .stream()
+                        .toList());
+
+                if (this.potionEffects.size() > ConfigManager.effectPerPot()) {
+                    this.potionEffects = this.potionEffects.subList(0, ConfigManager.effectPerPot());
+                }
+
+                return true;
+            }
+
+            return false;
+        }
+
         if (!this.canAddFood(food)) {
             return false;
         }
@@ -235,6 +288,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (!this.hasStackOfType(foodItem)) {
             this.items.set(this.getFirstEmptySlot(), new ItemStack(foodItem));
+        }
+        else {
+            this.getStackOfType(foodItem).increment(1);
         }
 
         this.markPortionsDirty();
@@ -295,9 +351,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
                 StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
                 if (ConfigManager.useItemPositiveEffects()
-                        && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()) {
+                        && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()
+                        && !ConfigManager.effectsOverride()) {
                     int duration = ConfigManager.basePositiveDuration() * 20 * this.bonusLevels;
-                    StewItem.setStatusEffect(
+                    StewItem.addStatusEffect(
                             stew,
                             new StatusEffectInstance(
                                     StatusEffects.SATURATION,
@@ -305,13 +362,21 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                                             ? Math.min(ConfigManager.maxPositiveDuration(), duration)
                                             : duration,
                                     Math.min(this.bonusLevels, 5)));
+                } else if (ConfigManager.canAddPotions()) {
+                    int max = Math.min(ConfigManager.effectPerPot(), this.potionEffects.size());
+                    for (int i = 0; i < max; i++) {
+                        StatusEffectInstance effect = this.potionEffects.get(i);
+                        StewItem.addStatusEffect(
+                                stew,
+                                effect);
+                    }
                 }
             } else {
                 StewItem.setHunger(stew, 0);
                 StewItem.setSaturation(stew, 0);
                 if (ConfigManager.useItemNegativeEffects()) {
                     int duration = ConfigManager.baseNauseaDuration() * 20 * this.curseLevel;
-                    StewItem.setStatusEffect(
+                    StewItem.addStatusEffect(
                             stew,
                             new StatusEffectInstance(
                                     StatusEffects.NAUSEA,
@@ -537,7 +602,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         this.markPortionsDirty();
         this.markDirty();
 
-        if(this.getPortions() == 0) {
+        if (this.getPortions() == 0) {
             this.flush();
         }
     }
@@ -606,7 +671,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     //Sums the number of items in each stack in the pot
     public int getFullStackCount() {
-        if(!this.portionsDirty) {
+        if (!this.portionsDirty) {
             return this.cachedPortions;
         }
 

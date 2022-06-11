@@ -22,7 +22,8 @@
 
   "tooltip.crockpot.portions": "Portions: %s",
   "tooltip.crockpot.bonus_levels": "Bonus Levels: %s",
-  "tooltip.crockpot.effect": "Effect: %ss",
+  "tooltip.crockpot.effect": "Effects",
+  "tooltip.crockpot.seconds": "s",
   "tooltip.crockpot.contents": "Contents: ",
   "tooltip.crockpot.powered": "Powered",
   "tooltip.crockpot.unpowered": "Not powered",
@@ -63,6 +64,9 @@
   "text.autoconfig.crockpot.option.gameplay.redstonePowerThreshold": "Redstone pot signal threshold",
   "text.autoconfig.crockpot.option.gameplay.canFillWithWaterBottle": "Pots can be filled with a water bottle",
   "text.autoconfig.crockpot.option.gameplay.ingredientSlots": "Number of usable inventory slots in the pot",
+  "text.autoconfig.crockpot.option.gameplay.canAddPotions": "Can add potions to a pot",
+  "text.autoconfig.crockpot.option.gameplay.effectsPerPot": "Maximum number of potion effects in one pot",
+  "text.autoconfig.crockpot.option.gameplay.effectsOverride": "Potion effects override other stew effects",
 
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",

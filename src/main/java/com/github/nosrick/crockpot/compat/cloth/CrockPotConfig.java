@@ -70,6 +70,15 @@ public class CrockPotConfig implements ConfigData {
 
         @Comment("How many different foods can go into a single pot")
         public int ingredientSlots = 8;
+
+        @Comment("Can stews inherit potion effects?")
+        public boolean canAddPotions = false;
+
+        @Comment("How many extra effects can go in one pot?")
+        public int effectsPerPot = 2;
+
+        @Comment("Should potion effects replace default effects?")
+        public boolean effectsOverride = true;
     }
 
     @ConfigEntry.Category("sound")

@@ -280,4 +280,28 @@ public class ConfigManager {
 
         return 8;
     }
+
+    public static boolean canAddPotions() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.canAddPotions;
+        }
+
+        return false;
+    }
+
+    public static int effectPerPot() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.effectsPerPot;
+        }
+
+        return 2;
+    }
+
+    public static boolean effectsOverride() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.effectsOverride;
+        }
+
+        return true;
+    }
 }

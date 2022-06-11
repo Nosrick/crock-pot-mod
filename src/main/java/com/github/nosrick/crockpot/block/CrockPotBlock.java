@@ -250,7 +250,7 @@ public class CrockPotBlock extends BlockWithEntity {
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, volume, 1.0F);
                     }
                 }
-            } else if (held.isFood()) {
+            } else if (potBlockEntity.canAddFood(held)) {
                 boolean result = potBlockEntity.addFood(held, player);
                 if (result) {
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
