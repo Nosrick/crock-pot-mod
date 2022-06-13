@@ -22,7 +22,9 @@ import net.minecraft.stat.Stats;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.registry.Registry;
@@ -49,6 +51,35 @@ public class StewItem extends Item {
                 .recipeRemainder(Items.BOWL));
     }
 
+    public static FoodComponent ConstructFoodComponent(ItemStack stack) {
+        if(stack.getItem() instanceof StewItem) {
+            return new FoodComponent.Builder()
+                    .hunger(StewItem.getHunger(stack))
+                    .saturationModifier(StewItem.getSaturation(stack))
+                    .build();
+        }
+
+        return new FoodComponent.Builder().build();
+    }
+
+    @Override
+    public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
+        ItemStack playerStack = user.getStackInHand(hand);
+        if(playerStack.getItem() instanceof StewItem) {
+            CrockPotMod.FOOD_MANAGER.PlayerBeginsEating(user, StewItem.ConstructFoodComponent(playerStack));
+        }
+
+        return super.use(world, user, hand);
+    }
+
+    @Override
+    public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
+        super.onStoppedUsing(stack, world, user, remainingUseTicks);
+        if(user instanceof PlayerEntity player) {
+            CrockPotMod.FOOD_MANAGER.PlayerFinishesEating(player);
+        }
+    }
+
     @Override
     public ItemStack finishUsing(ItemStack stack, World world, LivingEntity user) {
         ItemStack container = new ItemStack(stack.getItem().getRecipeRemainder());
@@ -65,7 +96,8 @@ public class StewItem extends Item {
                 true);
 
         if (user instanceof PlayerEntity player) {
-            player.getHungerManager().eat(this, stack);
+            FoodComponent foodComponent = CrockPotMod.FOOD_MANAGER.GetFoodForPlayer(player);
+            player.getHungerManager().add(foodComponent.getHunger(), foodComponent.getSaturationModifier());
             List<StatusEffectInstance> statusEffects = PotionUtil.getPotionEffects(stack);
 
             if (!statusEffects.isEmpty()) {
@@ -79,6 +111,8 @@ public class StewItem extends Item {
             if (!player.getAbilities().creativeMode) {
                 stack.decrement(1);
             }
+
+            CrockPotMod.FOOD_MANAGER.PlayerFinishesEating(player);
         }
 
         if (stack.isEmpty()) {

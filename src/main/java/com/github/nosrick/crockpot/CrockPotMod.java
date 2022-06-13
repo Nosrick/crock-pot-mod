@@ -6,6 +6,7 @@ import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
+import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.impl.registry.sync.FabricRegistry;
@@ -32,6 +33,8 @@ public class CrockPotMod implements ModInitializer {
             () -> new ItemStack(ItemRegistry.CROCK_POT.get()));
 
     public static final List<String> MODS_LOADED = new ArrayList<>();
+
+    public static final FoodManager FOOD_MANAGER = new FoodManager();
 
     @Override
     public void onInitialize() {
