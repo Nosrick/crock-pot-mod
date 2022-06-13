@@ -64,7 +64,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
             this.language = language;
         }
 
-        return this.ordered;
+        return this;
     }
 
     @Override
