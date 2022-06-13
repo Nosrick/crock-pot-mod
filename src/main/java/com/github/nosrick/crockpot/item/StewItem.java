@@ -3,6 +3,7 @@ package com.github.nosrick.crockpot.item;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.client.tooltip.StewContentsTooltip;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import com.github.nosrick.crockpot.util.NbtListUtil;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.minecraft.client.item.TooltipContext;
 import net.minecraft.entity.LivingEntity;
@@ -203,12 +204,6 @@ public class StewItem extends Item {
         return stack.getOrCreateNbt().getInt(CURSED_NBT);
     }
 
-    public static void setContents(ItemStack stack, List<String> contents) {
-        NbtList list = new NbtList();
-        list.addAll(contents.stream().map(NbtString::of).toList());
-        stack.getOrCreateNbt().put(CONTENTS_NBT, list);
-    }
-
     public static void setContents(ItemStack stack, DefaultedList<ItemStack> contents) {
         NbtList list = new NbtList();
         List<String> strings = contents
@@ -239,5 +234,10 @@ public class StewItem extends Item {
         effects.add(statusEffectInstance);
 
         PotionUtil.setCustomPotionEffects(stack, effects);
+        stack.getOrCreateNbt().put(EFFECTS_NBT, NbtListUtil.nbtListFromStatusEffectInstances(effects));
+    }
+
+    public static List<StatusEffectInstance> getStatusEffects(ItemStack stack) {
+        return PotionUtil.getCustomPotionEffects(stack);
     }
 }

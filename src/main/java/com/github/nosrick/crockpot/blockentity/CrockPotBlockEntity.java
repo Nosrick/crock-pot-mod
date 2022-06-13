@@ -160,7 +160,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (nbt.contains(EFFECTS_NBT)) {
             NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
-            this.potionEffects = NbtListUtil.effectInstanceCollectionFromNbtList(nbtList).stream().toList();
+            this.potionEffects = new ArrayList<>(NbtListUtil.effectInstanceCollectionFromNbtList(nbtList));
         }
 
         this.markPortionsDirty();
