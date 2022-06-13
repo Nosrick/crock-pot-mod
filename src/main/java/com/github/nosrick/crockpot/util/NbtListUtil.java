@@ -11,6 +11,11 @@ public abstract class NbtListUtil {
 
     public static NbtList nbtListFromStatusEffectInstances(Collection<StatusEffectInstance> collection) {
         NbtList list = new NbtList();
+
+        if(collection == null || collection.isEmpty()) {
+            return list;
+        }
+
         for(StatusEffectInstance effectInstance : collection) {
             list.add(effectInstance.writeNbt(new NbtCompound()));
         }
@@ -19,6 +24,10 @@ public abstract class NbtListUtil {
     }
 
     public static Collection<StatusEffectInstance> effectInstanceCollectionFromNbtList(NbtList nbtList) {
+        if(nbtList == null) {
+            return new ArrayList<>();
+        }
+
         ArrayList<StatusEffectInstance> effectInstances = new ArrayList<>();
 
         for(int i = 0; i < nbtList.size(); i++) {
