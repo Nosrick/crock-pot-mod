@@ -87,7 +87,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
 
-    protected List<StatusEffectInstance> potionEffects = List.of();
+    protected List<StatusEffectInstance> potionEffects;
 
     protected static final int INVENTORY_SIZE = ConfigManager.ingredientSlots();
     protected static final int OUTPUT_SLOT = INVENTORY_SIZE + 1;
@@ -603,6 +603,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     public int getPortions() {
         return this.getFullStackCount();
+    }
+
+    public List<StatusEffectInstance> getPotionEffects() {
+        return new ArrayList<>(this.potionEffects);
     }
 
     public int getBonusLevels() {
