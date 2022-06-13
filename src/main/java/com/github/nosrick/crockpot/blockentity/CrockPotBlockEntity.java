@@ -8,6 +8,7 @@ import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
+import com.github.nosrick.crockpot.util.NbtListUtil;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -159,14 +160,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (nbt.contains(EFFECTS_NBT)) {
             NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
-            for (int i = 0; i < nbtList.size(); i++) {
-                NbtCompound nbtCompound = nbtList.getCompound(i);
-                StatusEffectInstance statusEffectInstance = StatusEffectInstance.fromNbt(nbtCompound);
-                if (statusEffectInstance == null) {
-                    continue;
-                }
-                this.potionEffects.add(statusEffectInstance);
-            }
+            this.potionEffects = NbtListUtil.effectInstanceCollectionFromNbtList(nbtList).stream().toList();
         }
 
         this.markPortionsDirty();
@@ -192,12 +186,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         Inventories.writeNbt(nbt, this.items);
 
         if (!this.potionEffects.isEmpty()) {
-            NbtList effectsList = new NbtList();
-            for (StatusEffectInstance statusEffect : this.potionEffects) {
-                effectsList.add(statusEffect.writeNbt(new NbtCompound()));
-            }
-
-            nbt.put(EFFECTS_NBT, effectsList);
+            nbt.put(EFFECTS_NBT, NbtListUtil.nbtListFromStatusEffectInstances(this.potionEffects));
         }
 
         super.writeNbt(nbt);
