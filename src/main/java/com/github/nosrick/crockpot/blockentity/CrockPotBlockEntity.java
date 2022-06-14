@@ -198,12 +198,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public boolean canAddFood(ItemStack food) {
         if ((!ConfigManager.canAddPotions()
                 && food.getItem() instanceof PotionItem
-                || this.potionEffects.size() >= ConfigManager.effectPerPot())
-                && !food.isFood()) {
+                || this.potionEffects.size() >= ConfigManager.effectPerPot())) {
             return false;
         }
 
-        if (!food.isFood()) {
+        if(!food.isFood()) {
             return false;
         }
 
@@ -837,7 +836,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             if (slot < AVAILABLE_INVENTORY
                     && this.getPortions() + stack.getCount() <= ConfigManager.maxPortionsPerPot()) {
                 result = this.canAddFood(stack);
-            } else if (slot == BOWL_SLOT) {
+            } else if (slot == BOWL_SLOT
+                && stack.getItem() == Items.BOWL) {
                 ItemStack bowls = this.items.get(BOWL_SLOT);
                 result = bowls.getCount() < bowls.getMaxCount();
             } else {
@@ -856,7 +856,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected int filledSlotCount() {
         int count = 0;
         for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
-            if (getStack(i) != ItemStack.EMPTY) {
+            if (this.getStack(i) != ItemStack.EMPTY) {
                 count++;
             }
         }
@@ -867,7 +867,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected int emptySlotCount() {
         int count = 0;
         for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
-            if (getStack(i) == ItemStack.EMPTY) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
                 count++;
             }
         }
@@ -877,7 +877,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected int getFirstEmptySlot() {
         for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
-            if (getStack(i) == ItemStack.EMPTY) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
                 return i;
             }
         }
@@ -887,7 +887,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected boolean hasEmptySlot() {
         for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
-            if (getStack(i) == ItemStack.EMPTY) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
                 return true;
             }
         }
@@ -897,7 +897,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected boolean hasStackOfType(Item item) {
         for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
-            if (getStack(i).getItem() == item) {
+            if (this.getStack(i).getItem() == item) {
                 return true;
             }
         }
