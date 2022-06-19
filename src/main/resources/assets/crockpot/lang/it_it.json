@@ -1,0 +1,81 @@
+
+{
+  "_comment": "Italian has feminine and masculine, meaning that the use of some words might not match, once the mod implements this first lang file i'll see what i can do to make it 'gender neutral' and make another pr",
+  "item.crockpot.stew": "Stufato di %s",
+  "item.crockpot.stew_name": "Stufato",
+  "item.crockpot.stew.mixed": "Misto",
+  "item.crockpot.stew.mistake": "Terribile Errore",
+  "item.crockpot.stew.cursed": "Maledetto",
+  "item.crockpot.stew.cursed_description": "Fatto bollire una volta di troppo",
+  "item.crockpot.stew.cowl": "Cappa Mag-mu",
+  "item.crockpot.stew.cowl_description": "Non edibile!",
+  "item.crockpot.stew.plain": "Semplice",
+  "item.crockpot.stew.satisfying": "Soddisfacente",
+  "item.crockpot.stew.filling": "Saziante",
+  "item.crockpot.stew.hearty": "Abbondante",
+  "item.crockpot.stew.hunger": "Fame: %s",
+  "item.crockpot.stew.saturation":  "Saturazione: %s",
+
+  "block.crockpot.crock_pot": "Pentola di Coccio",
+
+  "crockpot.subtitles.crock_pot_boil": "Pentola di Coccio cucina",
+  "crockpot.subtitles.crock_pot_bubble": "Pentola di Coccio bolle",
+  "crockpot.subtitles.crock_pot_splash": "Pentola di Coccio schizza",
+
+  "tooltip.crockpot.portions": "Porzioni: %s",
+  "tooltip.crockpot.bonus_levels": "Livelli Bonus: %s",
+  "tooltip.crockpot.effect": "Effetto: %ss",
+  "tooltip.crockpot.contents": "Contenuti: ",
+  "tooltip.crockpot.powered": "Alimentato",
+  "tooltip.crockpot.unpowered": "Npn Alimentato",
+
+  "values.crockpot.redstone_output.type": "Tipo di Segnale: %s",
+  "values.crockpot.redstone_output.bonus_levels": "Livelli Bonus",
+  "values.crockpot.redstone_output.portions": "Porzioni",
+
+  "itemGroup.crockpot.main": "Pentola di Coccio",
+
+  "text.autoconfig.crockpot.title": "Opzioni Pentola di Coccio",
+  "text.autoconfig.crockpot.option.nothing": "Niente da vedere qui, cittadino.",
+
+  "text.autoconfig.crockpot.category.default": "Generale",
+
+  "text.autoconfig.crockpot.category.gameplay": "Gioco",
+  "text.autoconfig.crockpot.option.gameplay.maxBonusLevels": "Livelli bonus massimi",
+  "text.autoconfig.crockpot.option.gameplay.cowlCurseLevels": "Livelli maledizione cappa",
+  "text.autoconfig.crockpot.option.gameplay.cursedStew": "Crea stufato maledetto",
+  "text.autoconfig.crockpot.option.gameplay.boilSecondsPerLevel": "Numero di secondi per livello bonus",
+  "text.autoconfig.crockpot.option.gameplay.maxPortions": "Porzioni massime in una pentola",
+  "text.autoconfig.crockpot.option.gameplay.itemPositiveEffects": "Stufato buono ha effetti positivi",
+  "text.autoconfig.crockpot.option.gameplay.itemMinPositiveBonusLevel": "Livelli bonus minimi per effetti positivi",
+  "text.autoconfig.crockpot.option.gameplay.itemNegativeEffects": "Stufato maledetto ha effetti negativi",
+  "text.autoconfig.crockpot.option.gameplay.itemMinNegativeCurseLevel": "Livelli maledetti minimi per effetti negativi",
+  "text.autoconfig.crockpot.option.gameplay.maxStewNameLength": "Termina nomi lunghi per Stufati misti",
+  "text.autoconfig.crockpot.option.gameplay.baseNauseaDuration": "Durata nausea base",
+  "text.autoconfig.crockpot.option.gameplay.cappedNauseaDuration": "Durata nausea limite",
+  "text.autoconfig.crockpot.option.gameplay.maxNauseaDuration": "Durata nausea massima",
+  "text.autoconfig.crockpot.option.gameplay.cappedPositiveDuration": "Limita durata effetti positivi",
+  "text.autoconfig.crockpot.option.gameplay.basePositiveDuration": "Durata effetti positivi base",
+  "text.autoconfig.crockpot.option.gameplay.maxPositiveDuration": "Durata massima effetti positivi",
+  "text.autoconfig.crockpot.option.gameplay.minSatisfyingLevel": "Livello minimo per stufato soffisfacente",
+  "text.autoconfig.crockpot.option.gameplay.minFillingLevel": "Livello minimo per stufato saziante",
+  "text.autoconfig.crockpot.option.gameplay.minHeartyLevel": "Livello minimo per stufato abbondante",
+  "text.autoconfig.crockpot.option.gameplay.redstoneNeedsPower": "Pentola a redstone richiede energia",
+  "text.autoconfig.crockpot.option.gameplay.redstonePowerThreshold": "Soglia segnale pentola a redstone",
+  "text.autoconfig.crockpot.option.gameplay.canFillWithWaterBottle": "Pentole possono essere riempite con una bottiglia d'acqua",
+
+
+  "text.autoconfig.crockpot.category.sound": "Effetti Sonori",
+  "text.autoconfig.crockpot.option.sound.bubbleSoundChance": "Probabilità di suono bolle",
+  "text.autoconfig.crockpot.option.sound.boilSoundChance": "Probabilità di suono cottura",
+  "text.autoconfig.crockpot.option.sound.useBoilSound": "Usa suono cottura",
+  "text.autoconfig.crockpot.option.sound.useBubbleSound": "Usa suono bolla",
+  "text.autoconfig.crockpot.option.sound.soundEffectVolume": "Modificatore volume per effetti sonori",
+
+  "text.autoconfig.crockpot.category.graphics": "Video",
+  "text.autoconfig.crockpot.option.graphics.bubbleParticleChance": "Probabilità particella bolla",
+  "text.autoconfig.crockpot.option.graphics.boilParticleChance": "Probabilità particella cottura",
+  "text.autoconfig.crockpot.option.graphics.useBoilParticles": "Usa particelle di cottura",
+  "text.autoconfig.crockpot.option.graphics.useBubbleParticles": "Usa particelle bolle",
+  "text.autoconfig.crockpot.option.graphics.animateBoilingLid": "Anima il coperchio"
+}
