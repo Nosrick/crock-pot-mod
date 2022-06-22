@@ -67,6 +67,9 @@ public class CrockPotConfig implements ConfigData {
         public int minFillingLevel = 3;
         @Comment("Minimum bonus levels before a stew can be called 'hearty'")
         public int minHeartyLevel = 5;
+
+        @Comment("How many different foods can go into a single pot")
+        public int ingredientSlots = 8;
     }
 
     @ConfigEntry.Category("sound")

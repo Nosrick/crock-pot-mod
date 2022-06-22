@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot.blockentity;
 
 import com.github.nosrick.crockpot.config.ConfigManager;
-import com.github.nosrick.crockpot.inventory.CrockPotInventory;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.item.StewItem;
@@ -17,9 +16,9 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
-import net.minecraft.entity.player.HungerManager;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
+import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
@@ -47,7 +46,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
-public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventory, SidedInventory {
+public class CrockPotBlockEntity extends BlockEntity implements Inventory, SidedInventory {
 
     public static final String PORTIONS_NBT = "Portions";
     public static final String HUNGER_NBT = "Hunger";
@@ -64,8 +63,11 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
-    protected int portions = 0;
     protected int hunger = 0;
+
+    protected int cachedPortions = 0;
+    protected boolean portionsDirty = false;
+
     protected float saturation = 0.0F;
     protected int curseLevel = 0;
     protected int bonusLevels = 0;
@@ -79,15 +81,17 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     protected FoodComponent foodComponent;
 
-    protected final CrockPotHungerManager myHungerManager = new CrockPotHungerManager(this);
+    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(TOTAL_SLOTS, ItemStack.EMPTY);
 
-    protected final DefaultedList<ItemStack> items = DefaultedList.ofSize(INVENTORY_SIZE, ItemStack.EMPTY);
-    protected static final int INVENTORY_SIZE = 9;
-    protected static final int OUTPUT_SLOT = 8;
+    protected static final int AVAILABLE_INVENTORY = ConfigManager.ingredientSlots();
+    protected static final int TOTAL_SLOTS = AVAILABLE_INVENTORY + 2;
+    protected static final int BOWL_SLOT = AVAILABLE_INVENTORY;
+    protected static final int OUTPUT_SLOT = BOWL_SLOT + 1;
 
     public enum RedstoneOutputType implements StringIdentifiable {
-        BONUS_LEVELS("values.crockpot.redstone_output.bonus_levels", "bonus_levels", 0),
-        PORTIONS("values.crockpot.redstone_output.portions", "portions", 1);
+        NONE("values.crockpot.redstone_output.none", "none", 0),
+        BONUS_LEVELS("values.crockpot.redstone_output.bonus_levels", "bonus_levels", 1),
+        PORTIONS("values.crockpot.redstone_output.portions", "portions", 2);
 
         private static final Map<Integer, RedstoneOutputType> VALUES = new HashMap<>();
 
@@ -132,7 +136,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     @Override
     public void readNbt(NbtCompound nbt) {
         this.name = nbt.getString(NAME_NBT);
-        this.portions = nbt.getInt(PORTIONS_NBT);
         this.hunger = nbt.getInt(HUNGER_NBT);
         this.saturation = nbt.getFloat(SATURATION_NBT);
 
@@ -143,9 +146,11 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         this.curseLevel = nbt.getInt(CURSE_LEVEL);
         this.electric = nbt.getBoolean(ELECTRIC_NBT);
 
-        this.redstoneOutputType = RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT));
+        this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT)));
 
         Inventories.readNbt(nbt, this.items);
+
+        this.markDirty();
 
         super.readNbt(nbt);
     }
@@ -153,7 +158,6 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     @Override
     protected void writeNbt(NbtCompound nbt) {
         nbt.putString(NAME_NBT, this.name);
-        nbt.putInt(PORTIONS_NBT, this.portions);
         nbt.putInt(HUNGER_NBT, this.hunger);
         nbt.putFloat(SATURATION_NBT, this.saturation);
 
@@ -171,65 +175,75 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         super.writeNbt(nbt);
     }
 
-    public void add(int food, float saturationModifier) {
-        int hunger = Math.round((100f * (((this.portions - 1) * this.hunger) + food) / this.portions) / 100);
-        float saturation = ((100f * (((this.portions - 1) * this.saturation) + saturationModifier) / this.portions) / 100f);
+    public void addFoodValues(int hunger, float saturationModifier) {
+        int portions = this.getPortions();
+        this.hunger = Math.round((100f * (((portions - 1) * this.hunger) + hunger) / portions) / 100);
+        this.saturation = ((100f * (((portions - 1) * this.saturation) + saturationModifier) / portions) / 100f);
+    }
 
-        this.foodComponent = new FoodComponent.Builder()
-                .hunger(hunger)
-                .saturationModifier(saturation)
-                .build();
+    public boolean canAddFood(ItemStack food) {
+        if(!food.isFood()) {
+            return false;
+        }
+
+        if (!this.canBoil()) {
+            return false;
+        }
+
+        if (!this.hasEmptySlot() && !this.hasStackOfType(food.getItem())) {
+            return false;
+        }
+
+        if (this.getPortions() >= ConfigManager.maxPortionsPerPot()) {
+            return false;
+        }
+
+        return true;
     }
 
     public boolean addFood(ItemStack food, PlayerEntity player) {
-        if (!food.isFood() || !this.hasEmptySlot()) {
+        if (this.addFood(food) && !player.isCreative()) {
+            food.decrement(1);
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean addFood(ItemStack food) {
+        if (!this.canAddFood(food)) {
             return false;
         }
 
         Item foodItem = food.getItem();
 
-        if (this.portions < ConfigManager.maxPortionsPerPot()) {
-            if (this.portions == 0) {
-                this.items.clear();
-            }
-
-            this.portions++;
-
-            if (food.getItem() instanceof StewItem
-                    && ConfigManager.useCursedStew()) {
-                this.curseLevel += 1;
-            }
-
-            this.myHungerManager.eat(foodItem, food);
-            this.boilingTime = 0;
-            this.bonusLevels = 0;
-            this.hunger = this.foodComponent.getHunger();
-            this.saturation = this.foodComponent.getSaturationModifier();
-
-            if (!this.hasStackOfType(foodItem)) {
-                this.setStack(this.getFirstEmptySlot(), new ItemStack(foodItem));
-            }
-
-            ItemStack stew = this.makeStew();
-            stew.increment(this.portions - 1);
-            this.setStack(OUTPUT_SLOT, stew);
-
-            this.markDirty();
-
-            if (this.hasWorld()) {
-                this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
-            }
-
-            if (!player.isCreative()) {
-                food.decrement(1);
-            }
-
-            this.updateNearby();
-
-            return true;
+        if (food.getItem() instanceof StewItem
+                && ConfigManager.useCursedStew()) {
+            this.curseLevel += 1;
         }
 
-        return false;
+        FoodComponent foodComponent = foodItem.getFoodComponent();
+        if (foodComponent == null) {
+            return false;
+        }
+        this.boilingTime = 0;
+        this.bonusLevels = 0;
+
+        if (!this.hasStackOfType(foodItem)) {
+            this.items.set(this.getFirstEmptySlot(), new ItemStack(foodItem));
+        } else {
+            this.getStackOfType(foodItem).increment(1);
+        }
+
+        this.markDirty();
+
+        this.addFoodValues(foodComponent.getHunger(), foodComponent.getSaturationModifier());
+        if (this.hasWorld()) {
+            this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+        }
+        this.updateNearby();
+
+        return true;
     }
 
     @Nullable
@@ -246,13 +260,14 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
         ItemStack stew = this.makeStew();
         if (stew != null) {
             if (!player.isCreative()) {
-                this.decrementPortions();
+                this.decrementPortions(1);
                 container.decrement(1);
             }
 
-            if (this.portions <= 0) {
+            if (this.getPortions() <= 0) {
                 this.flush();
             }
+
             this.markDirty();
 
             if (this.hasWorld()) {
@@ -269,7 +284,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     protected ItemStack makeStew() {
 
-        if (this.portions > 0) {
+        if (this.getPortions() > 0) {
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
             float boilingIntensity = this.getBoilingIntensity() / 2f;
 
@@ -362,20 +377,18 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             return stew;
         }
 
-        return null;
+        return ItemStack.EMPTY;
     }
 
     public DefaultedList<ItemStack> getContents() {
-        DefaultedList<ItemStack> contents = DefaultedList.of();
-        contents.addAll(this.items.stream().limit(OUTPUT_SLOT).takeWhile(itemStack -> !itemStack.isEmpty()).toList());
+        DefaultedList<ItemStack> contents = DefaultedList.ofSize(ConfigManager.ingredientSlots());
+        contents.addAll(this.items.stream().takeWhile(itemStack -> !itemStack.isEmpty()).toList());
         return contents;
     }
 
     public void flush() {
-        this.items.clear();
         this.hunger = 0;
         this.saturation = 0;
-        this.portions = 0;
         this.boilingTime = 0;
         this.bonusLevels = 0;
 
@@ -387,12 +400,14 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
                     this.getCachedState()
                             .with(CrockPotBlock.HAS_LIQUID, false));
         }
+
+        this.clear();
         this.markDirty();
         this.updateNearby();
     }
 
     public boolean hasFood() {
-        return this.portions > 0;
+        return this.getPortions() > 0;
     }
 
     public boolean isElectric() {
@@ -413,10 +428,17 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     public void setRedstoneOutputType(RedstoneOutputType type) {
         this.redstoneOutputType = type;
+
         this.markDirty();
 
         if (!this.hasWorld()) {
             return;
+        }
+
+        if (this.redstoneOutputType == RedstoneOutputType.NONE) {
+            this.world.setBlockState(this.pos, this.getCachedState().with(CrockPotBlock.EMITS_SIGNAL, false));
+        } else {
+            this.world.setBlockState(this.pos, this.getCachedState().with(CrockPotBlock.EMITS_SIGNAL, true));
         }
 
         if (this.world.isClient) {
@@ -427,7 +449,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     protected void updateNearby() {
-        if(!this.hasWorld()) {
+        if (!this.hasWorld()) {
             return;
         }
 
@@ -440,7 +462,9 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     public boolean canBoil() {
-        if (this.isElectric()) {
+        boolean hasWater = this.getCachedState().get(CrockPotBlock.HAS_LIQUID);
+
+        if (hasWater && this.isElectric()) {
             if (ConfigManager.redstoneNeedsPower()) {
                 if (this.hasWorld()
                         && this.world.getReceivedRedstonePower(this.pos) > ConfigManager.redstonePowerThreshold()) {
@@ -452,7 +476,7 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
             return true;
         }
 
-        return this.isAboveLitHeatSource();
+        return hasWater && this.isAboveLitHeatSource();
     }
 
     public RedstoneOutputType getRedstoneOutputType() {
@@ -486,15 +510,39 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     public int getPortions() {
-        return this.portions;
+        return this.getFullStackCount();
     }
 
     public int getBonusLevels() {
         return this.bonusLevels;
     }
 
-    public void decrementPortions() {
-        this.portions -= 1;
+    public void decrementPortions(int amount) {
+        int ticker = amount;
+        for (ItemStack content : this.items) {
+            if (ticker <= 0) {
+                break;
+            }
+
+            if (content.isEmpty()) {
+                continue;
+            }
+
+            if (content.getCount() >= ticker) {
+                content.decrement(ticker);
+                ticker = 0;
+            } else {
+                ticker -= content.getCount();
+                content.decrement(content.getCount());
+            }
+        }
+
+        this.getStack(OUTPUT_SLOT).decrement(amount);
+        this.markDirty();
+
+        if (this.getPortions() == 0) {
+            this.flush();
+        }
     }
 
     public static void tick(World world, BlockPos blockPos, BlockState blockState, BlockEntity blockEntity) {
@@ -533,26 +581,71 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
         BlockState blockState = world.getBlockState(blockEntity.pos);
 
-        if (blockEntity.canBoil()
-                && blockEntity.getPortions() > 0) {
-            long time = world.getTime();
-            if (blockEntity.lastTime != 0) {
-                blockEntity.boilingTime += time - blockEntity.lastTime;
-            }
-            blockEntity.lastTime = time;
+        if (blockEntity.canBoil()) {
+            if (blockEntity.getPortions() > 0) {
+                long time = world.getTime();
+                if (blockEntity.lastTime != 0) {
+                    blockEntity.boilingTime += time - blockEntity.lastTime;
+                }
+                blockEntity.lastTime = time;
 
-            if (blockEntity.boilingTime > ConfigManager.boilTimePerLevel()
-                    && blockEntity.bonusLevels < ConfigManager.maxBonusLevels()) {
-                blockEntity.bonusLevels += 1;
-                blockEntity.boilingTime -= ConfigManager.boilTimePerLevel();
-                blockEntity.markDirty();
-                world.updateListeners(blockEntity.pos, blockState, blockState, 0);
-                world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
+                if (blockEntity.boilingTime > ConfigManager.boilTimePerLevel()
+                        && blockEntity.bonusLevels < ConfigManager.maxBonusLevels()) {
+                    blockEntity.bonusLevels += 1;
+                    blockEntity.boilingTime -= ConfigManager.boilTimePerLevel();
+                    blockEntity.markDirty();
+                    world.updateListeners(blockEntity.pos, blockState, blockState, 0);
+                    world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
+                }
             }
-        }
-        else {
+        } else {
             blockEntity.lastTime = world.getTime();
         }
+    }
+
+    protected void markPortionsDirty() {
+        this.portionsDirty = true;
+    }
+
+    protected void recalculateStews() {
+        ItemStack stews = this.items.get(OUTPUT_SLOT);
+        stews = this.makeStew();
+
+        if (!(stews.getItem() instanceof StewItem)) {
+            return;
+        }
+
+        stews.increment(this.getPortions() - 1);
+        this.items.set(OUTPUT_SLOT, stews);
+    }
+
+    @Override
+    public void markDirty() {
+        this.markPortionsDirty();
+        this.recalculateStews();
+        super.markDirty();
+    }
+
+    //Sums the number of items in each stack in the pot
+    public int getFullStackCount() {
+        if (!this.portionsDirty) {
+            return this.cachedPortions;
+        }
+
+        int total = 0;
+
+        if (!this.isEmpty()) {
+            DefaultedList<ItemStack> contents = this.getContents();
+            for (int i = 0; i < contents.size(); i++) {
+                ItemStack stack = contents.get(i);
+
+                total += stack.getCount();
+            }
+        }
+
+        this.cachedPortions = total;
+        this.portionsDirty = false;
+        return total;
     }
 
     @Nullable
@@ -567,14 +660,87 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
     }
 
     @Override
-    public DefaultedList<ItemStack> getItems() {
-        return this.items;
+    public int size() {
+        return this.items.size();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return this.items.isEmpty();
+    }
+
+    @Override
+    public ItemStack getStack(int slot) {
+        if (slot < AVAILABLE_INVENTORY) {
+            return this.items.get(slot);
+        } else if (slot == BOWL_SLOT) {
+            return this.items.get(BOWL_SLOT);
+        } else if (slot == OUTPUT_SLOT
+                && this.getPortions() > 0
+                && this.items.get(BOWL_SLOT).getCount() > 0) {
+            return this.items.get(OUTPUT_SLOT);
+        }
+
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot, int amount) {
+        if (slot < AVAILABLE_INVENTORY) {
+            ItemStack result = Inventories.splitStack(this.items, slot, amount);
+            if (!result.isEmpty()) {
+                this.markPortionsDirty();
+                this.markDirty();
+            }
+        } else if (slot == OUTPUT_SLOT
+                && this.getPortions() >= amount
+                && this.getStack(BOWL_SLOT).getCount() >= amount) {
+            ItemStack stew = this.makeStew();
+            this.decrementPortions(amount);
+            this.getStack(BOWL_SLOT).decrement(amount);
+            if (amount > 1) {
+                int count = amount - 1;
+                stew.increment(count);
+            }
+            this.markDirty();
+            return stew;
+        }
+        return ItemStack.EMPTY;
+    }
+
+    @Override
+    public ItemStack removeStack(int slot) {
+        return this.removeStack(slot, 1);
+    }
+
+    @Override
+    public void setStack(int slot, ItemStack stack) {
+        if (slot < AVAILABLE_INVENTORY
+                && this.canAddFood(stack)) {
+            this.addFood(stack);
+        } else if (slot == BOWL_SLOT
+                && stack.getItem() == Items.BOWL
+                && this.getStack(BOWL_SLOT).getCount() < this.getStack(BOWL_SLOT).getMaxCount()) {
+            this.items.set(BOWL_SLOT, stack);
+        }
+    }
+
+    @Override
+    public boolean canPlayerUse(PlayerEntity player) {
+        return true;
+    }
+
+    @Override
+    public void clear() {
+        this.items.clear();
+        this.markPortionsDirty();
+        this.markDirty();
     }
 
     @Override
     public int[] getAvailableSlots(Direction side) {
-        if (side == Direction.UP) {
-            return IntStream.range(0, OUTPUT_SLOT).toArray();
+        if (side != Direction.DOWN) {
+            return IntStream.range(0, BOWL_SLOT + 1).toArray();
         }
 
         return new int[]{OUTPUT_SLOT};
@@ -582,24 +748,88 @@ public class CrockPotBlockEntity extends BlockEntity implements CrockPotInventor
 
     @Override
     public boolean canInsert(int slot, ItemStack stack, @Nullable Direction dir) {
-        return dir == Direction.UP && this.portions < ConfigManager.maxPortionsPerPot();
+        boolean result = dir != Direction.DOWN && slot != OUTPUT_SLOT;
+
+        if (result) {
+            if (slot < AVAILABLE_INVENTORY
+                    && this.getPortions() + stack.getCount() <= ConfigManager.maxPortionsPerPot()) {
+                result = this.canAddFood(stack);
+            } else if (slot == BOWL_SLOT
+                && stack.getItem() == Items.BOWL) {
+                ItemStack bowls = this.items.get(BOWL_SLOT);
+                result = bowls.getCount() < bowls.getMaxCount();
+            } else {
+                result = false;
+            }
+        }
+
+        return result;
     }
 
     @Override
     public boolean canExtract(int slot, ItemStack stack, Direction dir) {
-        return dir != Direction.UP && this.portions > 0;
+        return dir == Direction.DOWN && slot == OUTPUT_SLOT && this.getPortions() > 0;
     }
 
-    private static class CrockPotHungerManager extends HungerManager {
-        private final CrockPotBlockEntity crockPotBlockEntity;
-
-        public CrockPotHungerManager(CrockPotBlockEntity cpbe) {
-            this.crockPotBlockEntity = cpbe;
+    protected int filledSlotCount() {
+        int count = 0;
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i) != ItemStack.EMPTY) {
+                count++;
+            }
         }
 
-        @Override
-        public void add(int food, float saturationModifier) {
-            crockPotBlockEntity.add(food, saturationModifier);
+        return count;
+    }
+
+    protected int emptySlotCount() {
+        int count = 0;
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
+                count++;
+            }
         }
+
+        return count;
+    }
+
+    protected int getFirstEmptySlot() {
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
+                return i;
+            }
+        }
+
+        return -1;
+    }
+
+    protected boolean hasEmptySlot() {
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i) == ItemStack.EMPTY) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected boolean hasStackOfType(Item item) {
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i).getItem() == item) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    protected ItemStack getStackOfType(Item item) {
+        for (int i = 0; i < AVAILABLE_INVENTORY; i++) {
+            if (this.getStack(i).getItem() == item) {
+                return this.getStack(i);
+            }
+        }
+
+        return ItemStack.EMPTY;
     }
 }

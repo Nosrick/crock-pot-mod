@@ -272,4 +272,12 @@ public class ConfigManager {
 
         return true;
     }
+
+    public static int ingredientSlots() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.ingredientSlots;
+        }
+
+        return 8;
+    }
 }
