@@ -1,6 +1,4 @@
-
 {
-  "_comment": "Italian has feminine and masculine, meaning that the use of some words might not match, once the mod implements this first lang file i'll see what i can do to make it 'gender neutral' and make another pr",
   "item.crockpot.stew": "Stufato di %s",
   "item.crockpot.stew_name": "Stufato",
   "item.crockpot.stew.mixed": "Misto",
@@ -25,9 +23,9 @@
   "tooltip.crockpot.portions": "Porzioni: %s",
   "tooltip.crockpot.bonus_levels": "Livelli Bonus: %s",
   "tooltip.crockpot.effect": "Effetto: %ss",
-  "tooltip.crockpot.contents": "Contenuti: ",
+  "tooltip.crockpot.contents": "Ingredienti: ",
   "tooltip.crockpot.powered": "Alimentato",
-  "tooltip.crockpot.unpowered": "Npn Alimentato",
+  "tooltip.crockpot.unpowered": "Non Alimentato",
 
   "values.crockpot.redstone_output.type": "Tipo di Segnale: %s",
   "values.crockpot.redstone_output.bonus_levels": "Livelli Bonus",
