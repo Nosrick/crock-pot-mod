@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
-import com.github.nosrick.crockpot.compat.early_game_buckets.EarlyGameBucketsCompat;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
@@ -96,7 +95,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 
-        if(direction == Direction.UP) {
+        if(direction == Direction.UP || direction == Direction.DOWN) {
             return 0;
         }
 
@@ -204,14 +203,7 @@ public class CrockPotBlock extends BlockWithEntity {
 
             if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
-                    if(EarlyGameBucketsCompat.isLoaded()
-                        && EarlyGameBucketsCompat.isEarlyGameBucket(held))
-                    {
-                        ItemStack emptyContainer = EarlyGameBucketsCompat.getEmptyItem(held, player);
-                        held.decrement(1);
-                        player.giveItemStack(emptyContainer);
-                    }
-                    else if(heldItem instanceof BucketItem)
+                    if(heldItem instanceof BucketItem)
                     {
                         ItemStack emptyContainer = BucketItem.getEmptiedStack(held, player);
                         held.decrement(1);
@@ -250,7 +242,7 @@ public class CrockPotBlock extends BlockWithEntity {
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, volume, 1.0F);
                     }
                 }
-            } else if (held.isFood()) {
+            } else if (potBlockEntity.canAddFood(held)) {
                 boolean result = potBlockEntity.addFood(held, player);
                 if (result) {
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
