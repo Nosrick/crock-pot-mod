@@ -2,13 +2,12 @@ package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
-import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
 
     protected static boolean clothPresent = false;
 
-    protected static boolean clothPresent() {
+    public static boolean clothPresent() {
         boolean cloth = CrockPotMod.MODS_LOADED.contains("cloth");
         if(cloth != clothPresent) {
             clothPresent = cloth;
@@ -271,5 +270,13 @@ public class ConfigManager {
         }
 
         return true;
+    }
+
+    public static int ingredientSlots() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.ingredientSlots;
+        }
+
+        return 8;
     }
 }

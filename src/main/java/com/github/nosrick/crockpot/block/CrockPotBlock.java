@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
-import com.github.nosrick.crockpot.compat.early_game_buckets.EarlyGameBucketsCompat;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
@@ -13,7 +12,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.SidedInventory;
 import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.potion.PotionUtil;
@@ -35,11 +33,13 @@ import net.minecraft.world.WorldAccess;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
-public class CrockPotBlock extends BlockWithEntity implements InventoryProvider {
+public class CrockPotBlock extends BlockWithEntity {
 
     public static final DirectionProperty FACING = DirectionProperty.of("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
+
+    public static final BooleanProperty EMITS_SIGNAL = BooleanProperty.of("emits_signal");
 
     //THIS IS GROSS
     public static final BooleanProperty UPDATE_ME = BooleanProperty.of("update_me");
@@ -55,7 +55,8 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                 this.getStateManager()
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
-                        .with(NEEDS_SUPPORT, false));
+                        .with(NEEDS_SUPPORT, false)
+                        .with(EMITS_SIGNAL, false));
     }
 
     @Nullable
@@ -72,7 +73,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, UPDATE_ME);
+        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, EMITS_SIGNAL, UPDATE_ME);
     }
 
     @Nullable
@@ -88,11 +89,15 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
     @Override
     public boolean emitsRedstonePower(BlockState state) {
-        return true;
+        return state.get(EMITS_SIGNAL);
     }
 
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
+
+        if(direction == Direction.UP || direction == Direction.DOWN) {
+            return 0;
+        }
 
         if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
             switch (potBlockEntity.getRedstoneOutputType()) {
@@ -107,6 +112,9 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                     return bonusLevels > 0
                             ? Math.round(15 * ((float) bonusLevels / (float) ConfigManager.maxBonusLevels()))
                             : 0;
+                }
+                default -> {
+                    return 0;
                 }
             }
         }
@@ -195,14 +203,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
             if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
-                    if(EarlyGameBucketsCompat.isLoaded()
-                        && EarlyGameBucketsCompat.isEarlyGameBucket(held))
-                    {
-                        ItemStack emptyContainer = EarlyGameBucketsCompat.getEmptyItem(held, player);
-                        held.decrement(1);
-                        player.giveItemStack(emptyContainer);
-                    }
-                    else if(heldItem instanceof BucketItem)
+                    if(heldItem instanceof BucketItem)
                     {
                         ItemStack emptyContainer = BucketItem.getEmptiedStack(held, player);
                         held.decrement(1);
@@ -241,7 +242,7 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
                         world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_EXTINGUISH_FIRE, SoundCategory.BLOCKS, volume, 1.0F);
                     }
                 }
-            } else if (held.isFood()) {
+            } else if (potBlockEntity.canAddFood(held)) {
                 boolean result = potBlockEntity.addFood(held, player);
                 if (result) {
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
@@ -283,14 +284,5 @@ public class CrockPotBlock extends BlockWithEntity implements InventoryProvider 
 
     protected boolean needsSupport(BlockState state) {
         return state.isIn(Tags.CROCK_POT_REQUIRES_SUPPORT);
-    }
-
-    @Override
-    public SidedInventory getInventory(BlockState state, WorldAccess world, BlockPos pos) {
-        if (world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity) {
-            return potBlockEntity;
-        }
-
-        return null;
     }
 }
