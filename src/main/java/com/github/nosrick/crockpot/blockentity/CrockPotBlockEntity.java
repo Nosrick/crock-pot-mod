@@ -28,6 +28,8 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionUtil;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -196,11 +198,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public boolean canAddFood(ItemStack food) {
         if ((!ConfigManager.canAddPotions()
                 && food.getItem() instanceof PotionItem
-                || this.potionEffects.size() >= ConfigManager.effectPerPot())) {
-            return false;
-        }
-
-        if(!food.isFood()) {
+                || this.potionEffects.size() >= ConfigManager.effectPerPot())
+            && !food.isFood()) {
             return false;
         }
 
@@ -220,8 +219,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean addFood(ItemStack food, PlayerEntity player) {
-        if (this.addFood(food) && !player.isCreative()) {
-            food.decrement(1);
+        if (this.addFood(food)){
+            if (!player.isCreative()) {
+                food.decrement(1);
+            }
             return true;
         }
 
