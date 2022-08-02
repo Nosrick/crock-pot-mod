@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot;
 
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
-import com.github.nosrick.crockpot.compat.early_game_buckets.EarlyGameBucketsCompat;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -9,10 +8,7 @@ import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.impl.registry.sync.FabricRegistry;
 import net.fabricmc.loader.api.FabricLoader;
-import net.fabricmc.loader.impl.FabricLoaderImpl;
-import net.fabricmc.loader.impl.launch.FabricLauncher;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
@@ -48,10 +44,6 @@ public class CrockPotMod implements ModInitializer {
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
             ClothConfigManager.registerAutoConfig();
-        }
-
-        if(FabricLoader.getInstance().isModLoaded("early_buckets")){
-            EarlyGameBucketsCompat.markAsLoaded();
         }
     }
 }
