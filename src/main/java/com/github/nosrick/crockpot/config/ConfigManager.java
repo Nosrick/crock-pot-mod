@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
+import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
 
@@ -285,7 +286,7 @@ public class ConfigManager {
             return ClothConfigManager.getConfig().gameplay.canAddPotions;
         }
 
-        return false;
+        return true;
     }
 
     public static int effectPerPot() {
@@ -302,5 +303,29 @@ public class ConfigManager {
         }
 
         return true;
+    }
+
+    public static boolean hideStewEffects() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.hideStewEffects;
+        }
+
+        return false;
+    }
+
+    public static boolean diluteEffects() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.diluteEffects;
+        }
+
+        return true;
+    }
+
+    public static float dilutionModifier() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.dilutionModifier;
+        }
+
+        return 1f;
     }
 }

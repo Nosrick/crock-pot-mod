@@ -79,6 +79,15 @@ public class CrockPotConfig implements ConfigData {
 
         @Comment("Should potion effects replace default effects?")
         public boolean effectsOverride = true;
+
+        @Comment("Should stew effects be hidden?")
+        public boolean hideStewEffects = false;
+
+        @Comment("Dilute effects based on number of portions")
+        public boolean diluteEffects = true;
+
+        @Comment("> 1 for more dilution")
+        public float dilutionModifier = 1f;
     }
 
     @ConfigEntry.Category("sound")
@@ -115,5 +124,11 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
+    }
+
+    public enum EffectPriority {
+        POSITIVE,
+        NEGATIVE,
+        DEFAULT_ORDER
     }
 }
