@@ -261,6 +261,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         if (foodComponent == null && foodItem.isFood()) {
             return false;
         }
+
         this.boilingTime = 0;
         this.bonusLevels = 0;
 
@@ -288,10 +289,16 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 }
 
                 return false;
-            } else if (food.getItem().getFoodComponent() != null) {
-                var effects = food.getItem().getFoodComponent().getStatusEffects();
+            }
+            else if (foodItem.getFoodComponent() != null) {
+                var effects = foodItem.getFoodComponent().getStatusEffects();
                 if (!effects.isEmpty()) {
                     this.addStatusEffects(effects.stream().map(Pair::getFirst).toList());
+                }
+
+                if(foodItem instanceof SuspiciousStewItem) {
+                    List<StatusEffectInstance> effectsFromSuspiciousStew = NbtListUtil.getEffectsFromSuspiciousStew(food);
+                    this.addStatusEffects(effectsFromSuspiciousStew);
                 }
             }
         }
@@ -314,33 +321,28 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                         .noneMatch(effect ->
                                 effect.getEffectType() == effectInstance.getEffectType())) {
                     if (ConfigManager.diluteEffects()) {
-                        float durationModifier = this.getPortions() * ConfigManager.dilutionModifier();
-                        StatusEffectInstance diluted = new StatusEffectInstance(
-                                effectInstance.getEffectType(),
-                                (int) (effectInstance.getDuration() / durationModifier));
-                        this.potionEffects.add(diluted);
+                        this.potionEffects.add(this.diluteEffect(effectInstance));
                     } else {
                         this.potionEffects.add(effectInstance);
                     }
+                    countAdded++;
                 } else {
                     var oldEffectOptional = this.potionEffects.stream().filter(effect ->
                             effect.getEffectType() == effectInstance.getEffectType()).findFirst();
 
                     if (oldEffectOptional.isPresent()) {
                         StatusEffectInstance oldEffect = oldEffectOptional.get();
-                        if (oldEffect.getDuration() < effectInstance.getDuration()
-                                || oldEffect.getDuration() < effectInstance.getAmplifier()) {
-                            this.potionEffects.remove(oldEffect);
-
-                            if (ConfigManager.diluteEffects()) {
-                                float durationModifier = this.getPortions() * ConfigManager.dilutionModifier();
-                                StatusEffectInstance diluted = new StatusEffectInstance(
-                                        effectInstance.getEffectType(),
-                                        (int) (effectInstance.getDuration() / durationModifier));
+                        if (ConfigManager.diluteEffects()) {
+                            StatusEffectInstance diluted = this.diluteEffect(effectInstance);
+                            if(this.shouldReplaceEffect(oldEffect, diluted)) {
+                                this.potionEffects.remove(oldEffect);
                                 this.potionEffects.add(diluted);
-                            } else {
-                                this.potionEffects.add(effectInstance);
+                                countAdded++;
                             }
+                        } else if (this.shouldReplaceEffect(oldEffect, effectInstance)) {
+                            this.potionEffects.remove(oldEffect);
+                            this.potionEffects.add(effectInstance);
+                            countAdded++;
                         }
                     }
                 }
@@ -350,6 +352,22 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         return countAdded == effects.size();
+    }
+
+    protected StatusEffectInstance diluteEffect(StatusEffectInstance effectInstance) {
+        float durationModifier = this.getPortions() * ConfigManager.dilutionModifier();
+        return new StatusEffectInstance(
+                effectInstance.getEffectType(),
+                (int) (effectInstance.getDuration() / durationModifier));
+    }
+
+    protected boolean shouldReplaceEffect(StatusEffectInstance oldEffect, StatusEffectInstance newEffect) {
+        if(newEffect.getDuration() > oldEffect.getDuration()
+                || newEffect.getAmplifier() > oldEffect.getAmplifier()) {
+            return true;
+        }
+
+        return false;
     }
 
     protected void recalculateStatusEffects() {
