@@ -9,6 +9,7 @@ import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.NbtListUtil;
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -199,7 +200,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         if ((!ConfigManager.canAddPotions()
                 && food.getItem() instanceof PotionItem
                 || this.potionEffects.size() >= ConfigManager.effectPerPot())
-            && !food.isFood()) {
+                && !food.isFood()) {
             return false;
         }
 
@@ -219,7 +220,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean addFood(ItemStack food, PlayerEntity player) {
-        if (this.addFood(food)){
+        if (this.addFood(food)) {
             if (!player.isCreative()) {
                 food.decrement(1);
             }
@@ -230,46 +231,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean addFood(ItemStack food) {
-        if (ConfigManager.canAddPotions()
-                && food.getItem() instanceof PotionItem) {
-            Potion potion = PotionUtil.getPotion(food);
-            if (this.potionEffects.size() < ConfigManager.effectPerPot()) {
-                for (StatusEffectInstance effectInstance : potion.getEffects()) {
-                    if (this.potionEffects.size() < ConfigManager.effectPerPot()) {
-                        if (this.potionEffects.stream()
-                                .noneMatch(effect ->
-                                        effect.getEffectType() == effectInstance.getEffectType())) {
-                            this.potionEffects.add(effectInstance);
-                        } else {
-                            var oldEffectOptional = this.potionEffects.stream().filter(effect ->
-                                    effect.getEffectType() == effectInstance.getEffectType()).findFirst();
-
-                            if (oldEffectOptional.isPresent()) {
-                                StatusEffectInstance oldEffect = oldEffectOptional.get();
-                                if (oldEffect.getDuration() < effectInstance.getDuration()
-                                        || oldEffect.getDuration() < effectInstance.getAmplifier()) {
-                                    this.potionEffects.remove(oldEffect);
-                                    this.potionEffects.add(effectInstance);
-                                }
-                            }
-                        }
-                    } else {
-                        break;
-                    }
-                }
-
-                this.markDirty();
-                if (this.hasWorld()) {
-                    this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
-                }
-                this.updateNearby();
-
-                return true;
-            }
-
-            return false;
-        }
-
         if (!this.canAddFood(food)) {
             return false;
         }
@@ -282,7 +243,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         FoodComponent foodComponent = foodItem.getFoodComponent();
-        if (foodComponent == null) {
+        if (foodComponent == null && foodItem.isFood()) {
             return false;
         }
         this.boilingTime = 0;
@@ -296,6 +257,30 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.markDirty();
 
+        if (ConfigManager.canAddPotions()) {
+            if (food.getItem() instanceof PotionItem) {
+                Potion potion = PotionUtil.getPotion(food);
+                if (this.potionEffects.size() < ConfigManager.effectPerPot()) {
+                    this.addStatusEffects(potion.getEffects());
+
+                    this.markDirty();
+                    if (this.hasWorld()) {
+                        this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+                    }
+                    this.updateNearby();
+
+                    return true;
+                }
+
+                return false;
+            } else if (food.getItem().getFoodComponent() != null) {
+                var effects = food.getItem().getFoodComponent().getStatusEffects();
+                if (!effects.isEmpty()) {
+                    this.addStatusEffects(effects.stream().map(Pair::getFirst).toList());
+                }
+            }
+        }
+
         this.addFoodValues(foodComponent.getHunger(), foodComponent.getSaturationModifier());
         if (this.hasWorld()) {
             this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
@@ -303,6 +288,79 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         this.updateNearby();
 
         return true;
+    }
+
+    protected boolean addStatusEffects(List<StatusEffectInstance> effects) {
+        int countAdded = 0;
+
+        for (StatusEffectInstance effectInstance : effects) {
+            if (this.potionEffects.size() < ConfigManager.effectPerPot()) {
+                if (this.potionEffects.stream()
+                        .noneMatch(effect ->
+                                effect.getEffectType() == effectInstance.getEffectType())) {
+                    if (ConfigManager.diluteEffects()) {
+                        float durationModifier = this.getPortions() * ConfigManager.dilutionModifier();
+                        StatusEffectInstance diluted = new StatusEffectInstance(
+                                effectInstance.getEffectType(),
+                                (int) (effectInstance.getDuration() / durationModifier));
+                        this.potionEffects.add(diluted);
+                    } else {
+                        this.potionEffects.add(effectInstance);
+                    }
+                } else {
+                    var oldEffectOptional = this.potionEffects.stream().filter(effect ->
+                            effect.getEffectType() == effectInstance.getEffectType()).findFirst();
+
+                    if (oldEffectOptional.isPresent()) {
+                        StatusEffectInstance oldEffect = oldEffectOptional.get();
+                        if (oldEffect.getDuration() < effectInstance.getDuration()
+                                || oldEffect.getDuration() < effectInstance.getAmplifier()) {
+                            this.potionEffects.remove(oldEffect);
+
+                            if (ConfigManager.diluteEffects()) {
+                                float durationModifier = this.getPortions() * ConfigManager.dilutionModifier();
+                                StatusEffectInstance diluted = new StatusEffectInstance(
+                                        effectInstance.getEffectType(),
+                                        (int) (effectInstance.getDuration() / durationModifier));
+                                this.potionEffects.add(diluted);
+                            } else {
+                                this.potionEffects.add(effectInstance);
+                            }
+                        }
+                    }
+                }
+            } else {
+                break;
+            }
+        }
+
+        return countAdded == effects.size();
+    }
+
+    protected void recalculateStatusEffects() {
+        if(!this.portionsDirty) {
+            return;
+        }
+
+        int cachedPortions = this.cachedPortions;
+        int updatedPortions = this.getPortions();
+
+        if(cachedPortions == updatedPortions) {
+            return;
+        }
+
+        float modifier = cachedPortions / (float) updatedPortions;
+
+        if(modifier == 0) {
+            return;
+        }
+
+        for(int i = 0; i < this.potionEffects.size(); i++) {
+            StatusEffectInstance effectInstance = this.potionEffects.get(i);
+
+            StatusEffectInstance newDuration = new StatusEffectInstance(effectInstance.getEffectType(), (int) (effectInstance.getDuration() * modifier));
+            this.potionEffects.set(i, newDuration);
+        }
     }
 
     @Nullable
@@ -688,7 +746,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void recalculateStews() {
-        ItemStack stews = this.items.get(OUTPUT_SLOT);
+        ItemStack stews;
         stews = this.makeStew();
 
         if (!(stews.getItem() instanceof StewItem)) {
@@ -702,6 +760,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     @Override
     public void markDirty() {
         this.markPortionsDirty();
+        this.recalculateStatusEffects();
         this.recalculateStews();
         super.markDirty();
     }
@@ -836,7 +895,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     && this.getPortions() + stack.getCount() <= ConfigManager.maxPortionsPerPot()) {
                 result = this.canAddFood(stack);
             } else if (slot == BOWL_SLOT
-                && stack.getItem() == Items.BOWL) {
+                    && stack.getItem() == Items.BOWL) {
                 ItemStack bowls = this.items.get(BOWL_SLOT);
                 result = bowls.getCount() < bowls.getMaxCount();
             } else {
