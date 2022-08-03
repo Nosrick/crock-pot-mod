@@ -21,7 +21,6 @@ public class CrockPotConfig implements ConfigData {
         @Comment("A bottle is the same as a bucket, right?")
         public boolean canFillWithWaterBottle = true;
 
-        @Comment("Should a redstone crock pot need power?")
         public boolean redstoneNeedsPower = false;
 
         @Comment("What's the minimum signal strength a redstone pot needs?")
@@ -53,7 +52,6 @@ public class CrockPotConfig implements ConfigData {
 
         public int maxNauseaDuration = baseNauseaDuration * cowlCurseLevels;
 
-        @Comment("Too much of a good thing, right?")
         public boolean cappedPositiveDuration = true;
 
         @Comment("Number of seconds to add to the saturation effect per bonus level")
@@ -71,25 +69,19 @@ public class CrockPotConfig implements ConfigData {
         @Comment("How many different foods can go into a single pot")
         public int ingredientSlots = 8;
 
-        @Comment("Can stews inherit potion effects?")
         public boolean canAddPotions = true;
 
-        @Comment("How many extra effects can go in one pot?")
         public int effectsPerPot = 2;
 
-        @Comment("Should potion effects replace default effects?")
         public boolean effectsOverride = true;
 
-        @Comment("Should stew effects be hidden?")
         public boolean hideStewEffects = false;
 
-        @Comment("Use that annoying cursed text to hide effects")
         public boolean useObfuscatedText = false;
 
-        @Comment("Dilute effects based on number of portions")
         public boolean diluteEffects = true;
 
-        @Comment("Higher for more dilution")
+        @Comment("effect duration / (portions * dilutionModifier)")
         public float dilutionModifier = 0.5f;
     }
 
