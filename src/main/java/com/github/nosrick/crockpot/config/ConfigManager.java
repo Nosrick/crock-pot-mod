@@ -313,6 +313,14 @@ public class ConfigManager {
         return false;
     }
 
+    public static boolean useObfuscatedText() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.useObfuscatedText;
+        }
+
+        return false;
+    }
+
     public static boolean diluteEffects() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().gameplay.diluteEffects;
@@ -326,6 +334,6 @@ public class ConfigManager {
             return ClothConfigManager.getConfig().gameplay.dilutionModifier;
         }
 
-        return 1f;
+        return 0.5f;
     }
 }

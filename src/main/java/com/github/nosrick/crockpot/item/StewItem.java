@@ -172,14 +172,24 @@ public class StewItem extends Item {
         List<StatusEffectInstance> statusEffects = PotionUtil.getPotionEffects(stack);
         if (!statusEffects.isEmpty()) {
             tooltip.add(Text.translatable("tooltip.crockpot.effects"));
-            for (StatusEffectInstance effect : statusEffects) {
-                tooltip.add(Text.translatable(effect.getTranslationKey())
-                        .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
-                        .append(Text.translatable("tooltip.crockpot.seconds"))
-                        .setStyle(Style.EMPTY)
-                        .formatted(effect.getEffectType().isBeneficial()
-                                ? Formatting.GREEN
-                                : Formatting.RED));
+            if(!ConfigManager.hideStewEffects()) {
+                for (StatusEffectInstance effect : statusEffects) {
+                    tooltip.add(Text.translatable(effect.getTranslationKey())
+                            .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
+                            .append(Text.translatable("tooltip.crockpot.seconds"))
+                            .setStyle(Style.EMPTY)
+                            .formatted(effect.getEffectType().isBeneficial()
+                                    ? Formatting.GREEN
+                                    : Formatting.RED));
+                }
+            }
+            else {
+                if(ConfigManager.useObfuscatedText()) {
+                    tooltip.add(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
+                }
+                else {
+                    tooltip.add(Text.translatable("tooltip.crockpot.hidden_effects"));
+                }
             }
         }
     }

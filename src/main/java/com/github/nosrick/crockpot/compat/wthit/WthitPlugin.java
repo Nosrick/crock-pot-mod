@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.compat.wthit;
 
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.config.ConfigManager;
 import mcp.mobius.waila.api.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -12,6 +13,7 @@ import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.collection.DefaultedList;
 
@@ -71,8 +73,18 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             tooltip.addLine(Text.translatable("tooltip.crockpot.bonus_levels", bonusLevels));
             if (!effectsNames.isEmpty()) {
                 tooltip.addLine(Text.translatable("tooltip.crockpot.effects"));
-                for (MutableText text : effectsNames) {
-                    tooltip.addLine(text);
+                if(!ConfigManager.hideStewEffects()) {
+                    for (MutableText text : effectsNames) {
+                        tooltip.addLine(text);
+                    }
+                }
+                else {
+                    if(ConfigManager.useObfuscatedText()) {
+                        tooltip.addLine(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
+                    }
+                    else {
+                        tooltip.addLine(Text.translatable("tooltip.crockpot.hidden_effects"));
+                    }
                 }
             }
 

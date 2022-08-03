@@ -83,11 +83,14 @@ public class CrockPotConfig implements ConfigData {
         @Comment("Should stew effects be hidden?")
         public boolean hideStewEffects = false;
 
+        @Comment("Use that annoying cursed text to hide effects")
+        public boolean useObfuscatedText = false;
+
         @Comment("Dilute effects based on number of portions")
         public boolean diluteEffects = true;
 
-        @Comment("> 1 for more dilution")
-        public float dilutionModifier = 1f;
+        @Comment("Higher for more dilution")
+        public float dilutionModifier = 0.5f;
     }
 
     @ConfigEntry.Category("sound")
