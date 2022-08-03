@@ -68,6 +68,10 @@
   "text.autoconfig.crockpot.option.gameplay.canAddPotions": "Can add potions to a pot",
   "text.autoconfig.crockpot.option.gameplay.effectsPerPot": "Maximum number of potion effects in one pot",
   "text.autoconfig.crockpot.option.gameplay.effectsOverride": "Potion effects override other stew effects",
+  "text.autoconfig.crockpot.option.gameplay.hideStewEffects": "Hide effects of a stew",
+  "text.autoconfig.crockpot.option.gameplay.useObfuscatedText": "Use cursed text for effect hiding",
+  "text.autoconfig.crockpot.option.gameplay.diluteEffects": "Dilute effects based on portions",
+  "text.autoconfig.crockpot.option.gameplay.dilutionModifier": "Make this higher for greater dilution",
 
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",
