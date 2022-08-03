@@ -197,10 +197,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean canAddFood(ItemStack food) {
-        if ((!ConfigManager.canAddPotions()
-                && food.getItem() instanceof PotionItem
-                || this.potionEffects.size() >= ConfigManager.effectPerPot())
-                && !food.isFood()) {
+        if(!this.canAddPotion(food) && !food.isFood()) {
             return false;
         }
 
@@ -213,6 +210,24 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         if (this.getPortions() >= ConfigManager.maxPortionsPerPot()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean canAddPotion(ItemStack potion) {
+        Item potionItem = potion.getItem();
+
+        if(!(potionItem instanceof PotionItem)) {
+            return false;
+        }
+
+        if(!ConfigManager.canAddPotions()) {
+            return false;
+        }
+
+        if(this.potionEffects.size() >= ConfigManager.effectPerPot()) {
             return false;
         }
 
