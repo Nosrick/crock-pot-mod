@@ -72,7 +72,7 @@ public class CrockPotConfig implements ConfigData {
         public int ingredientSlots = 8;
 
         @Comment("Can stews inherit potion effects?")
-        public boolean canAddPotions = false;
+        public boolean canAddPotions = true;
 
         @Comment("How many extra effects can go in one pot?")
         public int effectsPerPot = 2;
