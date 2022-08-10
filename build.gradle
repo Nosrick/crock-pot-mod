@@ -63,7 +63,7 @@ dependencies {
     modCompileOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
         transitive = false
     }
-    modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}")
+    //modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}")
 
     //Cloth Config
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
