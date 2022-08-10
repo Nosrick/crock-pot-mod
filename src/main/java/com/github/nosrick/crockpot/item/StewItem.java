@@ -100,6 +100,12 @@ public class StewItem extends Item {
             FoodComponent foodComponent = CrockPotMod.FOOD_MANAGER.GetFoodForPlayer(player);
             player.getHungerManager().add(foodComponent.getHunger(), foodComponent.getSaturationModifier());
 
+            var statusEffect = getStatusEffect(stack);
+
+            if(statusEffect != null) {
+                player.addStatusEffect(statusEffect);
+            }
+
             player.incrementStat(Stats.USED.getOrCreateStat(this));
 
             if (!player.getAbilities().creativeMode) {
