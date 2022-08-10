@@ -1,11 +1,16 @@
 package com.github.nosrick.crockpot.util;
 
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.SuspiciousStewItem;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 public abstract class NbtListUtil {
 
@@ -38,6 +43,34 @@ public abstract class NbtListUtil {
             }
 
             effectInstances.add(effectInstance);
+        }
+
+        return effectInstances;
+    }
+
+    public static List<StatusEffectInstance> getEffectsFromSuspiciousStew(ItemStack stew) {
+        if(!(stew.getItem() instanceof SuspiciousStewItem)) {
+            return new ArrayList<>();
+        }
+
+        ArrayList<StatusEffectInstance> effectInstances = new ArrayList<>();
+
+        NbtCompound nbtCompound = stew.getNbt();
+        if (nbtCompound != null && nbtCompound.contains("Effects", NbtElement.LIST_TYPE)) {
+            NbtList nbtList = nbtCompound.getList("Effects", NbtElement.COMPOUND_TYPE);
+
+            for(int i = 0; i < nbtList.size(); ++i) {
+                int j = 160;
+                NbtCompound nbtCompound2 = nbtList.getCompound(i);
+                if (nbtCompound2.contains("EffectDuration", NbtElement.INT_TYPE)) {
+                    j = nbtCompound2.getInt("EffectDuration");
+                }
+
+                StatusEffect statusEffect = StatusEffect.byRawId(nbtCompound2.getInt("EffectId"));
+                if (statusEffect != null) {
+                    effectInstances.add(new StatusEffectInstance(statusEffect, j));
+                }
+            }
         }
 
         return effectInstances;

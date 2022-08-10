@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
+import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
 
@@ -278,5 +279,61 @@ public class ConfigManager {
         }
 
         return 8;
+    }
+
+    public static boolean canAddPotions() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.canAddPotions;
+        }
+
+        return true;
+    }
+
+    public static int effectPerPot() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.effectsPerPot;
+        }
+
+        return 2;
+    }
+
+    public static boolean effectsOverride() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.effectsOverride;
+        }
+
+        return true;
+    }
+
+    public static boolean hideStewEffects() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.hideStewEffects;
+        }
+
+        return false;
+    }
+
+    public static boolean useObfuscatedText() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.useObfuscatedText;
+        }
+
+        return false;
+    }
+
+    public static boolean diluteEffects() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.diluteEffects;
+        }
+
+        return true;
+    }
+
+    public static float dilutionModifier() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().gameplay.dilutionModifier;
+        }
+
+        return 0.5f;
     }
 }

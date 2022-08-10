@@ -21,7 +21,6 @@ public class CrockPotConfig implements ConfigData {
         @Comment("A bottle is the same as a bucket, right?")
         public boolean canFillWithWaterBottle = true;
 
-        @Comment("Should a redstone crock pot need power?")
         public boolean redstoneNeedsPower = false;
 
         @Comment("What's the minimum signal strength a redstone pot needs?")
@@ -53,7 +52,6 @@ public class CrockPotConfig implements ConfigData {
 
         public int maxNauseaDuration = baseNauseaDuration * cowlCurseLevels;
 
-        @Comment("Too much of a good thing, right?")
         public boolean cappedPositiveDuration = true;
 
         @Comment("Number of seconds to add to the saturation effect per bonus level")
@@ -70,6 +68,21 @@ public class CrockPotConfig implements ConfigData {
 
         @Comment("How many different foods can go into a single pot")
         public int ingredientSlots = 8;
+
+        public boolean canAddPotions = true;
+
+        public int effectsPerPot = 2;
+
+        public boolean effectsOverride = true;
+
+        public boolean hideStewEffects = false;
+
+        public boolean useObfuscatedText = false;
+
+        public boolean diluteEffects = true;
+
+        @Comment("effect duration / (portions * dilutionModifier)")
+        public float dilutionModifier = 0.5f;
     }
 
     @ConfigEntry.Category("sound")
@@ -106,5 +119,11 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
+    }
+
+    public enum EffectPriority {
+        POSITIVE,
+        NEGATIVE,
+        DEFAULT_ORDER
     }
 }

@@ -42,7 +42,7 @@
     "java": ">=16"
   },
   "recommends": {
-    "modmenu": ">=4.0.5",
+    "modmenu": ">=4.0.4",
     "cloth-config": ">=8.0.75"
   },
   "suggests": {

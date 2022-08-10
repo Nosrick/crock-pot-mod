@@ -36,7 +36,6 @@ public class HungerManagerMixin {
             return new FoodComponent.Builder()
                     .hunger(StewItem.getHunger(cachedItemStack))
                     .saturationModifier(StewItem.getSaturation(cachedItemStack))
-                    .statusEffect(StewItem.getStatusEffect(cachedItemStack), 1f)
                     .build();
         }
 

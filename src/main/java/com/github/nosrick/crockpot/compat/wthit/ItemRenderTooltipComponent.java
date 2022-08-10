@@ -4,10 +4,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import mcp.mobius.waila.api.ITooltipComponent;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
@@ -40,21 +42,10 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
             RESOURCE_MANAGER = MinecraftClient.getInstance().getResourceManager();
         }
 
-        for(int i = 0; i < contents.size(); i++) {
-            Identifier id = Registry.ITEM.getId(contents.get(i));
-            String namespace = id.getNamespace();
-            String itemName = id.getPath().replace('.', '/').concat(".png");
-            String content = "textures/item/" + itemName;
-            Identifier assetLocation = new Identifier(namespace, content);
+        ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
 
-            if(!namespace.equalsIgnoreCase("minecraft")
-                    && RESOURCE_MANAGER.getResource(assetLocation).isEmpty()) {
-                //HERE BE DRAGONS
-                //We'll probably make a big list of things that don't follow conventions here
-                content = "textures/items/" + itemName;
-            }
-            RenderSystem.setShaderTexture(0, new Identifier(id.getNamespace(), content));
-            DrawableHelper.drawTexture(matrices, x + (i * 8), y, 0, 0, 16, 16, 16, 16);
+        for(int i = 0; i < contents.size(); i++) {
+            itemRenderer.renderGuiItemIcon(new ItemStack(this.contents.get(i)), x + (i * 8), y);
         }
     }
 }

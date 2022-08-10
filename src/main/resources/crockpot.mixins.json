@@ -4,7 +4,6 @@
   "package": "com.github.nosrick.crockpot.mixin",
   "compatibilityLevel": "JAVA_16",
   "mixins": [
-    "HungerManagerMixin"
   ],
   "client": [
     "TooltipComponentMixin"

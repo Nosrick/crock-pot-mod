@@ -22,7 +22,9 @@
 
   "tooltip.crockpot.portions": "Portions: %s",
   "tooltip.crockpot.bonus_levels": "Bonus Levels: %s",
-  "tooltip.crockpot.effect": "Effect: %ss",
+  "tooltip.crockpot.effects": "Effects",
+  "tooltip.crockpot.hidden_effects": "Try it and see!",
+  "tooltip.crockpot.seconds": "s",
   "tooltip.crockpot.contents": "Contents: ",
   "tooltip.crockpot.powered": "Powered",
   "tooltip.crockpot.unpowered": "Not powered",
@@ -63,6 +65,13 @@
   "text.autoconfig.crockpot.option.gameplay.redstonePowerThreshold": "Redstone pot signal threshold",
   "text.autoconfig.crockpot.option.gameplay.canFillWithWaterBottle": "Pots can be filled with a water bottle",
   "text.autoconfig.crockpot.option.gameplay.ingredientSlots": "Number of usable inventory slots in the pot",
+  "text.autoconfig.crockpot.option.gameplay.canAddPotions": "Can add potions to a pot",
+  "text.autoconfig.crockpot.option.gameplay.effectsPerPot": "Maximum number of potion effects in one pot",
+  "text.autoconfig.crockpot.option.gameplay.effectsOverride": "Potion effects override other stew effects",
+  "text.autoconfig.crockpot.option.gameplay.hideStewEffects": "Hide effects of a stew",
+  "text.autoconfig.crockpot.option.gameplay.useObfuscatedText": "Use cursed text for effect hiding",
+  "text.autoconfig.crockpot.option.gameplay.diluteEffects": "Dilute effects based on portions",
+  "text.autoconfig.crockpot.option.gameplay.dilutionModifier": "Make this higher for greater dilution",
 
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",
