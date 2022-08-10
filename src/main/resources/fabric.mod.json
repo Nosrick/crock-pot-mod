@@ -46,7 +46,8 @@
     "cloth-config": ">=8.0.75"
   },
   "suggests": {
-    "appleskin": ">=mc1.19-2.4.0"
+    "appleskin": ">=mc1.19-2.4.0",
+    "wthit": ">=5.7.0"
   },
 
   "custom": {

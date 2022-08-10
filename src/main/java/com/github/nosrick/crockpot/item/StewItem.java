@@ -107,6 +107,12 @@ public class StewItem extends Item {
                 }
             }
 
+            var statusEffect = getStatusEffect(stack);
+
+            if(statusEffect != null) {
+                player.addStatusEffect(statusEffect);
+            }
+
             player.incrementStat(Stats.USED.getOrCreateStat(this));
 
             if (!player.getAbilities().creativeMode) {
