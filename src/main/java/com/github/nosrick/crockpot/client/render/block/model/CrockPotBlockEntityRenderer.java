@@ -141,31 +141,31 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
 
     public static TexturedModelData createPadlockModelData() {
         var data = new ModelData();
-        data.getRoot().addChild("padlock_base",
+        data.getRoot().addChild("padlock_body",
                 ModelPartBuilder
                         .create()
                         .uv(0, 0)
                         .cuboid(3f, 3f, 1f, 3f, 2f, 1f),
                 ModelTransform.NONE);
 
-        data.getRoot().addChild("padlock_lintel_left",
+        data.getRoot().addChild("padlock_shank_left",
                 ModelPartBuilder
                         .create()
-                        .uv(0, 0)
+                        .uv(0, 5)
                         .cuboid(3f, 5f, 1f, 1f, 1f, 1f),
                 ModelTransform.NONE);
 
-        data.getRoot().addChild("padlock_lintel_right",
+        data.getRoot().addChild("padlock_shank_right",
                 ModelPartBuilder
                         .create()
-                        .uv(0, 0)
+                        .uv(0, 9)
                         .cuboid(5f, 5f, 1f, 1f, 1f, 1f),
                 ModelTransform.NONE);
 
-        data.getRoot().addChild("padlock_lintel_top",
+        data.getRoot().addChild("padlock_shank_top",
                 ModelPartBuilder
                         .create()
-                        .uv(0, 0)
+                        .uv(0, 13)
                         .cuboid(3f, 6f, 1f, 3f, 1f, 1f),
                 ModelTransform.NONE);
 
