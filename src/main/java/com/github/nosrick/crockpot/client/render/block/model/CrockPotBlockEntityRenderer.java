@@ -4,6 +4,7 @@ import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.client.colours.CrockPotBlockColourProvider;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
@@ -22,15 +23,21 @@ import net.minecraft.world.World;
 public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPotBlockEntity> {
 
     protected ModelPart lidModel;
-    public static EntityModelLayer MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_lid");
+
+    protected ModelPart padlockModel;
+
+    public static EntityModelLayer POT_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_lid");
+    public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "padlock"), "padlock");
     public static Identifier POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_lid.png");
+    public static Identifier PADLOCK_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_padlock.png");
 
     protected float xRot;
     protected float zRot;
     protected float yTrans;
 
     public CrockPotBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
-        this.lidModel = context.getLayerModelPart(MODEL_LAYER);
+        this.lidModel = context.getLayerModelPart(POT_MODEL_LAYER);
+        this.padlockModel = context.getLayerModelPart(PADLOCK_MODEL_LAYER);
     }
 
     @Override
@@ -97,6 +104,22 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 b,
                 a);
         matrices.pop();
+
+        if(entity.isOwner(UUIDUtil.NO_PLAYER)) {
+            return;
+        }
+
+        matrices.push();
+        padlockModel.render(
+                matrices,
+                vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
+                light,
+                overlay,
+                1f,
+                1f,
+                1f,
+                1f);
+        matrices.pop();
     }
 
     public static TexturedModelData createPotModelData() {
@@ -113,6 +136,39 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                         .uv(0, 0)
                         .cuboid(6f, 7f, 6f, 4f, 1f, 4f),
                 ModelTransform.NONE);
+        return TexturedModelData.of(data, 16, 16);
+    }
+
+    public static TexturedModelData createPadlockModelData() {
+        var data = new ModelData();
+        data.getRoot().addChild("padlock_base",
+                ModelPartBuilder
+                        .create()
+                        .uv(0, 0)
+                        .cuboid(3f, 3f, 1f, 3f, 2f, 1f),
+                ModelTransform.NONE);
+
+        data.getRoot().addChild("padlock_lintel_left",
+                ModelPartBuilder
+                        .create()
+                        .uv(0, 0)
+                        .cuboid(3f, 5f, 1f, 1f, 1f, 1f),
+                ModelTransform.NONE);
+
+        data.getRoot().addChild("padlock_lintel_right",
+                ModelPartBuilder
+                        .create()
+                        .uv(0, 0)
+                        .cuboid(5f, 5f, 1f, 1f, 1f, 1f),
+                ModelTransform.NONE);
+
+        data.getRoot().addChild("padlock_lintel_top",
+                ModelPartBuilder
+                        .create()
+                        .uv(0, 0)
+                        .cuboid(3f, 6f, 1f, 3f, 1f, 1f),
+                ModelTransform.NONE);
+
         return TexturedModelData.of(data, 16, 16);
     }
 }
