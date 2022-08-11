@@ -9,6 +9,7 @@ import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.NbtListUtil;
+import com.github.nosrick.crockpot.util.UUIDUtil;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
@@ -63,6 +64,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     public static final String ELECTRIC_NBT = "Electric";
 
+    public static final String OWNER_NBT = "Owner";
+
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
 
     protected String name = "";
@@ -79,6 +82,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected long lastTime = 0;
 
     protected boolean electric = false;
+
+    protected UUID owner = UUIDUtil.NO_PLAYER;
 
     protected RedstoneOutputType redstoneOutputType = RedstoneOutputType.BONUS_LEVELS;
 
@@ -156,6 +161,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.potionEffects.clear();
 
+        this.owner = nbt.getUuid(OWNER_NBT);
+
         if (nbt.contains(EFFECTS_NBT)) {
             NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
             this.potionEffects = new ArrayList<>(NbtListUtil.effectInstanceCollectionFromNbtList(nbtList));
@@ -180,6 +187,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         nbt.putBoolean(ELECTRIC_NBT, this.electric);
 
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
+
+        nbt.putUuid(OWNER_NBT, this.owner);
 
         Inventories.writeNbt(nbt, this.items);
 
@@ -569,6 +578,25 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         this.clear();
+        this.markDirty();
+        this.updateNearby();
+    }
+
+    public UUID getOwner() {
+        return this.owner;
+    }
+
+    public boolean isOwner(UUID test) {
+        return test.compareTo(this.owner) == 0;
+    }
+
+    public void setOwner(UUID owner) {
+        if(owner != null) {
+            this.owner = owner;
+        }
+        else {
+            this.owner = UUIDUtil.NO_PLAYER;
+        }
         this.markDirty();
         this.updateNearby();
     }

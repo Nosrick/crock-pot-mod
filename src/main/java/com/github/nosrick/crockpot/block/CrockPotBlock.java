@@ -4,6 +4,7 @@ import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
@@ -169,6 +170,26 @@ public class CrockPotBlock extends BlockWithEntity {
 
         if (potBlockEntity == null) {
             return ActionResult.PASS;
+        }
+
+        if(held.getItem() == Items.NAME_TAG) {
+            if(potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)) {
+                potBlockEntity.setOwner(player.getUuid());
+            }
+            else if (potBlockEntity.isOwner(player.getUuid())
+                    || player.isCreative()) {
+                potBlockEntity.setOwner(UUIDUtil.NO_PLAYER);
+            }
+            else {
+                return ActionResult.FAIL;
+            }
+
+            return ActionResult.SUCCESS;
+        }
+
+        if(!potBlockEntity.isOwner(player.getUuid())
+            && !player.isCreative()) {
+            return ActionResult.FAIL;
         }
 
         if (held.isEmpty()) {
