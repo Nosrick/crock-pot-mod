@@ -29,6 +29,8 @@
   "tooltip.crockpot.powered": "Powered",
   "tooltip.crockpot.unpowered": "Not powered",
 
+  "tooltip.crockpot.no_player_name": "Unknown Player",
+
   "values.crockpot.redstone_output.type": "Signal Type: %s",
   "values.crockpot.redstone_output.bonus_levels": "Bonus Levels",
   "values.crockpot.redstone_output.portions": "Portions",
