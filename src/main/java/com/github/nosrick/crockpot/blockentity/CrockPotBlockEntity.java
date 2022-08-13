@@ -49,6 +49,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.IntStream;
 
+@SuppressWarnings("unused")
 public class CrockPotBlockEntity extends BlockEntity implements Inventory, SidedInventory {
 
     public static final String PORTIONS_NBT = "Portions";
@@ -84,6 +85,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected boolean electric = false;
 
     protected UUID owner = UUIDUtil.NO_PLAYER;
+    protected Text ownerName = Text.empty();
 
     protected RedstoneOutputType redstoneOutputType = RedstoneOutputType.BONUS_LEVELS;
 
@@ -161,7 +163,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.potionEffects.clear();
 
-        this.owner = nbt.getUuid(OWNER_NBT);
+        this.setOwner(nbt.getUuid(OWNER_NBT));
 
         if (nbt.contains(EFFECTS_NBT)) {
             NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
@@ -289,7 +291,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     this.addStatusEffects(potion.getEffects());
 
                     this.markDirty();
-                    if (this.hasWorld()) {
+                    if (this.world != null) {
                         this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
                     }
                     this.updateNearby();
@@ -312,8 +314,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
         }
 
-        this.addFoodValues(foodComponent.getHunger(), foodComponent.getSaturationModifier());
-        if (this.hasWorld()) {
+        if(foodComponent != null) {
+            this.addFoodValues(foodComponent.getHunger(), foodComponent.getSaturationModifier());
+        }
+
+        if (this.world != null) {
             this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
         }
         this.updateNearby();
@@ -321,7 +326,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         return true;
     }
 
-    protected boolean addStatusEffects(List<StatusEffectInstance> effects) {
+    protected void addStatusEffects(List<StatusEffectInstance> effects) {
         int countAdded = 0;
 
         for (StatusEffectInstance effectInstance : effects) {
@@ -360,7 +365,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
         }
 
-        return countAdded == effects.size();
     }
 
     protected StatusEffectInstance diluteEffect(StatusEffectInstance effectInstance) {
@@ -429,7 +433,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
             this.markDirty();
 
-            if (this.hasWorld()) {
+            if (this.world != null) {
                 this.world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
             }
 
@@ -570,8 +574,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.curseLevel = 0;
 
-        if (this.hasWorld()) {
-            this.getWorld().setBlockState(
+        if (this.world != null) {
+            this.world.setBlockState(
                     this.pos,
                     this.getCachedState()
                             .with(CrockPotBlock.HAS_LIQUID, false));
@@ -586,19 +590,49 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         return this.owner;
     }
 
+    public Text getOwnerName() {
+        if(!this.isOwner(UUIDUtil.NO_PLAYER)
+                && Objects.equals(this.ownerName, Text.empty())
+                && this.world != null) {
+            PlayerEntity player = this.world.getPlayerByUuid(this.owner);
+            if(player != null) {
+                this.ownerName = player.getDisplayName();
+            }
+            else {
+                return Text.translatable("tooltip.crockpot.no_player_name");
+            }
+        }
+
+        return this.ownerName;
+    }
+
     public boolean isOwner(UUID test) {
         return test.compareTo(this.owner) == 0;
     }
 
     public void setOwner(UUID owner) {
-        if(owner != null) {
+        if(owner != null && !this.isOwner(owner)) {
             this.owner = owner;
+            if(this.world == null) {
+                return;
+            }
+            PlayerEntity playerOwner = this.world.getPlayerByUuid(this.owner);
+            if(playerOwner != null) {
+                this.ownerName = playerOwner.getDisplayName();
+            }
+            this.markDirty();
+            if(!this.world.isClient) {
+                this.updateNearby();
+            }
         }
-        else {
+        else if(owner == null) {
             this.owner = UUIDUtil.NO_PLAYER;
+            this.ownerName = Text.empty();
+            this.markDirty();
+            if(this.world != null && !this.world.isClient) {
+                this.updateNearby();
+            }
         }
-        this.markDirty();
-        this.updateNearby();
     }
 
     public boolean hasFood() {
@@ -626,7 +660,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.markDirty();
 
-        if (!this.hasWorld()) {
+        if (this.world == null) {
             return;
         }
 
@@ -644,7 +678,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void updateNearby() {
-        if (!this.hasWorld()) {
+        if (this.world == null) {
             return;
         }
 
@@ -652,6 +686,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeBlockPos(this.pos);
             buf.writeNbt(this.createNbt());
+            buf.writeUuid(this.owner);
             ServerPlayNetworking.send(player, CrockPotMod.CROCK_POT_CHANNEL, buf);
         }
     }
@@ -661,7 +696,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (hasWater && this.isElectric()) {
             if (ConfigManager.redstoneNeedsPower()) {
-                if (this.hasWorld()
+                if (this.world != null
                         && this.world.getReceivedRedstonePower(this.pos) > ConfigManager.redstonePowerThreshold()) {
                     return true;
                 } else {
@@ -836,9 +871,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (!this.isEmpty()) {
             DefaultedList<ItemStack> contents = this.getContents();
-            for (int i = 0; i < contents.size(); i++) {
-                ItemStack stack = contents.get(i);
-
+            for (ItemStack stack : contents) {
                 total += stack.getCount();
             }
         }

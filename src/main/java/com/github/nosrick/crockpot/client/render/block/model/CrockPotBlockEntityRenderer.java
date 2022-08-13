@@ -6,6 +6,7 @@ import com.github.nosrick.crockpot.client.colours.CrockPotBlockColourProvider;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -13,10 +14,10 @@ import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactory;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.entity.Entity;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
-import net.minecraft.util.math.Quaternion;
-import net.minecraft.util.math.Vec3f;
+import net.minecraft.util.math.*;
 import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 
@@ -109,6 +110,18 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             return;
         }
 
+        Entity player = MinecraftClient.getInstance().cameraEntity;
+        if(player == null) {
+            return;
+        }
+
+        Vec3d playerPos = player.getPos();
+        BlockPos entityPos = entity.getPos();
+        Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+        Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
+
+        Text ownerName = entity.getOwnerName();
+
         matrices.push();
         padlockModel.render(
                 matrices,
@@ -119,6 +132,34 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 1f,
                 1f,
                 1f);
+
+        this.renderLabel(ownerName, matrices, vertexConsumers, rot, light);
+        matrices.pop();
+    }
+
+    protected void renderLabel(
+            Text text,
+            MatrixStack matrices,
+            VertexConsumerProvider vertexConsumerProvider,
+            Vec3f rotation,
+            int light) {
+        matrices.push();
+
+        matrices.translate(0.5f, 1f, 0.5f);
+
+        float scale = 0.025f;
+        matrices.scale(-scale, -scale, scale);
+
+        float rot = (float)Math.atan2(rotation.getZ(), rotation.getX());
+        CrockPotMod.LOGGER.info("" + rot);
+        matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rot));
+
+        Matrix4f matrix4f = matrices.peek().getPositionMatrix();
+        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        float backgroundOpacityFloat = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25f);
+        int backgroundOpacity = (int)(backgroundOpacityFloat * 255.0f) << 24;
+        float x = -(textRenderer.getWidth(text) / 2f);
+        textRenderer.draw(text, x, 0, 0xCCFFFFFF, false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
         matrices.pop();
     }
 
