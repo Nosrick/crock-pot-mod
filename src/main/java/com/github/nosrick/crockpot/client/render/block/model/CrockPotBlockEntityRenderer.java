@@ -106,35 +106,38 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 a);
         matrices.pop();
 
-        if(entity.isOwner(UUIDUtil.NO_PLAYER)) {
+        if (entity.isOwner(UUIDUtil.NO_PLAYER)) {
             return;
         }
 
-        Entity player = MinecraftClient.getInstance().cameraEntity;
-        if(player == null) {
-            return;
+        if (ConfigManager.displayOwnerName()) {
+            Entity player = MinecraftClient.getInstance().cameraEntity;
+            if (player == null) {
+                return;
+            }
+            Vec3d playerPos = player.getPos();
+            BlockPos entityPos = entity.getPos();
+            Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+            Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
+
+            Text ownerName = entity.getOwnerName();
+
+            matrices.push();
+            this.renderLabel(ownerName, matrices, vertexConsumers, rot, light);
+            matrices.pop();
         }
 
-        Vec3d playerPos = player.getPos();
-        BlockPos entityPos = entity.getPos();
-        Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
-        Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
-
-        Text ownerName = entity.getOwnerName();
-
-        matrices.push();
-        padlockModel.render(
-                matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
-                light,
-                overlay,
-                1f,
-                1f,
-                1f,
-                1f);
-
-        this.renderLabel(ownerName, matrices, vertexConsumers, rot, light);
-        matrices.pop();
+        if(ConfigManager.renderPadlock()) {
+            padlockModel.render(
+                    matrices,
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
+                    light,
+                    overlay,
+                    1f,
+                    1f,
+                    1f,
+                    1f);
+        }
     }
 
     protected void renderLabel(
@@ -150,16 +153,15 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         float scale = 0.025f;
         matrices.scale(-scale, -scale, scale);
 
-        float rot = (float)Math.atan2(rotation.getZ(), rotation.getX());
+        float rot = (float) Math.atan2(rotation.getZ(), rotation.getX());
         CrockPotMod.LOGGER.info("" + rot);
         matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rot));
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        float backgroundOpacityFloat = MinecraftClient.getInstance().options.getTextBackgroundOpacity(0.25f);
-        int backgroundOpacity = (int)(backgroundOpacityFloat * 255.0f) << 24;
+        int backgroundOpacity = (int) (ConfigManager.labelBackgroundOpacity() * 255.0f) << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, 0xCCFFFFFF, false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
         matrices.pop();
     }
 

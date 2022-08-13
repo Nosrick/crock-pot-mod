@@ -12,7 +12,10 @@ public class ClothConfigManager {
     private static ConfigHolder<CrockPotConfig> holder;
 
     public static final Consumer<CrockPotConfig> DEFAULT = (config) -> {
-        config.gameplay = new CrockPotConfig.GameplayCategory();
+        config.stews = new CrockPotConfig.StewGameplayCategory();
+        config.mechanics = new CrockPotConfig.MechanicsCategory();
+        config.potions = new CrockPotConfig.PotionsCategory();
+        config.locking = new CrockPotConfig.LockingCategory();
         config.graphics = new CrockPotConfig.GraphicsCategory();
         config.sound = new CrockPotConfig.SoundEffects();
     };

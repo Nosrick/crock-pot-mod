@@ -11,20 +11,12 @@ public class CrockPotConfig implements ConfigData {
 
     public String nothing = "Move along.";
 
-    @ConfigEntry.Category("gameplay")
+    @ConfigEntry.Category("stews")
     @ConfigEntry.Gui.TransitiveObject
-    public GameplayCategory gameplay = new GameplayCategory();
+    public StewGameplayCategory stews = new StewGameplayCategory();
 
-    @Config(name = "gameplay")
-    public static class GameplayCategory implements ConfigData {
-
-        @Comment("A bottle is the same as a bucket, right?")
-        public boolean canFillWithWaterBottle = true;
-
-        public boolean redstoneNeedsPower = false;
-
-        @Comment("What's the minimum signal strength a redstone pot needs?")
-        public int redstonePowerThreshold = 8;
+    @Config(name = "stews")
+    public static class StewGameplayCategory implements ConfigData {
 
         public int maxBonusLevels = 5;
 
@@ -50,14 +42,14 @@ public class CrockPotConfig implements ConfigData {
         @Comment("Number of seconds added to the nausea effect per curse level")
         public int baseNauseaDuration = 5;
 
-        public int maxNauseaDuration = baseNauseaDuration * cowlCurseLevels;
+        public int maxNauseaMultiplier = baseNauseaDuration * cowlCurseLevels;
 
         public boolean cappedPositiveDuration = true;
 
         @Comment("Number of seconds to add to the saturation effect per bonus level")
         public int basePositiveDuration = 5;
 
-        public int maxPositiveDuration = basePositiveDuration * maxBonusLevels;
+        public int maxPositiveMultiplier = basePositiveDuration * maxBonusLevels;
 
         @Comment("Minimum bonus levels before a stew can be called 'satisfying'")
         public int minSatisfyingLevel = 1;
@@ -65,10 +57,32 @@ public class CrockPotConfig implements ConfigData {
         public int minFillingLevel = 3;
         @Comment("Minimum bonus levels before a stew can be called 'hearty'")
         public int minHeartyLevel = 5;
+    }
+
+    @ConfigEntry.Category("mechanics")
+    @ConfigEntry.Gui.TransitiveObject
+    public MechanicsCategory mechanics = new MechanicsCategory();
+
+    @Config(name = "mechanics")
+    public static class MechanicsCategory implements ConfigData {
+        @Comment("A bottle is the same as a bucket, right?")
+        public boolean canFillWithWaterBottle = true;
+
+        public boolean redstoneNeedsPower = false;
+
+        @Comment("What's the minimum signal strength a redstone pot needs?")
+        public int redstonePowerThreshold = 8;
 
         @Comment("How many different foods can go into a single pot")
         public int ingredientSlots = 8;
+    }
 
+    @ConfigEntry.Category("potions")
+    @ConfigEntry.Gui.TransitiveObject
+    public PotionsCategory potions = new PotionsCategory();
+
+    @Config(name = "potions")
+    public static class PotionsCategory implements ConfigData {
         public boolean canAddPotions = true;
 
         public int effectsPerPot = 2;
@@ -83,6 +97,28 @@ public class CrockPotConfig implements ConfigData {
 
         @Comment("effect duration / (portions * dilutionModifier)")
         public float dilutionModifier = 0.5f;
+    }
+
+
+    @ConfigEntry.Category("locking")
+    @ConfigEntry.Gui.TransitiveObject
+    public LockingCategory locking = new LockingCategory();
+
+    @Config(name = "locking")
+    public static class LockingCategory implements ConfigData {
+        public boolean canLockPots = true;
+
+        public boolean creativePlayersIgnoreLocks = true;
+
+        public boolean displayOwnerName = true;
+
+        public boolean renderPadlock = true;
+
+        @Comment("Minecraft uses the ARGB hex format!")
+        public int textColor = 0xCCFFFFFF;
+
+        @Comment("This is a floating point number between 0 and 1")
+        public float labelBackgroundOpacity = 0.25f;
     }
 
     @ConfigEntry.Category("sound")
@@ -119,11 +155,5 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
-    }
-
-    public enum EffectPriority {
-        POSITIVE,
-        NEGATIVE,
-        DEFAULT_ORDER
     }
 }

@@ -163,7 +163,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.potionEffects.clear();
 
-        this.setOwner(nbt.getUuid(OWNER_NBT));
+        if(ConfigManager.canLockPots()) {
+            this.setOwner(nbt.getUuid(OWNER_NBT));
+        }
 
         if (nbt.contains(EFFECTS_NBT)) {
             NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
@@ -190,7 +192,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
-        nbt.putUuid(OWNER_NBT, this.owner);
+        if(ConfigManager.canLockPots()) {
+            nbt.putUuid(OWNER_NBT, this.owner);
+        }
 
         Inventories.writeNbt(nbt, this.items);
 

@@ -172,7 +172,8 @@ public class CrockPotBlock extends BlockWithEntity {
             return ActionResult.PASS;
         }
 
-        if(held.getItem() == Items.NAME_TAG) {
+        if(held.getItem() == Items.NAME_TAG
+            && ConfigManager.canLockPots()) {
             if(potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)) {
                 potBlockEntity.setOwner(player.getUuid());
             }
@@ -188,7 +189,8 @@ public class CrockPotBlock extends BlockWithEntity {
         }
 
         if(!potBlockEntity.isOwner(player.getUuid())
-            && !player.isCreative()) {
+            && (!player.isCreative()
+            || (player.isCreative() && !ConfigManager.creativePlayersIgnoreLocks()))) {
             return ActionResult.FAIL;
         }
 

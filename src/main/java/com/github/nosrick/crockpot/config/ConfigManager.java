@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.config;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
-import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 
 public class ConfigManager {
 
@@ -19,7 +18,7 @@ public class ConfigManager {
 
     public static boolean useCursedStew() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.cursedStew;
+            return ClothConfigManager.getConfig().stews.cursedStew;
         }
 
         return true;
@@ -27,7 +26,7 @@ public class ConfigManager {
 
     public static boolean useItemPositiveEffects() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.itemPositiveEffects;
+            return ClothConfigManager.getConfig().stews.itemPositiveEffects;
         }
 
         return true;
@@ -35,7 +34,7 @@ public class ConfigManager {
 
     public static boolean useItemNegativeEffects() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.itemNegativeEffects;
+            return ClothConfigManager.getConfig().stews.itemNegativeEffects;
         }
 
         return true;
@@ -43,7 +42,7 @@ public class ConfigManager {
 
     public static int boilTimePerLevel() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.boilSecondsPerLevel * 20;
+            return ClothConfigManager.getConfig().stews.boilSecondsPerLevel * 20;
         }
 
         return 20 * 60 * 2;
@@ -51,7 +50,7 @@ public class ConfigManager {
 
     public static int minCowlLevel() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.cowlCurseLevels;
+            return ClothConfigManager.getConfig().stews.cowlCurseLevels;
         }
 
         return 5;
@@ -59,7 +58,7 @@ public class ConfigManager {
 
     public static int maxBonusLevels() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.maxBonusLevels;
+            return ClothConfigManager.getConfig().stews.maxBonusLevels;
         }
 
         return 5;
@@ -67,7 +66,7 @@ public class ConfigManager {
 
     public static int maxPortionsPerPot() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.maxPortions;
+            return ClothConfigManager.getConfig().stews.maxPortions;
         }
 
         return 64;
@@ -75,7 +74,7 @@ public class ConfigManager {
 
     public static int stewMinPositiveLevelsEffect() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.itemMinPositiveBonusLevel;
+            return ClothConfigManager.getConfig().stews.itemMinPositiveBonusLevel;
         }
 
         return 5;
@@ -83,7 +82,7 @@ public class ConfigManager {
 
     public static int stewMinNegativeLevelsEffect() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.itemMinNegativeCurseLevel;
+            return ClothConfigManager.getConfig().stews.itemMinNegativeCurseLevel;
         }
 
         return 1;
@@ -91,7 +90,7 @@ public class ConfigManager {
 
     public static int maxStewNameLength() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.maxStewNameLength;
+            return ClothConfigManager.getConfig().stews.maxStewNameLength;
         }
 
         return 32;
@@ -99,7 +98,7 @@ public class ConfigManager {
 
     public static int baseNauseaDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.baseNauseaDuration;
+            return ClothConfigManager.getConfig().stews.baseNauseaDuration;
         }
 
         return 5;
@@ -107,7 +106,7 @@ public class ConfigManager {
 
     public static boolean cappedNauseaDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.cappedNauseaDuration;
+            return ClothConfigManager.getConfig().stews.cappedNauseaDuration;
         }
 
         return true;
@@ -115,7 +114,7 @@ public class ConfigManager {
 
     public static int maxNauseaDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.maxNauseaDuration * 20;
+            return ClothConfigManager.getConfig().stews.maxNauseaMultiplier * 20;
         }
 
         return baseNauseaDuration() * 20 * minCowlLevel();
@@ -123,7 +122,7 @@ public class ConfigManager {
 
     public static int basePositiveDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.basePositiveDuration;
+            return ClothConfigManager.getConfig().stews.basePositiveDuration;
         }
 
         return 5;
@@ -131,7 +130,7 @@ public class ConfigManager {
 
     public static boolean cappedPositiveDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.cappedPositiveDuration;
+            return ClothConfigManager.getConfig().stews.cappedPositiveDuration;
         }
 
         return true;
@@ -139,7 +138,7 @@ public class ConfigManager {
 
     public static int maxPositiveDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.maxPositiveDuration * 20;
+            return ClothConfigManager.getConfig().stews.maxPositiveMultiplier * 20;
         }
 
         return basePositiveDuration() * 20 * maxBonusLevels();
@@ -147,7 +146,7 @@ public class ConfigManager {
 
     public static int minSatisfyingLevels() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.minSatisfyingLevel;
+            return ClothConfigManager.getConfig().stews.minSatisfyingLevel;
         }
 
         return 1;
@@ -155,7 +154,7 @@ public class ConfigManager {
 
     public static int minFillingLevels() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.minFillingLevel;
+            return ClothConfigManager.getConfig().stews.minFillingLevel;
         }
 
         return 3;
@@ -163,7 +162,7 @@ public class ConfigManager {
 
     public static int minHeartyLevels() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.minHeartyLevel;
+            return ClothConfigManager.getConfig().stews.minHeartyLevel;
         }
 
         return 5;
@@ -251,7 +250,7 @@ public class ConfigManager {
 
     public static boolean redstoneNeedsPower() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.redstoneNeedsPower;
+            return ClothConfigManager.getConfig().mechanics.redstoneNeedsPower;
         }
 
         return false;
@@ -259,7 +258,7 @@ public class ConfigManager {
 
     public static int redstonePowerThreshold() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.redstonePowerThreshold;
+            return ClothConfigManager.getConfig().mechanics.redstonePowerThreshold;
         }
 
         return 8;
@@ -267,7 +266,7 @@ public class ConfigManager {
 
     public static boolean canFillWithWaterBottle() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.canFillWithWaterBottle;
+            return ClothConfigManager.getConfig().mechanics.canFillWithWaterBottle;
         }
 
         return true;
@@ -275,7 +274,7 @@ public class ConfigManager {
 
     public static int ingredientSlots() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.ingredientSlots;
+            return ClothConfigManager.getConfig().mechanics.ingredientSlots;
         }
 
         return 8;
@@ -283,7 +282,7 @@ public class ConfigManager {
 
     public static boolean canAddPotions() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.canAddPotions;
+            return ClothConfigManager.getConfig().potions.canAddPotions;
         }
 
         return true;
@@ -291,7 +290,7 @@ public class ConfigManager {
 
     public static int effectPerPot() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.effectsPerPot;
+            return ClothConfigManager.getConfig().potions.effectsPerPot;
         }
 
         return 2;
@@ -299,7 +298,7 @@ public class ConfigManager {
 
     public static boolean effectsOverride() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.effectsOverride;
+            return ClothConfigManager.getConfig().potions.effectsOverride;
         }
 
         return true;
@@ -307,7 +306,7 @@ public class ConfigManager {
 
     public static boolean hideStewEffects() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.hideStewEffects;
+            return ClothConfigManager.getConfig().potions.hideStewEffects;
         }
 
         return false;
@@ -315,7 +314,7 @@ public class ConfigManager {
 
     public static boolean useObfuscatedText() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.useObfuscatedText;
+            return ClothConfigManager.getConfig().potions.useObfuscatedText;
         }
 
         return false;
@@ -323,7 +322,7 @@ public class ConfigManager {
 
     public static boolean diluteEffects() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.diluteEffects;
+            return ClothConfigManager.getConfig().potions.diluteEffects;
         }
 
         return true;
@@ -331,9 +330,57 @@ public class ConfigManager {
 
     public static float dilutionModifier() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().gameplay.dilutionModifier;
+            return ClothConfigManager.getConfig().potions.dilutionModifier;
         }
 
         return 0.5f;
+    }
+
+    public static boolean canLockPots() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.canLockPots;
+        }
+
+        return true;
+    }
+
+    public static boolean creativePlayersIgnoreLocks() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.creativePlayersIgnoreLocks;
+        }
+
+        return true;
+    }
+
+    public static boolean displayOwnerName() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.displayOwnerName;
+        }
+
+        return true;
+    }
+
+    public static boolean renderPadlock() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.renderPadlock;
+        }
+
+        return true;
+    }
+
+    public static int textColor() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.textColor;
+        }
+
+        return 0xCCFFFFFF;
+    }
+
+    public static float labelBackgroundOpacity() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().locking.labelBackgroundOpacity;
+        }
+
+        return 0.25f;
     }
 }
