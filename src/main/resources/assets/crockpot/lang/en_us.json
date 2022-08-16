@@ -69,6 +69,8 @@
   "text.autoconfig.crockpot.option.mechanics.redstonePowerThreshold": "Redstone pot signal threshold",
   "text.autoconfig.crockpot.option.mechanics.canFillWithWaterBottle": "Pots can be filled with a water bottle",
   "text.autoconfig.crockpot.option.mechanics.ingredientSlots": "Number of usable inventory slots in the pot",
+  "text.autoconfig.crockpot.option.mechanics.cookRawFood": "Cook raw food, using the campfire cooking recipes",
+  "text.autoconfig.crockpot.option.mechanics.cookFoodOnlyOnLevelUp": "Raw food is cooked only when bonus levels are applied",
 
   "text.autoconfig.crockpot.category.potions": "Potions",
   "text.autoconfig.crockpot.option.potions.canAddPotions": "Can add potions to a pot",

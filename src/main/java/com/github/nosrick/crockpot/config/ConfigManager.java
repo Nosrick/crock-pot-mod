@@ -280,6 +280,22 @@ public class ConfigManager {
         return 8;
     }
 
+    public static boolean cookRawFood() {
+         if(clothPresent()) {
+             return ClothConfigManager.getConfig().mechanics.cookRawFood;
+         }
+
+         return true;
+    }
+
+    public static boolean cookFoodOnlyOnLevelUp() {
+         if(clothPresent()) {
+             return ClothConfigManager.getConfig().mechanics.cookFoodOnlyOnLevelUp;
+         }
+
+         return true;
+    }
+
     public static boolean canAddPotions() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().potions.canAddPotions;
