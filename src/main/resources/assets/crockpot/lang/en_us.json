@@ -85,7 +85,7 @@
   "text.autoconfig.crockpot.option.locking.displayOwnerName": "Show the owner's name above the pot",
   "text.autoconfig.crockpot.option.locking.renderPadlock": "Render the padlock when the pot is locked",
   "text.autoconfig.crockpot.option.locking.textColor": "Text color used by the label",
-  "text.autoconfig.crockpot.option.locking.backgroundOpacity": "Opacity of the label's background",
+  "text.autoconfig.crockpot.option.locking.labelBackgroundOpacity": "Opacity of the label's background",
 
   "text.autoconfig.crockpot.category.sound": "Sound Effects",
   "text.autoconfig.crockpot.option.sound.bubbleSoundChance": "Chance for bubble sound",
