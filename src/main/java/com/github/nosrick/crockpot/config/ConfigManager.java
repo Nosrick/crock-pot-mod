@@ -376,11 +376,11 @@ public class ConfigManager {
         return 0xCCFFFFFF;
     }
 
-    public static float labelBackgroundOpacity() {
+    public static int labelBackgroundOpacity() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().locking.labelBackgroundOpacity;
         }
 
-        return 0.25f;
+        return 65;
     }
 }

@@ -154,12 +154,11 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         matrices.scale(-scale, -scale, scale);
 
         float rot = (float) Math.atan2(rotation.getZ(), rotation.getX());
-        CrockPotMod.LOGGER.info("" + rot);
         matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rot));
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
-        int backgroundOpacity = (int) (ConfigManager.labelBackgroundOpacity() * 255.0f) << 24;
+        int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
         textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
         matrices.pop();

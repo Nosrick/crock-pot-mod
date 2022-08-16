@@ -114,11 +114,11 @@ public class CrockPotConfig implements ConfigData {
 
         public boolean renderPadlock = true;
 
-        @Comment("Minecraft uses the ARGB hex format!")
-        public int textColor = 0xCCFFFFFF;
+        @ConfigEntry.ColorPicker
+        public int textColor = 0xFFFFFF;
 
-        @Comment("This is a floating point number between 0 and 1")
-        public float labelBackgroundOpacity = 0.25f;
+        @ConfigEntry.BoundedDiscrete(min = 0, max = 255)
+        public int labelBackgroundOpacity = 65;
     }
 
     @ConfigEntry.Category("sound")
