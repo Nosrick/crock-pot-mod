@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.text.*;
 import net.minecraft.util.collection.DefaultedList;
 
@@ -56,10 +55,10 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
                 for (int i = 0; i < effectsList.size(); i++) {
                     NbtCompound effectNbt = effectsList.getCompound(i);
                     StatusEffectInstance effect = StatusEffectInstance.fromNbt(effectNbt);
-                    effectsNames.add(new TranslatableText(effect.getTranslationKey())
+                    effectsNames.add(Text.translatable(effect.getTranslationKey())
                             .append(" " + (effect.getAmplifier() + 1))
                             .append(" - " + (effect.getDuration() / 20))
-                            .append(new TranslatableText("tooltip.crockpot.seconds")));
+                            .append(Text.translatable("tooltip.crockpot.seconds")));
                 }
             }
 
@@ -67,10 +66,10 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             Inventories.readNbt(nbt, items);
 
             List<Item> contents = items.stream().takeWhile(itemStack -> !itemStack.isEmpty()).map(ItemStack::getItem).toList();
-            tooltip.addLine(new TranslatableText("tooltip.crockpot.portions", portions));
-            tooltip.addLine(new TranslatableText("tooltip.crockpot.bonus_levels", bonusLevels));
+            tooltip.addLine(Text.translatable("tooltip.crockpot.portions", portions));
+            tooltip.addLine(Text.translatable("tooltip.crockpot.bonus_levels", bonusLevels));
             if (!effectsNames.isEmpty()) {
-                tooltip.addLine(new TranslatableText("tooltip.crockpot.effects"));
+                tooltip.addLine(Text.translatable("tooltip.crockpot.effects"));
                 if(!ConfigManager.hideStewEffects()) {
                     for (MutableText text : effectsNames) {
                         tooltip.addLine(text);
@@ -78,15 +77,15 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
                 }
                 else {
                     if(ConfigManager.useObfuscatedText()) {
-                        tooltip.addLine(new LiteralText("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
+                        tooltip.addLine(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
                     }
                     else {
-                        tooltip.addLine(new TranslatableText("tooltip.crockpot.hidden_effects"));
+                        tooltip.addLine(Text.translatable("tooltip.crockpot.hidden_effects"));
                     }
                 }
             }
 
-            tooltip.addLine(new TranslatableText("values.crockpot.redstone_output.type",
+            tooltip.addLine(Text.translatable("values.crockpot.redstone_output.type",
                     crockPotBlockEntity.getRedstoneOutputType().localName));
 
             if (!contents.isEmpty()) {
