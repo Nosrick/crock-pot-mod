@@ -114,7 +114,7 @@ public class ConfigManager {
 
     public static int maxNauseaDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().stews.maxNauseaMultiplier * 20;
+            return ClothConfigManager.getConfig().stews.maxNauseaDuration * 20;
         }
 
         return baseNauseaDuration() * 20 * minCowlLevel();
@@ -138,7 +138,7 @@ public class ConfigManager {
 
     public static int maxPositiveDuration() {
         if(clothPresent()) {
-            return ClothConfigManager.getConfig().stews.maxPositiveMultiplier * 20;
+            return ClothConfigManager.getConfig().stews.maxPositiveDuration * 20;
         }
 
         return basePositiveDuration() * 20 * maxBonusLevels();
