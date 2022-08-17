@@ -20,8 +20,10 @@ import net.minecraft.nbt.NbtString;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.Style;
 import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Hand;
 import net.minecraft.util.Identifier;
@@ -138,18 +140,18 @@ public class StewItem extends Item {
 
         if (ConfigManager.useCursedStew()) {
             if (getCurseLevel(stack) >= ConfigManager.minCowlLevel()) {
-                tooltip.set(0, Text.literal(tooltip.get(0).getString())
+                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_GRAY)
                                 .withItalic(true)
                                 .withBold(true)));
-                tooltip.add(Text.translatable("item.crockpot.stew.cowl_description"));
+                tooltip.add(new TranslatableText("item.crockpot.stew.cowl_description"));
             } else if (getCurseLevel(stack) >= ConfigManager.stewMinNegativeLevelsEffect()) {
-                tooltip.set(0, Text.literal(tooltip.get(0).getString())
+                tooltip.set(0, new LiteralText(tooltip.get(0).getString())
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_RED)
                                 .withItalic(true)));
-                tooltip.add(Text.translatable("item.crockpot.stew.cursed_description"));
+                tooltip.add(new TranslatableText("item.crockpot.stew.cursed_description"));
             }
         }
 
@@ -157,12 +159,12 @@ public class StewItem extends Item {
             int hunger = getHunger(stack);
             int saturation = MathHelper.floor(hunger * getSaturation(stack) * 2f);
 
-            tooltip.add(Text.translatable(
+            tooltip.add(new TranslatableText(
                             "item.crockpot.stew.hunger", hunger)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.YELLOW)));
 
-            tooltip.add(Text.translatable(
+            tooltip.add(new TranslatableText(
                             "item.crockpot.stew.saturation", saturation)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.GOLD)));
@@ -171,12 +173,12 @@ public class StewItem extends Item {
 
         List<StatusEffectInstance> statusEffects = PotionUtil.getPotionEffects(stack);
         if (!statusEffects.isEmpty()) {
-            tooltip.add(Text.translatable("tooltip.crockpot.effects"));
+            tooltip.add(new TranslatableText("tooltip.crockpot.effects"));
             if(!ConfigManager.hideStewEffects()) {
                 for (StatusEffectInstance effect : statusEffects) {
-                    tooltip.add(Text.translatable(effect.getTranslationKey())
-                            .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
-                            .append(Text.translatable("tooltip.crockpot.seconds"))
+                    tooltip.add(new TranslatableText(effect.getTranslationKey())
+                            .append(new LiteralText(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
+                            .append(new TranslatableText("tooltip.crockpot.seconds"))
                             .setStyle(Style.EMPTY)
                             .formatted(effect.getEffectType().isBeneficial()
                                     ? Formatting.GREEN
@@ -185,10 +187,10 @@ public class StewItem extends Item {
             }
             else {
                 if(ConfigManager.useObfuscatedText()) {
-                    tooltip.add(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
+                    tooltip.add(new LiteralText("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
                 }
                 else {
-                    tooltip.add(Text.translatable("tooltip.crockpot.hidden_effects"));
+                    tooltip.add(new TranslatableText("tooltip.crockpot.hidden_effects"));
                 }
             }
         }
