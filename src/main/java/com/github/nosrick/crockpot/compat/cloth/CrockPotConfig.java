@@ -42,14 +42,14 @@ public class CrockPotConfig implements ConfigData {
         @Comment("Number of seconds added to the nausea effect per curse level")
         public int baseNauseaDuration = 5;
 
-        public int maxNauseaMultiplier = baseNauseaDuration * cowlCurseLevels;
+        public int maxNauseaDuration = baseNauseaDuration * cowlCurseLevels;
 
         public boolean cappedPositiveDuration = true;
 
         @Comment("Number of seconds to add to the saturation effect per bonus level")
         public int basePositiveDuration = 5;
 
-        public int maxPositiveMultiplier = basePositiveDuration * maxBonusLevels;
+        public int maxPositiveDuration = basePositiveDuration * maxBonusLevels;
 
         @Comment("Minimum bonus levels before a stew can be called 'satisfying'")
         public int minSatisfyingLevel = 1;
