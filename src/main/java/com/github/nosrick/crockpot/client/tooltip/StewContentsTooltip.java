@@ -28,7 +28,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     StewContentsTooltip(ItemStack stack) {
         this.stewStack = stack;
         this.contents = StewItem.getContents(stack);
-        this.contentsString = Text.translatable("tooltip.crockpot.contents");
+        this.contentsString = new TranslatableText("tooltip.crockpot.contents");
     }
 
     public static StewContentsTooltip of(ItemStack stack) {
@@ -42,8 +42,8 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public TextContent getContent() {
-        return TextContent.EMPTY;
+    public String asString() {
+        return new String();
     }
 
     static List<Text> emptySiblings = new ArrayList<>();
@@ -58,6 +58,12 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     public MutableText copy() {
         return null;
     }
+
+    @Override
+    public MutableText shallowCopy() {
+        return this.contentsString;
+    }
+
     @Override
     public OrderedText asOrderedText()
     {

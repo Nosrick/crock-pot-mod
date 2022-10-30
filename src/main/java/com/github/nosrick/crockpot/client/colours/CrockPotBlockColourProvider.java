@@ -1,7 +1,11 @@
 package com.github.nosrick.crockpot.client.colours;
 
+import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.color.block.BlockColorProvider;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ColorHelper;
@@ -22,7 +26,17 @@ public class CrockPotBlockColourProvider implements BlockColorProvider {
             return 0;
         }
 
-        if(!(world.getBlockEntity(pos) instanceof CrockPotBlockEntity potBlockEntity)){
+        BlockPos modPos = pos;
+
+        //Gross hacks combating optimisations made by sodium
+        if(FabricLoader.getInstance().isModLoaded("sodium"))
+        {
+            modPos = modPos.add(1, 1, 0);
+        }
+
+        BlockEntity entity = world.getBlockEntity(modPos);
+
+        if(!(entity instanceof CrockPotBlockEntity potBlockEntity)){
             return 0;
         }
 
