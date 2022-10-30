@@ -31,7 +31,7 @@ public class CrockPotBlockColourProvider implements BlockColorProvider {
         //Gross hacks combating optimisations made by sodium
         if(FabricLoader.getInstance().isModLoaded("sodium"))
         {
-            modPos = modPos.add(1, 1, 0);
+            //modPos = modPos.add(1, 1, 0);
         }
 
         BlockEntity entity = world.getBlockEntity(modPos);
