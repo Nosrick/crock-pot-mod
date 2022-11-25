@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.client.tooltip;
 
 import com.github.nosrick.crockpot.item.StewItem;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -12,7 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.*;
 import net.minecraft.util.Language;
-import net.minecraft.util.math.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +27,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     StewContentsTooltip(ItemStack stack) {
         this.stewStack = stack;
         this.contents = StewItem.getContents(stack);
-        this.contentsString = new TranslatableText("tooltip.crockpot.contents");
+        this.contentsString = Text.translatable("tooltip.crockpot.contents");
     }
 
     public static StewContentsTooltip of(ItemStack stack) {
@@ -42,8 +41,9 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public String asString() {
-        return "";
+    public TextContent getContent()
+    {
+        return TextContent.EMPTY;
     }
 
     static List<Text> emptySiblings = new ArrayList<Text>();
@@ -52,16 +52,6 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     public List<Text> getSiblings()
     {
         return emptySiblings;
-    }
-
-    @Override
-    public MutableText copy() {
-        return null;
-    }
-
-    @Override
-    public MutableText shallowCopy() {
-        return null;
     }
 
     @Override

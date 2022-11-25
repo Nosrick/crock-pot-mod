@@ -14,8 +14,7 @@ public class ModMenuIntegration implements ModMenuApi
 {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if(ConfigManager.clothPresent())
-        {
+        if(ConfigManager.clothPresent()) {
             ClothConfigManager.registerAutoConfig();
         }
 

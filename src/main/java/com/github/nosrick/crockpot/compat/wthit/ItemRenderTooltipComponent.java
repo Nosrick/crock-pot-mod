@@ -1,18 +1,12 @@
 package com.github.nosrick.crockpot.compat.wthit;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import mcp.mobius.waila.api.ITooltipComponent;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.client.texture.AbstractTexture;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.resource.ResourceManager;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.List;
 
