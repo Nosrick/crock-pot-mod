@@ -871,8 +871,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 && blockState.get(CrockPotBlock.HAS_LIQUID)) {
             if (random.nextInt(ConfigManager.boilSoundChance()) == 0) {
                 float variation = random.nextFloat() / 5f - 0.1f;
-                //TODO: FIX SOUNDS
-                //world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BOIL.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
             }
         }
 
@@ -880,7 +879,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 && crockPotBlockEntity.getPortions() > 0) {
             if (random.nextInt(ConfigManager.bubbleSoundChance()) == 0) {
                 float variation = random.nextFloat() / 5f - 0.1f;
-                //world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
+                world.playSound(null, blockPos, CrockPotSoundRegistry.CROCK_POT_BUBBLE.get(), SoundCategory.BLOCKS, volume, 1.0f + variation);
             }
         }
     }

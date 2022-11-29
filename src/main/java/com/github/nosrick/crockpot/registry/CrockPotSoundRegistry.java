@@ -15,8 +15,6 @@ public enum CrockPotSoundRegistry {
     private SoundEvent soundEvent;
     private final Identifier identifier;
 
-    //TODO: Wait for sound registry to get fixed
-
     CrockPotSoundRegistry(SoundEvent soundEvent) {
         this.soundEvent = soundEvent;
         this.identifier = soundEvent.getId();
@@ -24,7 +22,7 @@ public enum CrockPotSoundRegistry {
 
     CrockPotSoundRegistry(String identifier) {
         this.identifier = new Identifier(CrockPotMod.MOD_ID, identifier);
-        this.soundEvent = null;//(this.identifier);
+        this.soundEvent = SoundEvent.of(this.identifier);
     }
 
     CrockPotSoundRegistry(String identifier, SoundEvent soundEvent) {
@@ -34,7 +32,7 @@ public enum CrockPotSoundRegistry {
 
     public SoundEvent get() {
         if(this.soundEvent == null && this.identifier != null) {
-            this.soundEvent = null; //(this.identifier);
+            this.soundEvent = SoundEvent.of(this.identifier);
         }
 
         return this.soundEvent;
