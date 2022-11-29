@@ -75,8 +75,6 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             zRot = (random.nextFloat() - 0.5f) * 0.1f;
         }
 
-        //TODO: FIX LID ANIMATIONS
-
         Vector3f rotation = new Vector3f(lastX, 0, lastZ);
         Vector3f newRotation = new Vector3f(xRot, 0, zRot);
         rotation.lerp(newRotation, tickDelta);
