@@ -25,14 +25,6 @@ public class CrockPotMod implements ModInitializer {
 
     public static final Identifier CROCK_POT_CHANNEL = new Identifier(MOD_ID, "crockpot_blockentity_update");
 
-    //TODO: FIX ITEM GROUP
-    public static final ItemGroup ITEM_GROUP = FabricItemGroup.builder(
-            new Identifier(MOD_ID, "main"))
-            //.icon(() -> new ItemStack(ItemRegistry.CROCK_POT.get()))
-            .displayName(Text.translatable("itemGroup.crockpot.main"))
-            //.entries((enabledFeatures, entries, operatorEnabled) -> entries.add(BlockRegistry.CROCK_POT.get()))
-            .build();
-
     public static final List<String> MODS_LOADED = new ArrayList<>();
 
     public static final FoodManager FOOD_MANAGER = new FoodManager();
