@@ -6,8 +6,9 @@ import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityT
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -40,7 +41,7 @@ public enum BlockEntityTypesRegistry {
     public static void registerAll() {
         for (BlockEntityTypesRegistry value : values()){
             Registry.register(
-                    Registry.BLOCK_ENTITY_TYPE,
+                    Registries.BLOCK_ENTITY_TYPE,
                     new Identifier(CrockPotMod.MOD_ID, value.pathName),
                     value.get());
         }

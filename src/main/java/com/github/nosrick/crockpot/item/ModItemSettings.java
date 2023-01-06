@@ -6,6 +6,6 @@ import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 public class ModItemSettings extends FabricItemSettings {
     public ModItemSettings() {
         super();
-        group(CrockPotMod.ITEM_GROUP);
+        //group(CrockPotMod.ITEM_GROUP);
     }
 }

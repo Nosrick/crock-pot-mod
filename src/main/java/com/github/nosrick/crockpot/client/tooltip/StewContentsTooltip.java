@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.client.tooltip;
 
 import com.github.nosrick.crockpot.item.StewItem;
 import net.minecraft.client.font.TextRenderer;
-import net.minecraft.client.font.TextVisitFactory;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -12,7 +11,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.text.*;
 import net.minecraft.util.Language;
-import net.minecraft.util.math.Matrix4f;
+import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +41,8 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public TextContent getContent() {
+    public TextContent getContent()
+    {
         return TextContent.EMPTY;
     }
 
@@ -54,10 +54,6 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
         return emptySiblings;
     }
 
-    @Override
-    public MutableText copy() {
-        return null;
-    }
     @Override
     public OrderedText asOrderedText()
     {

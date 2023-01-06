@@ -866,7 +866,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             serverTick(world, crockPotBlockEntity);
         }
 
-        Random random = world.random;
+        var random = world.random;
 
         float volume = ConfigManager.soundEffectVolume();
 

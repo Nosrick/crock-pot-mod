@@ -1,9 +1,10 @@
 package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
 
 public enum CrockPotSoundRegistry {
 
@@ -21,7 +22,7 @@ public enum CrockPotSoundRegistry {
 
     CrockPotSoundRegistry(String identifier) {
         this.identifier = new Identifier(CrockPotMod.MOD_ID, identifier);
-        this.soundEvent = new SoundEvent(this.identifier);
+        this.soundEvent = SoundEvent.of(this.identifier);
     }
 
     CrockPotSoundRegistry(String identifier, SoundEvent soundEvent) {
@@ -31,7 +32,7 @@ public enum CrockPotSoundRegistry {
 
     public SoundEvent get() {
         if(this.soundEvent == null && this.identifier != null) {
-            this.soundEvent = new SoundEvent(this.identifier);
+            this.soundEvent = SoundEvent.of(this.identifier);
         }
 
         return this.soundEvent;
@@ -40,7 +41,7 @@ public enum CrockPotSoundRegistry {
     public static void registerAll() {
         for(CrockPotSoundRegistry value : values()) {
             Registry.register(
-                    Registry.SOUND_EVENT,
+                    Registries.SOUND_EVENT,
                     value.identifier,
                     value.soundEvent);
         }
