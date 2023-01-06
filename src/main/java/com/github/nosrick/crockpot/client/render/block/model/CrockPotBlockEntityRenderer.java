@@ -18,12 +18,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.joml.*;
 
 import java.lang.Math;
-import java.util.Random;
 
 public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPotBlockEntity> {
 
