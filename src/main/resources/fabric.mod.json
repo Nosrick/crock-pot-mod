@@ -24,6 +24,9 @@
     "client": [
       "com.github.nosrick.crockpot.CrockPotModClient"
     ],
+    "appleskin": [
+      "com.github.nosrick.crockpot.compat.appleskin.AppleSkinEventHandler"
+    ],
     "modmenu": [
       "com.github.nosrick.crockpot.compat.modmenu.ModMenuIntegration"
     ]

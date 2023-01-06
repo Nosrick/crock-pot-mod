@@ -52,14 +52,12 @@ dependencies {
 
     //These are all the optional dependencies
     //Appleskin
-    /*
     modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
     }
     modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}") {
         exclude module: 'modmenu'
     }
-     */
 
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
