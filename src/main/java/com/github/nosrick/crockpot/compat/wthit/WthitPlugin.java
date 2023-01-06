@@ -11,7 +11,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.text.*;
 import net.minecraft.util.collection.DefaultedList;
 

@@ -45,6 +45,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -173,6 +174,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT)));
+
+        this.markDirty();
 
         super.readNbt(nbt);
     }
@@ -323,7 +326,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 }
 
                 return false;
-            } else if (foodItem.getFoodComponent() != null) {
+            }
+            else if (foodItem.getFoodComponent() != null) {
                 var effects = foodItem.getFoodComponent().getStatusEffects();
                 if (!effects.isEmpty()) {
                     this.addStatusEffects(effects.stream().map(Pair::getFirst).toList());
@@ -695,7 +699,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeBlockPos(this.pos);
             buf.writeNbt(this.createNbt());
-            buf.writeUuid(this.owner);
             ServerPlayNetworking.send(player, CrockPotMod.CROCK_POT_CHANNEL, buf);
         }
     }
