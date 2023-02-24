@@ -1,17 +1,11 @@
 package com.github.nosrick.crockpot;
 
-import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
-import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +34,7 @@ public class CrockPotMod implements ModInitializer {
         ItemRegistry.registerAll();
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
-            ClothConfigManager.registerAutoConfig();
+            //ClothConfigManager.registerAutoConfig();
         }
     }
 }

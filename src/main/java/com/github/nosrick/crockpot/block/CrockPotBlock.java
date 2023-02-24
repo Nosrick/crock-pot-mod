@@ -88,7 +88,7 @@ public class CrockPotBlock extends BlockWithEntity {
         World world = context.getWorld();
 
         return getDefaultState()
-                .with(FACING, context.getPlayerFacing().getOpposite())
+                .with(FACING, context.getPlayerLookDirection().getOpposite())
                 .with(NEEDS_SUPPORT, needsSupport(world.getBlockState(blockPos.down())));
     }
 

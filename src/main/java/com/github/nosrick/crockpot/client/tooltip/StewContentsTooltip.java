@@ -86,7 +86,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
                 true,
                 matrix,
                 vertexConsumers,
-                false,
+                TextRenderer.TextLayerType.NORMAL,
                 0,
                 LightmapTextureManager.MAX_LIGHT_COORDINATE);
     }
@@ -95,7 +95,11 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
         TooltipComponent.super.drawItems(textRenderer, x, y, matrices, itemRenderer, z);
         for(int i = 0; i < contents.size(); i++) {
-            itemRenderer.renderGuiItemIcon(this.contents.get(i).getDefaultStack(), x + textRenderer.getWidth(this.contentsString) + (i * 8), y);
+            itemRenderer.renderGuiItemIcon(
+                    matrices,
+                    this.contents.get(i).getDefaultStack(),
+                    x + textRenderer.getWidth(this.contentsString) + (i * 8),
+                    y);
         }
     }
 

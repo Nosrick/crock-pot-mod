@@ -128,7 +128,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             matrices.pop();
         }
 
-        if(ConfigManager.renderPadlock()) {
+        if (ConfigManager.renderPadlock()) {
             padlockModel.render(
                     matrices,
                     vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
@@ -161,7 +161,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
         matrices.pop();
     }
 
