@@ -92,8 +92,8 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer, int z) {
-        TooltipComponent.super.drawItems(textRenderer, x, y, matrices, itemRenderer, z);
+    public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer) {
+        TooltipComponent.super.drawItems(textRenderer, x, y, matrices, itemRenderer);
         for(int i = 0; i < contents.size(); i++) {
             itemRenderer.renderGuiItemIcon(
                     matrices,
