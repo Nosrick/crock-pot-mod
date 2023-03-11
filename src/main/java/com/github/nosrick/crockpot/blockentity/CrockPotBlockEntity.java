@@ -218,6 +218,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         int combinedHunger = 0;
         float combinedSaturation = 0f;
 
+        boolean perPortion = ConfigManager.recalculateValuesAfterServing();
+
         for (ItemStack itemStack : this.getContents()) {
             Item item = itemStack.getItem();
             if (item.isFood()) {
@@ -227,13 +229,21 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     continue;
                 }
 
-                combinedHunger += foodComponent.getHunger() * itemStack.getCount();
-                combinedSaturation += foodComponent.getSaturationModifier() * itemStack.getCount();
+                combinedHunger += perPortion
+                        ? foodComponent.getHunger() * itemStack.getCount()
+                        : foodComponent.getHunger();
+                combinedSaturation += perPortion
+                        ? foodComponent.getSaturationModifier() * itemStack.getCount()
+                        : foodComponent.getSaturationModifier();
             }
         }
 
-        this.hunger = combinedHunger / portions;
-        this.saturation = combinedSaturation / portions;
+        this.hunger = perPortion
+                ? combinedHunger / portions
+                : combinedHunger;
+        this.saturation = perPortion
+                ? combinedSaturation / portions
+                : combinedSaturation;
     }
 
     public boolean canAddFood(ItemStack food) {
