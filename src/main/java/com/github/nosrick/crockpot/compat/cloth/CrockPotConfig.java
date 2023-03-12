@@ -76,8 +76,6 @@ public class CrockPotConfig implements ConfigData {
         @Comment("How many different foods can go into a single pot")
         public int ingredientSlots = 8;
 
-        public boolean recalculateValuesAfterServing = false;
-
         public boolean cookRawFood = true;
 
         public boolean cookFoodOnlyOnLevelUp = true;

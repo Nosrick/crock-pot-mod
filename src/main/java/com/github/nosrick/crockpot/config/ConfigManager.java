@@ -280,14 +280,6 @@ public class ConfigManager {
         return 8;
     }
 
-    public static boolean recalculateValuesAfterServing() {
-        if(clothPresent()) {
-            return ClothConfigManager.getConfig().mechanics.recalculateValuesAfterServing;
-        }
-
-        return false;
-    }
-
     public static boolean cookRawFood() {
          if(clothPresent()) {
              return ClothConfigManager.getConfig().mechanics.cookRawFood;
