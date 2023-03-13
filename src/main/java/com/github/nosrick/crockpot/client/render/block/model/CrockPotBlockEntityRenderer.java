@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.client.render.block.model;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
-import com.github.nosrick.crockpot.client.colours.CrockPotBlockColourProvider;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.minecraft.client.MinecraftClient;
@@ -85,8 +84,8 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         }
 
         int colour = entity.isElectric()
-                ? CrockPotBlockColourProvider.ELECTRIC_COLOUR
-                : CrockPotBlockColourProvider.POT_COLOUR;
+                ? CrockPotMod.ELECTRIC_COLOUR
+                : CrockPotMod.POT_COLOUR;
 
         float r, g, b, a;
         r = ColorHelper.Argb.getRed(colour) / 255f;
