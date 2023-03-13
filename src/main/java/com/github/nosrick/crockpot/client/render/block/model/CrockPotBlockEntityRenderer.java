@@ -1,9 +1,11 @@
 package com.github.nosrick.crockpot.client.render.block.model;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.util.UUIDUtil;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -24,11 +26,16 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     protected ModelPart lidModel;
 
     protected ModelPart padlockModel;
+    protected ModelPart liquidModel;
 
     public static EntityModelLayer POT_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_lid");
+    public static EntityModelLayer POT_LIQUID_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_liquid");
     public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "padlock"), "padlock");
     public static Identifier POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_lid.png");
     public static Identifier PADLOCK_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_padlock.png");
+
+    public static Identifier LIQUID_WATER = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_liquid.png");
+    public static Identifier LIQUID_STEW = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_stew.png");
 
     protected float xRot;
     protected float zRot;
@@ -37,6 +44,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     public CrockPotBlockEntityRenderer(BlockEntityRendererFactory.Context context) {
         this.lidModel = context.getLayerModelPart(POT_MODEL_LAYER);
         this.padlockModel = context.getLayerModelPart(PADLOCK_MODEL_LAYER);
+        this.liquidModel = context.getLayerModelPart(POT_LIQUID_LAYER);
     }
 
     @Override
@@ -48,93 +56,96 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             int light,
             int overlay) {
 
-        if (!entity.hasFood()) {
-            return;
-        }
-
         World world = entity.getWorld();
 
         if (world == null || MinecraftClient.getInstance().isPaused()) {
             return;
         }
 
-        var random = entity.getWorld().random;
-        float time = world.getTime() + tickDelta;
+        BlockState blockState = entity.getCachedState();
 
-        float lastX = xRot;
-        float lastZ = zRot;
-
-        if (time % 3 < 1f) {
-            yTrans = random.nextFloat() * 0.1f;
-            xRot = (random.nextFloat() - 0.5f) * 0.1f;
-            zRot = (random.nextFloat() - 0.5f) * 0.1f;
-        }
-
-        Vec3f rotation = new Vec3f(lastX * 5, 0, lastZ * 5);
-        Vec3f newRotation = new Vec3f(xRot * 5, 0, zRot * 5);
-        rotation.lerp(newRotation, tickDelta);
-        float boilingIntensity = entity.getBoilingIntensity();
-        rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
-
-        matrices.push();
-        if (ConfigManager.animateBoilingLid()) {
-            matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
-            matrices.multiply(
-                    Quaternion.fromEulerXyzDegrees(rotation));
-        }
-
-        int colour = entity.isElectric()
-                ? CrockPotMod.ELECTRIC_COLOUR
-                : CrockPotMod.POT_COLOUR;
-
-        float r, g, b, a;
-        r = ColorHelper.Argb.getRed(colour) / 255f;
-        g = ColorHelper.Argb.getGreen(colour) / 255f;
-        b = ColorHelper.Argb.getBlue(colour) / 255f;
-        a = ColorHelper.Argb.getAlpha(colour) / 255f;
-
-        lidModel.render(
-                matrices,
-                vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)),
-                light,
-                overlay,
-                r,
-                g,
-                b,
-                a);
-        matrices.pop();
-
-        if (entity.isOwner(UUIDUtil.NO_PLAYER)) {
-            return;
-        }
-
-        if (ConfigManager.displayOwnerName()) {
-            Entity player = MinecraftClient.getInstance().cameraEntity;
-            if (player == null) {
-                return;
-            }
-            Vec3d playerPos = player.getPos();
-            BlockPos entityPos = entity.getPos();
-            Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
-            Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
-
-            Text ownerName = entity.getOwnerName();
-
+        if(blockState.get(CrockPotBlock.HAS_FOOD)) {
             matrices.push();
-            this.renderLabel(ownerName, matrices, vertexConsumers, rot, light);
+                this.liquidModel.render(
+                    matrices,
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_STEW)),
+                    light,
+                    overlay);
+            matrices.pop();
+        }
+        else if(blockState.get(CrockPotBlock.HAS_LIQUID)) {
+            matrices.push();
+                this.liquidModel.render(
+                    matrices,
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_WATER)),
+                    light,
+                    overlay);
             matrices.pop();
         }
 
-        if(ConfigManager.renderPadlock()) {
-            padlockModel.render(
+        if (entity.hasFood()) {
+            var random = entity.getWorld().random;
+            float time = world.getTime() + tickDelta;
+
+            float lastX = xRot;
+            float lastZ = zRot;
+
+            if (time % 3 < 1f) {
+                yTrans = random.nextFloat() * 0.1f;
+                xRot = (random.nextFloat() - 0.5f) * 0.1f;
+                zRot = (random.nextFloat() - 0.5f) * 0.1f;
+            }
+
+            Vec3f rotation = new Vec3f(lastX * 5, 0, lastZ * 5);
+            Vec3f newRotation = new Vec3f(xRot * 5, 0, zRot * 5);
+            rotation.lerp(newRotation, tickDelta);
+            float boilingIntensity = entity.getBoilingIntensity();
+            rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
+
+            matrices.push();
+            if (ConfigManager.animateBoilingLid()) {
+                matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
+                matrices.multiply(
+                        Quaternion.fromEulerXyzDegrees(rotation));
+            }
+
+            lidModel.render(
                     matrices,
-                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)),
                     light,
-                    overlay,
-                    1f,
-                    1f,
-                    1f,
-                    1f);
+                    overlay);
+            matrices.pop();
+        }
+
+        if (!entity.isOwner(UUIDUtil.NO_PLAYER)) {
+            if (ConfigManager.displayOwnerName()) {
+                Entity player = MinecraftClient.getInstance().cameraEntity;
+                if (player == null) {
+                    return;
+                }
+                Vec3d playerPos = player.getPos();
+                BlockPos entityPos = entity.getPos();
+                Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+                Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
+
+                Text ownerName = entity.getOwnerName();
+
+                matrices.push();
+                this.renderLabel(ownerName, matrices, vertexConsumers, rot, light);
+                matrices.pop();
+            }
+
+            if (ConfigManager.renderPadlock()) {
+                padlockModel.render(
+                        matrices,
+                        vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
+                        light,
+                        overlay,
+                        1f,
+                        1f,
+                        1f,
+                        1f);
+            }
         }
     }
 
@@ -162,7 +173,21 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         matrices.pop();
     }
 
-    public static TexturedModelData createPotModelData() {
+    public static TexturedModelData createLiquidModelData() {
+        var data = new ModelData();
+
+        data.getRoot().addChild("pot_liquid",
+                ModelPartBuilder
+                        .create()
+                        .uv(0, 0)
+                        .cuboid(3, 4, 3,
+                                10, 1, 10),
+                ModelTransform.NONE);
+
+        return TexturedModelData.of(data, 16, 16);
+    }
+
+    public static TexturedModelData createPotLidModelData() {
         var data = new ModelData();
         data.getRoot().addChild("crock_pot_lid_bottom",
                 ModelPartBuilder

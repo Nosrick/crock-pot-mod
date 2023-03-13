@@ -16,8 +16,9 @@ import net.minecraft.util.math.BlockPos;
 public class CrockPotModClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
-        EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_MODEL_LAYER, CrockPotBlockEntityRenderer::createPotModelData);
+        EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_MODEL_LAYER, CrockPotBlockEntityRenderer::createPotLidModelData);
         EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.PADLOCK_MODEL_LAYER, CrockPotBlockEntityRenderer::createPadlockModelData);
+        EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_LIQUID_LAYER, CrockPotBlockEntityRenderer::createLiquidModelData);
         BlockEntityRendererFactories.register(BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntityRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.CROCK_POT.get(), RenderLayer.getCutout());
 

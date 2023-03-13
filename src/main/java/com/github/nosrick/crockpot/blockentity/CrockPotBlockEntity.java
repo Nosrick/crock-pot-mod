@@ -343,6 +343,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
         this.recalculateFoodValues();
 
+        if(this.hasWorld())
+        {
+            this.getWorld().setBlockState(this.pos, this.getCachedState()
+                    .with(CrockPotBlock.HAS_FOOD, true));
+        }
         this.updateNearby();
 
         return true;
@@ -406,23 +411,15 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void recalculateStatusEffects() {
-        ArrayList<StatusEffectInstance> potionEffects = new ArrayList<>(
-                this.getContents().stream()
-                .map(PotionUtil::getPotionEffects)
-                .flatMap(Collection::stream)
-                .toList());
-
         if(ConfigManager.diluteEffects())
         {
-            for (int i = 0; i < potionEffects.size(); i++) {
+            for (int i = 0; i < this.potionEffects.size(); i++) {
                 StatusEffectInstance effectInstance = potionEffects.get(i);
 
                 StatusEffectInstance newDuration = new StatusEffectInstance(effectInstance.getEffectType(), (int) (effectInstance.getDuration()));
-                potionEffects.set(i, newDuration);
+                this.potionEffects.set(i, newDuration);
             }
         }
-
-        //this.potionEffects = potionEffects;
     }
 
     @Nullable
@@ -591,7 +588,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             this.world.setBlockState(
                     this.pos,
                     this.getCachedState()
-                            .with(CrockPotBlock.HAS_LIQUID, false));
+                            .with(CrockPotBlock.HAS_LIQUID, false)
+                            .with(CrockPotBlock.HAS_FOOD, false));
         }
 
         this.clear();
