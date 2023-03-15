@@ -4,6 +4,7 @@ import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
@@ -32,6 +33,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     public static EntityModelLayer POT_LIQUID_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_liquid");
     public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "padlock"), "padlock");
     public static Identifier POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_lid.png");
+    public static Identifier ELECTRIC_POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/electric_crock_pot_lid.png");
     public static Identifier PADLOCK_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_padlock.png");
 
     public static Identifier LIQUID_WATER = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_liquid.png");
@@ -72,18 +74,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                     light,
                     overlay);
             matrices.pop();
-        }
-        else if(blockState.get(CrockPotBlock.HAS_LIQUID)) {
-            matrices.push();
-                this.liquidModel.render(
-                    matrices,
-                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_WATER)),
-                    light,
-                    overlay);
-            matrices.pop();
-        }
 
-        if (entity.hasFood()) {
             var random = entity.getWorld().random;
             float time = world.getTime() + tickDelta;
 
@@ -109,9 +100,22 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                         Quaternion.fromEulerXyzDegrees(rotation));
             }
 
+            Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
+                    ? ELECTRIC_POT_LID_TEXTURE_ID
+                    : POT_LID_TEXTURE_ID;
+
             lidModel.render(
                     matrices,
-                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(POT_LID_TEXTURE_ID)),
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(textureID)),
+                    light,
+                    overlay);
+            matrices.pop();
+        }
+        else if(blockState.get(CrockPotBlock.HAS_LIQUID)) {
+            matrices.push();
+                this.liquidModel.render(
+                    matrices,
+                    vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_WATER)),
                     light,
                     overlay);
             matrices.pop();

@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
+import com.github.nosrick.crockpot.block.ElectricCrockPotBlock;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
@@ -15,7 +16,8 @@ import java.util.function.Supplier;
 
 public enum BlockRegistry {
 
-    CROCK_POT("crock_pot", CrockPotBlock::new);
+    CROCK_POT("crock_pot", CrockPotBlock::new),
+    ELECTRIC_CROCK_POT("electric_crock_pot", ElectricCrockPotBlock::new);
 
     private final String pathName;
     private final Supplier<Block> blockSupplier;

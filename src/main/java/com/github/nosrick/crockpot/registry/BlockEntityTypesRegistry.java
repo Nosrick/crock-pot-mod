@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.blockentity.ElectricCrockPotBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
@@ -15,7 +16,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public enum BlockEntityTypesRegistry {
 
-    CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT);
+    CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT),
+    ELECTRIC_CROCK_POT("electric_crock_pot", ElectricCrockPotBlockEntity.class, ElectricCrockPotBlockEntity::new, BlockRegistry.ELECTRIC_CROCK_POT);
 
     private final String pathName;
     private final Class<? extends BlockEntity> blockEntityClass;

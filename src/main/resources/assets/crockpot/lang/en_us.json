@@ -15,6 +15,7 @@
   "item.crockpot.stew.saturation":  "Saturation: %s",
 
   "block.crockpot.crock_pot": "Crock Pot",
+  "block.crockpot.electric_crock_pot": "Powered Crock Pot",
 
   "crockpot.subtitles.crock_pot_boil": "Crock pot boils",
   "crockpot.subtitles.crock_pot_bubble": "Crock pot bubbles",

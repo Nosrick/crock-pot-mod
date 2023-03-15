@@ -49,7 +49,6 @@ import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @SuppressWarnings("unused")
@@ -66,8 +65,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public static final String LAST_TIME = "Last Time";
     public static final String REDSTONE_OUTPUT = "Redstone Output";
 
-    public static final String ELECTRIC_NBT = "Electric";
-
     public static final String OWNER_NBT = "Owner";
 
     public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
@@ -83,8 +80,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected long boilingTime = 0;
     protected long lastTime = 0;
-
-    protected boolean electric = false;
 
     protected UUID owner = UUIDUtil.NO_PLAYER;
     protected Text ownerName = Text.empty();
@@ -158,7 +153,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         this.lastTime = nbt.getLong(LAST_TIME);
 
         this.curseLevel = nbt.getInt(CURSE_LEVEL);
-        this.electric = nbt.getBoolean(ELECTRIC_NBT);
 
         Inventories.readNbt(nbt, this.items);
 
@@ -192,7 +186,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         nbt.putLong(LAST_TIME, this.lastTime);
 
         nbt.putInt(CURSE_LEVEL, this.curseLevel);
-        nbt.putBoolean(ELECTRIC_NBT, this.electric);
 
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
@@ -647,16 +640,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         return this.getPortions() > 0;
     }
 
-    public boolean isElectric() {
-        return this.electric;
-    }
-
-    public void setElectric(boolean value) {
-        this.electric = value;
-        this.markDirty();
-        this.updateNearby();
-    }
-
     public float getBoilingIntensity() {
         return this.bonusLevels > 0
                 ? this.bonusLevels / ((float) ConfigManager.maxBonusLevels())
@@ -701,21 +684,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean canBoil() {
-        boolean hasWater = this.getCachedState().get(CrockPotBlock.HAS_LIQUID);
-
-        if (hasWater && this.isElectric()) {
-            if (ConfigManager.redstoneNeedsPower()) {
-                if (this.world != null
-                        && this.world.getReceivedRedstonePower(this.pos) > ConfigManager.redstonePowerThreshold()) {
-                    return true;
-                } else {
-                    return false;
-                }
-            }
-            return true;
-        }
-
-        return hasWater && this.isAboveLitHeatSource();
+        return this.getCachedState().get(CrockPotBlock.HAS_LIQUID) && this.isAboveLitHeatSource();
     }
 
     public RedstoneOutputType getRedstoneOutputType() {

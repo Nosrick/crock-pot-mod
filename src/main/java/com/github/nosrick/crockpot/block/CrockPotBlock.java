@@ -3,6 +3,7 @@ package com.github.nosrick.crockpot.block;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.fabricmc.api.EnvType;
@@ -211,12 +212,11 @@ public class CrockPotBlock extends BlockWithEntity {
             }
         }
 
-        if (!potBlockEntity.isElectric()
-                && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
-            world.setBlockState(pos, state.with(UPDATE_ME, !state.get(UPDATE_ME)));
-            potBlockEntity.setElectric(true);
+        if (held.getItem() == Blocks.REDSTONE_BLOCK.asItem()
+            && this != BlockRegistry.ELECTRIC_CROCK_POT.get()) {
+            world.setBlockState(pos, BlockRegistry.ELECTRIC_CROCK_POT.get().getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
-            if (!player.isCreative()) {
+            if(!player.isCreative()) {
                 held.decrement(1);
             }
 
