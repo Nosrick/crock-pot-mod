@@ -2,13 +2,13 @@ package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.blockentity.ElectricCrockPotBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -16,7 +16,8 @@ import java.util.function.Supplier;
 @SuppressWarnings("unchecked")
 public enum BlockEntityTypesRegistry {
 
-    CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT);
+    CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT),
+    ELECTRIC_CROCK_POT("electric_crock_pot", ElectricCrockPotBlockEntity.class, ElectricCrockPotBlockEntity::new, BlockRegistry.ELECTRIC_CROCK_POT);
 
     private final String pathName;
     private final Class<? extends BlockEntity> blockEntityClass;
@@ -41,7 +42,7 @@ public enum BlockEntityTypesRegistry {
     public static void registerAll() {
         for (BlockEntityTypesRegistry value : values()){
             Registry.register(
-                    Registries.BLOCK_ENTITY_TYPE,
+                    Registry.BLOCK_ENTITY_TYPE,
                     new Identifier(CrockPotMod.MOD_ID, value.pathName),
                     value.get());
         }

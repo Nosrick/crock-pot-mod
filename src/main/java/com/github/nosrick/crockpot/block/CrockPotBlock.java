@@ -2,13 +2,12 @@ package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
-import com.github.nosrick.crockpot.registry.ItemRegistry;
-import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.github.nosrick.crockpot.registry.BlockRegistry;
+import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -42,6 +41,8 @@ public class CrockPotBlock extends BlockWithEntity {
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
+    public static final BooleanProperty HAS_FOOD = BooleanProperty.of("has_food");
+
     public static final BooleanProperty EMITS_SIGNAL = BooleanProperty.of("emits_signal");
 
     //THIS IS GROSS
@@ -58,10 +59,9 @@ public class CrockPotBlock extends BlockWithEntity {
                 this.getStateManager()
                         .getDefaultState()
                         .with(HAS_LIQUID, false)
+                        .with(HAS_FOOD, false)
                         .with(NEEDS_SUPPORT, false)
                         .with(EMITS_SIGNAL, false));
-
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
     }
 
     @Nullable
@@ -78,7 +78,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     protected void appendProperties(StateManager.Builder<Block, BlockState> builder) {
         super.appendProperties(builder);
-        builder.add(FACING, HAS_LIQUID, NEEDS_SUPPORT, EMITS_SIGNAL, UPDATE_ME);
+        builder.add(FACING, HAS_LIQUID, HAS_FOOD, NEEDS_SUPPORT, EMITS_SIGNAL, UPDATE_ME);
     }
 
     @Nullable
@@ -154,7 +154,7 @@ public class CrockPotBlock extends BlockWithEntity {
 
             if (ConfigManager.useBubbleParticles()
                     && crockPotBlockEntity.canBoil()
-                    && crockPotBlockEntity.hasFood()
+                    && state.get(CrockPotBlock.HAS_FOOD)
                     && random.nextInt(ConfigManager.bubbleParticleChance()) == 0) {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
@@ -212,12 +212,11 @@ public class CrockPotBlock extends BlockWithEntity {
             }
         }
 
-        if (!potBlockEntity.isElectric()
-                && held.getItem() == Blocks.REDSTONE_BLOCK.asItem()) {
-            world.setBlockState(pos, state.with(UPDATE_ME, !state.get(UPDATE_ME)));
-            potBlockEntity.setElectric(true);
+        if (held.getItem() == Blocks.REDSTONE_BLOCK.asItem()
+            && this != BlockRegistry.ELECTRIC_CROCK_POT.get()) {
+            world.setBlockState(pos, BlockRegistry.ELECTRIC_CROCK_POT.get().getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
-            if (!player.isCreative()) {
+            if(!player.isCreative()) {
                 held.decrement(1);
             }
 
