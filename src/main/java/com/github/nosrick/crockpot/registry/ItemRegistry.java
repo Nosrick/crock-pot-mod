@@ -3,20 +3,19 @@ package com.github.nosrick.crockpot.registry;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.item.StewItem;
 import com.github.nosrick.crockpot.item.ModItemSettings;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
 
 public enum ItemRegistry {
 
     STEW_ITEM("stew", StewItem::new),
-    CROCK_POT("crock_pot", () -> new BlockItem(BlockRegistry.CROCK_POT.get(), new FabricItemSettings().maxCount(1)));
+    CROCK_POT("crock_pot", () -> new BlockItem(BlockRegistry.CROCK_POT.get(), new ModItemSettings())),
+    ELECTRIC_CROCK_POT("electric_crock_pot", () -> new BlockItem(BlockRegistry.ELECTRIC_CROCK_POT.get(), new ModItemSettings()));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;
@@ -35,7 +34,7 @@ public enum ItemRegistry {
 
     public static void registerAll() {
         for (ItemRegistry value : values()) {
-            Registry.register(Registries.ITEM, new Identifier(CrockPotMod.MOD_ID, value.pathName), value.get());
+            Registry.register(Registry.ITEM, new Identifier(CrockPotMod.MOD_ID, value.pathName), value.get());
             if (value.burnTime != null) {
                 FuelRegistry.INSTANCE.add(value.get(), value.burnTime);
             }
