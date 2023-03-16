@@ -1,10 +1,12 @@
 package com.github.nosrick.crockpot.client.render.block.model;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
-import com.github.nosrick.crockpot.client.colours.CrockPotBlockColourProvider;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.util.UUIDUtil;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.model.*;
@@ -129,8 +131,8 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 }
                 Vec3d playerPos = player.getPos();
                 BlockPos entityPos = entity.getPos();
-                Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
-                Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
+                Vector3d playerRot = new Vector3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+                Vector3d rot = new Vector3d(playerRot.cross(new Vector3d(0, 1, 0)));
 
                 Text ownerName = entity.getOwnerName();
 
