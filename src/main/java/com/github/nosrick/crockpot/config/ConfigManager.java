@@ -248,6 +248,14 @@ public class ConfigManager {
         return true;
     }
 
+    public static float lidAnimationIntensity() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().graphics.lidAnimationIntensity;
+        }
+
+        return 0.1f;
+    }
+
     public static boolean redstoneNeedsPower() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().mechanics.redstoneNeedsPower;

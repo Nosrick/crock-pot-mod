@@ -84,10 +84,12 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             float lastX = xRot;
             float lastZ = zRot;
 
+            float lidIntensity = ConfigManager.lidAnimationIntensity();
+
             if (time % 3 < 1f) {
-                yTrans = random.nextFloat() * 0.1f;
-                xRot = (random.nextFloat() - 0.5f) * 0.1f;
-                zRot = (random.nextFloat() - 0.5f) * 0.1f;
+                yTrans = random.nextFloat() * lidIntensity;
+                xRot = (random.nextFloat() - 0.5f) * lidIntensity;
+                zRot = (random.nextFloat() - 0.5f) * lidIntensity;
             }
 
         Vector3f rotation = new Vector3f(lastX, 0, lastZ);

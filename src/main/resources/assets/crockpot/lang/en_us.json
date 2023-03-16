@@ -102,5 +102,6 @@
   "text.autoconfig.crockpot.option.graphics.boilParticleChance": "Boil particle chance",
   "text.autoconfig.crockpot.option.graphics.useBoilParticles": "Use boil particles",
   "text.autoconfig.crockpot.option.graphics.useBubbleParticles": "Use bubble particles",
-  "text.autoconfig.crockpot.option.graphics.animateBoilingLid": "Animate the lid"
+  "text.autoconfig.crockpot.option.graphics.animateBoilingLid": "Animate the lid",
+  "text.autoconfig.crockpot.option.graphics.lidAnimationIntensity": "Lid animation intensity"
 }
