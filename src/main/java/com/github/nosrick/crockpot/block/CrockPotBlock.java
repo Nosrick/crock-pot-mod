@@ -65,6 +65,10 @@ public class CrockPotBlock extends BlockWithEntity {
                         .with(NEEDS_SUPPORT, false)
                         .with(EMITS_SIGNAL, false));
 
+        this.addMeToItemGroup();
+    }
+
+    protected void addMeToItemGroup() {
         ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
     }
 
