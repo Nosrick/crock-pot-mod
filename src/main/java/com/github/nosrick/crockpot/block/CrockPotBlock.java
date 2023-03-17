@@ -4,10 +4,12 @@ import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
+import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -62,6 +64,12 @@ public class CrockPotBlock extends BlockWithEntity {
                         .with(HAS_FOOD, false)
                         .with(NEEDS_SUPPORT, false)
                         .with(EMITS_SIGNAL, false));
+
+        this.addMeToItemGroup();
+    }
+
+    protected void addMeToItemGroup() {
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
     }
 
     @Nullable
