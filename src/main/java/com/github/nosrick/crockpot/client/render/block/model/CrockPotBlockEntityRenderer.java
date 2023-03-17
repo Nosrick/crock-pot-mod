@@ -81,26 +81,28 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             var random = entity.getWorld().random;
             float time = world.getTime() + tickDelta;
 
-        float lastX = xRot;
-        float lastZ = zRot;
+            float lastX = xRot;
+            float lastZ = zRot;
 
-        if (time % 3 < 1f) {
-            yTrans = random.nextFloat() * 0.1f;
-            xRot = (random.nextFloat() - 0.5f) * 0.1f;
-            zRot = (random.nextFloat() - 0.5f) * 0.1f;
-        }
+            float lidIntensity = ConfigManager.lidAnimationIntensity();
+
+            if (time % 3 < 1f) {
+                yTrans = random.nextFloat() * lidIntensity;
+                xRot = (random.nextFloat() - 0.5f) * lidIntensity;
+                zRot = (random.nextFloat() - 0.5f) * lidIntensity;
+            }
 
         Vector3f rotation = new Vector3f(lastX, 0, lastZ);
         Vector3f newRotation = new Vector3f(xRot, 0, zRot);
-        rotation.lerp(newRotation, tickDelta);
-        float boilingIntensity = entity.getBoilingIntensity();
-        rotation = new Vector3f(rotation.x * boilingIntensity, 0, rotation.z * boilingIntensity);
+            rotation.lerp(newRotation, tickDelta);
+            float boilingIntensity = entity.getBoilingIntensity();
+            rotation = new Vector3f(rotation.x * boilingIntensity, 0, rotation.z * boilingIntensity);
 
-        matrices.push();
-        if (ConfigManager.animateBoilingLid()) {
-            matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
-            matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
-        }
+            matrices.push();
+            if (ConfigManager.animateBoilingLid()) {
+                matrices.translate(0f, ((yTrans * lidIntensity) + 0.02d) * boilingIntensity, 0f);
+                matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
+            }
 
             Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
                     ? ELECTRIC_POT_LID_TEXTURE_ID

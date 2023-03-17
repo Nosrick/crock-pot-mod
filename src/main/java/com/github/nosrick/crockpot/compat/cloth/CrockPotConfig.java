@@ -159,5 +159,6 @@ public class CrockPotConfig implements ConfigData {
         public boolean useBubbleParticles = true;
 
         public boolean animateBoilingLid = true;
+        public float lidAnimationIntensity = 0.1f;
     }
 }

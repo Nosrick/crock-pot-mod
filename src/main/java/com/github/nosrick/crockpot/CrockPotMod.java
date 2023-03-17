@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot;
 
+import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -41,7 +42,7 @@ public class CrockPotMod implements ModInitializer {
         ItemRegistry.registerAll();
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
-            //ClothConfigManager.registerAutoConfig();
+            ClothConfigManager.registerAutoConfig();
         }
     }
 }
