@@ -17,7 +17,7 @@ import net.minecraft.util.math.Matrix4f;
 import java.util.ArrayList;
 import java.util.List;
 
-public class StewContentsTooltip implements Text, OrderedText, TooltipComponent {
+public class StewContentsTooltip extends LiteralText implements OrderedText, TooltipComponent {
 
     protected List<Item> contents;
     protected ItemStack stewStack;
@@ -26,24 +26,15 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     protected OrderedText ordered;
 
     StewContentsTooltip(ItemStack stack) {
+        super("");
         this.stewStack = stack;
         this.contents = StewItem.getContents(stack);
-        this.contentsString = Text.translatable("tooltip.crockpot.contents");
+        this.contentsString = new TranslatableText("tooltip.crockpot.contents");
+        this.ordered = this.contentsString.asOrderedText();
     }
 
     public static StewContentsTooltip of(ItemStack stack) {
         return new StewContentsTooltip(stack);
-    }
-
-    @Override
-    public Style getStyle()
-    {
-        return Style.EMPTY;
-    }
-
-    @Override
-    public TextContent getContent() {
-        return TextContent.EMPTY;
     }
 
     static List<Text> emptySiblings = new ArrayList<>();
@@ -55,8 +46,13 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public MutableText copy() {
-        return null;
+    public LiteralText copy() {
+        return new StewContentsTooltip(this.stewStack);
+    }
+
+    @Override
+    public String asString() {
+        return this.contentsString.asString();
     }
 
     @Override
@@ -68,7 +64,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
             this.language = language;
         }
 
-        return this;
+        return this.ordered;
     }
 
     @Override
