@@ -350,6 +350,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         this.dilutePotionEffects();
+        this.recalculateFoodValues();
         this.recalculateStews();
         this.markDirty();
 
