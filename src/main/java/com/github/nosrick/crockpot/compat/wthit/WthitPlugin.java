@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot.compat.wthit;
 
+import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
@@ -22,6 +23,7 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
     public void register(IRegistrar registrar) {
         registrar.addBlockData(this, CrockPotBlockEntity.class);
         registrar.addComponent(this, TooltipPosition.BODY, CrockPotBlock.class);
+        CrockPotMod.LOGGER.info("What the hell is in this crock pot?");
     }
 
     @Override

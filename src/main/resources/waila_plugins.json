@@ -1,0 +1,5 @@
+{
+  "crockpot:com.github.nosrick.crockpot.compat.wthit": {
+    "initializer": "com.github.nosrick.crockpot.compat.wthit.WthitPlugin"
+  }
+}

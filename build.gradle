@@ -64,16 +64,18 @@ dependencies {
     }
 
     //What the hell is that?
-    /*
-    modApi("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
+    modCompileOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
-    modRuntimeOnly("mcp.mobius.waila:wthit-api:fabric-${project.wthit_version}") {
+    modRuntimeOnly("lol.bai:badpackets:fabric-${project.badpackets_version}") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
-     */
+    modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
+        transitive = false
+        exclude group: "net.fabricmc", module: "fabric-loader"
+    }
 
     //Cloth Config
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
