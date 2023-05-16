@@ -52,17 +52,6 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    //These are all the optional dependencies
-    //Appleskin
-    modApi("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
-        transitive = false
-        exclude group: "net.fabricmc", module: "fabric-loader"
-    }
-    modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
-        transitive = false
-        exclude group: "net.fabricmc", module: "fabric-loader"
-    }
-
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
         transitive = false
@@ -73,6 +62,18 @@ dependencies {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
     modRuntimeOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
+        transitive = false
+        exclude group: "net.fabricmc", module: "fabric-loader"
+    }
+
+    /*
+    //These are all the optional dependencies
+    //Appleskin
+    modApi("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
+        transitive = false
+        exclude group: "net.fabricmc", module: "fabric-loader"
+    }
+    modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
@@ -98,6 +99,7 @@ dependencies {
     //modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
     //modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-api:${project.rei_version}")
     //modRuntimeOnly("dev.architectury:architectury-fabric:${project.architectury_version}")
+     */
 }
 
 processResources {

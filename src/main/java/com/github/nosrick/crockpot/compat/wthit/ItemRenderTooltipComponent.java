@@ -2,6 +2,8 @@ package com.github.nosrick.crockpot.compat.wthit;
 
 import mcp.mobius.waila.api.ITooltipComponent;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.item.Item;
@@ -31,7 +33,7 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
     }
 
     @Override
-    public void render(MatrixStack matrices, int x, int y, float delta) {
+    public void render(DrawContext ctx, int x, int y, float delta) {
         if(RESOURCE_MANAGER == null) {
             RESOURCE_MANAGER = MinecraftClient.getInstance().getResourceManager();
         }
@@ -39,7 +41,7 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
 
         for(int i = 0; i < contents.size(); i++) {
-            itemRenderer.renderGuiItemIcon(matrices, new ItemStack(this.contents.get(i)), x + (i * 8), y);
+            ctx.drawItem(new ItemStack(this.contents.get(i)), x + (i * 8), y);
         }
     }
 }

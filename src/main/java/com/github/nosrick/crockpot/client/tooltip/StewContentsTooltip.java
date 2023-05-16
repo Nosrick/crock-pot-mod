@@ -2,6 +2,7 @@ package com.github.nosrick.crockpot.client.tooltip;
 
 import com.github.nosrick.crockpot.item.StewItem;
 import net.minecraft.client.font.TextRenderer;
+import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.tooltip.TooltipComponent;
 import net.minecraft.client.render.LightmapTextureManager;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -96,11 +97,10 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, MatrixStack matrices, ItemRenderer itemRenderer) {
-        TooltipComponent.super.drawItems(textRenderer, x, y, matrices, itemRenderer);
+    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
+        TooltipComponent.super.drawItems(textRenderer, x, y, context);
         for(int i = 0; i < contents.size(); i++) {
-            itemRenderer.renderGuiItemIcon(
-                    matrices,
+            context.drawItem(
                     this.contents.get(i).getDefaultStack(),
                     x + textRenderer.getWidth(this.contentsString) + (i * 8),
                     y);

@@ -52,7 +52,7 @@ public class CrockPotBlock extends BlockWithEntity {
 
     public CrockPotBlock() {
         super(FabricBlockSettings
-                .of(Material.METAL)
+                .create()
                 .strength(2.0f)
                 .requiresTool()
                 .nonOpaque());
