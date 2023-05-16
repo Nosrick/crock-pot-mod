@@ -27,7 +27,7 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.Packet;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
@@ -35,6 +35,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -776,7 +777,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.potionEffects.removeAll(removeEffects);
             }
 
-            Item cookedItem = possibleRecipe.get().getOutput().getItem();
+            Item cookedItem = possibleRecipe.get().getOutput(DynamicRegistryManager.EMPTY).getItem();
 
             int cookedSlot = this.getSlotForItem(cookedItem);
 

@@ -39,7 +39,7 @@ public class ItemRenderTooltipComponent implements ITooltipComponent {
         ItemRenderer itemRenderer = MinecraftClient.getInstance().getItemRenderer();
 
         for(int i = 0; i < contents.size(); i++) {
-            itemRenderer.renderGuiItemIcon(new ItemStack(this.contents.get(i)), x + (i * 8), y);
+            itemRenderer.renderGuiItemIcon(matrices, new ItemStack(this.contents.get(i)), x + (i * 8), y);
         }
     }
 }

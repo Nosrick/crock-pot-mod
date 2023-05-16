@@ -48,12 +48,5 @@
   "suggests": {
     "appleskin": "*",
     "wthit": "*"
-  },
-
-  "custom": {
-    "waila:plugins": {
-      "id": "crockpot:wthit",
-      "initializer": "com.github.nosrick.crockpot.compat.wthit.WthitPlugin"
-    }
   }
 }

@@ -21,6 +21,9 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
+import org.joml.*;
+
+import java.lang.Math;
 
 public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPotBlockEntity> {
 
@@ -89,17 +92,16 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 zRot = (random.nextFloat() - 0.5f) * lidIntensity;
             }
 
-            Vec3f rotation = new Vec3f(lastX * 5, 0, lastZ * 5);
-            Vec3f newRotation = new Vec3f(xRot * 5, 0, zRot * 5);
+        Vector3f rotation = new Vector3f(lastX, 0, lastZ);
+        Vector3f newRotation = new Vector3f(xRot, 0, zRot);
             rotation.lerp(newRotation, tickDelta);
             float boilingIntensity = entity.getBoilingIntensity();
-            rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
+            rotation = new Vector3f(rotation.x * boilingIntensity, 0, rotation.z * boilingIntensity);
 
             matrices.push();
             if (ConfigManager.animateBoilingLid()) {
-                matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
-                matrices.multiply(
-                        Quaternion.fromEulerXyzDegrees(rotation));
+                matrices.translate(0f, ((yTrans * lidIntensity) + 0.02d) * boilingIntensity, 0f);
+                matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
             }
 
             Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
@@ -131,8 +133,8 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 }
                 Vec3d playerPos = player.getPos();
                 BlockPos entityPos = entity.getPos();
-                Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
-                Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
+                Vector3d playerRot = new Vector3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+                Vector3d rot = new Vector3d(playerRot.cross(new Vector3d(0, 1, 0)));
 
                 Text ownerName = entity.getOwnerName();
 
@@ -159,7 +161,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             Text text,
             MatrixStack matrices,
             VertexConsumerProvider vertexConsumerProvider,
-            Vec3f rotation,
+            Vector3d rotation,
             int light) {
         matrices.push();
 
@@ -168,14 +170,14 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         float scale = 0.025f;
         matrices.scale(-scale, -scale, scale);
 
-        float rot = (float) Math.atan2(rotation.getZ(), rotation.getX());
-        matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rot));
+        float rot = (float) Math.atan2(rotation.z, rotation.x);
+        matrices.multiply(new Quaternionf(new AxisAngle4f(rot, 0, 1, 0)));
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
         matrices.pop();
     }
 

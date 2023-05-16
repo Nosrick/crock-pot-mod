@@ -3,18 +3,20 @@ package com.github.nosrick.crockpot.compat.modmenu;
 import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.compat.cloth.CrockPotConfig;
 import com.github.nosrick.crockpot.config.ConfigManager;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.terraformersmc.modmenu.api.ConfigScreenFactory;
 import com.terraformersmc.modmenu.api.ModMenuApi;
 import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.clothconfig2.api.ConfigBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.gui.screen.Screen;
 
 @Environment(EnvType.CLIENT)
-public class ModMenuIntegration implements ModMenuApi
-{
+public class ModMenuIntegration implements ModMenuApi {
     @Override
     public ConfigScreenFactory<?> getModConfigScreenFactory() {
-        if(ConfigManager.clothPresent()) {
+        if (ConfigManager.clothPresent()) {
             ClothConfigManager.registerAutoConfig();
         }
 
