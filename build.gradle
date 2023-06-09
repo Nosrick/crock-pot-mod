@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.1-SNAPSHOT'
+    id 'fabric-loom' version '1.2-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -66,16 +66,13 @@ dependencies {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
 
-    /*
     //These are all the optional dependencies
     //Appleskin
-    modApi("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
+    modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
-        exclude group: "net.fabricmc", module: "fabric-loader"
     }
-    modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
+    modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}") {
         transitive = false
-        exclude group: "net.fabricmc", module: "fabric-loader"
     }
 
     //Cloth Config
@@ -99,7 +96,6 @@ dependencies {
     //modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-fabric:${project.rei_version}")
     //modRuntimeOnly("me.shedaniel:RoughlyEnoughItems-api:${project.rei_version}")
     //modRuntimeOnly("dev.architectury:architectury-fabric:${project.architectury_version}")
-     */
 }
 
 processResources {
