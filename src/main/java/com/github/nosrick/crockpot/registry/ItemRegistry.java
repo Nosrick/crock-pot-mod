@@ -8,7 +8,6 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 
 import java.util.function.Supplier;
 
@@ -35,7 +34,7 @@ public enum ItemRegistry {
 
     public static void registerAll() {
         for (ItemRegistry value : values()) {
-            Registry.register(Registries.ITEM, new Identifier(CrockPotMod.MOD_ID, value.pathName), value.get());
+            Registry.register(Registries.ITEM, CrockPotMod.createIdentifier(value.pathName), value.get());
             if (value.burnTime != null) {
                 FuelRegistry.INSTANCE.add(value.get(), value.burnTime);
             }

@@ -32,15 +32,15 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     protected ModelPart padlockModel;
     protected ModelPart liquidModel;
 
-    public static EntityModelLayer POT_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_lid");
-    public static EntityModelLayer POT_LIQUID_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "crock_pot_lid"), "crock_pot_liquid");
-    public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(new Identifier(CrockPotMod.MOD_ID, "padlock"), "padlock");
-    public static Identifier POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_lid.png");
-    public static Identifier ELECTRIC_POT_LID_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/electric_crock_pot_lid.png");
-    public static Identifier PADLOCK_TEXTURE_ID = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_padlock.png");
+    public static EntityModelLayer POT_MODEL_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("crock_pot_lid"), "crock_pot_lid");
+    public static EntityModelLayer POT_LIQUID_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("crock_pot_lid"), "crock_pot_liquid");
+    public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("padlock"), "padlock");
+    public static Identifier POT_LID_TEXTURE_ID = CrockPotMod.createIdentifier("textures/block/crock_pot_lid.png");
+    public static Identifier ELECTRIC_POT_LID_TEXTURE_ID = CrockPotMod.createIdentifier("textures/block/electric_crock_pot_lid.png");
+    public static Identifier PADLOCK_TEXTURE_ID = CrockPotMod.createIdentifier("textures/block/crock_pot_padlock.png");
 
-    public static Identifier LIQUID_WATER = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_liquid.png");
-    public static Identifier LIQUID_STEW = new Identifier(CrockPotMod.MOD_ID, "textures/block/crock_pot_stew.png");
+    public static Identifier LIQUID_WATER = CrockPotMod.createIdentifier("textures/block/crock_pot_liquid.png");
+    public static Identifier LIQUID_STEW = CrockPotMod.createIdentifier("textures/block/crock_pot_stew.png");
 
     protected float xRot;
     protected float zRot;

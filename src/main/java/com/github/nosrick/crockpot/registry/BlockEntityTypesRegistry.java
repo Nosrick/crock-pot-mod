@@ -9,7 +9,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 
 import java.util.Arrays;
 import java.util.function.Supplier;
@@ -44,7 +43,7 @@ public enum BlockEntityTypesRegistry {
         for (BlockEntityTypesRegistry value : values()){
             Registry.register(
                     Registries.BLOCK_ENTITY_TYPE,
-                    new Identifier(CrockPotMod.MOD_ID, value.pathName),
+                    CrockPotMod.createIdentifier(value.pathName),
                     value.get());
         }
     }

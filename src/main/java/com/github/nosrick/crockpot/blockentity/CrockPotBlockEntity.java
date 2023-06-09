@@ -68,7 +68,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     public static final String OWNER_NBT = "Owner";
 
-    public static final Identifier PACKET_ID = new Identifier(CrockPotMod.MOD_ID, "block.entity.crockpot.update");
+    public static final Identifier PACKET_ID = CrockPotMod.createIdentifier("block.entity.crockpot.update");
 
     protected String name = "";
     protected int hunger = 0;

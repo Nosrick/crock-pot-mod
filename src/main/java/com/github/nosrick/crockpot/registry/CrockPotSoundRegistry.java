@@ -21,12 +21,12 @@ public enum CrockPotSoundRegistry {
     }
 
     CrockPotSoundRegistry(String identifier) {
-        this.identifier = new Identifier(CrockPotMod.MOD_ID, identifier);
+        this.identifier = CrockPotMod.createIdentifier(identifier);
         this.soundEvent = SoundEvent.of(this.identifier);
     }
 
     CrockPotSoundRegistry(String identifier, SoundEvent soundEvent) {
-        this.identifier = new Identifier(CrockPotMod.MOD_ID, identifier);
+        this.identifier = CrockPotMod.createIdentifier(identifier);
         this.soundEvent = soundEvent;
     }
 

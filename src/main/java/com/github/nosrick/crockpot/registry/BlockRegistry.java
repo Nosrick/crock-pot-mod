@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 
 import java.util.function.Supplier;
 
@@ -52,7 +51,7 @@ public enum BlockRegistry {
     public static void registerAll() {
         for (BlockRegistry value : values()) {
             Block block = value.get();
-            Registry.register(Registries.BLOCK, new Identifier(CrockPotMod.MOD_ID, value.pathName), block);
+            Registry.register(Registries.BLOCK, CrockPotMod.createIdentifier(value.pathName), block);
             if (isValidFlammableEntry(value.flammableRate)) {
                 FlammableBlockRegistry.getDefaultInstance().add(block, value.flammableRate);
             }

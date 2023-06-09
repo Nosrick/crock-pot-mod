@@ -1,5 +1,6 @@
 package com.github.nosrick.crockpot;
 
+import com.github.nosrick.crockpot.compat.cloth.ClothConfigManager;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
@@ -19,16 +20,11 @@ public class CrockPotMod implements ModInitializer {
     public static final String MOD_ID = "crockpot";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
-    public static final Identifier CROCK_POT_CHANNEL = new Identifier(MOD_ID, "crockpot_blockentity_update");
+    public static final Identifier CROCK_POT_CHANNEL = createIdentifier("crockpot_blockentity_update");
 
     public static final List<String> MODS_LOADED = new ArrayList<>();
 
     public static final FoodManager FOOD_MANAGER = new FoodManager();
-
-    public static final int POT_COLOUR = ColorHelper.Argb.getArgb(255, 253, 143, 68);
-    public static final int ELECTRIC_COLOUR = ColorHelper.Argb.getArgb(255, 222, 100, 100);
-    public static final int WATER_COLOUR = ColorHelper.Argb.getArgb(255, 91, 110, 225);
-    public static final int FOOD_COLOUR = ColorHelper.Argb.getArgb(255, 102, 57, 49);
 
     @Override
     public void onInitialize() {
@@ -41,7 +37,11 @@ public class CrockPotMod implements ModInitializer {
         ItemRegistry.registerAll();
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
-            //ClothConfigManager.registerAutoConfig();
+            ClothConfigManager.registerAutoConfig();
         }
+    }
+
+    public static Identifier createIdentifier(String key) {
+        return new Identifier(CrockPotMod.MOD_ID, key);
     }
 }
