@@ -25,6 +25,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -39,7 +40,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("deprecation")
 public class CrockPotBlock extends BlockWithEntity {
 
-    public static final DirectionProperty FACING = DirectionProperty.of("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
+    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
@@ -96,7 +97,7 @@ public class CrockPotBlock extends BlockWithEntity {
         World world = context.getWorld();
 
         return getDefaultState()
-                .with(FACING, context.getPlayerLookDirection().getOpposite())
+                .with(FACING, context.getHorizontalPlayerFacing().getOpposite())
                 .with(NEEDS_SUPPORT, needsSupport(world.getBlockState(blockPos.down())));
     }
 
