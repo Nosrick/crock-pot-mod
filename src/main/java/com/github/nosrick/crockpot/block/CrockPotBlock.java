@@ -109,7 +109,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public int getWeakRedstonePower(BlockState state, BlockView world, BlockPos pos, Direction direction) {
 
-        if(direction == Direction.UP || direction == Direction.DOWN) {
+        if (direction == Direction.UP || direction == Direction.DOWN) {
             return 0;
         }
 
@@ -185,26 +185,24 @@ public class CrockPotBlock extends BlockWithEntity {
             return ActionResult.PASS;
         }
 
-        if(held.getItem() == Items.NAME_TAG
-            && ConfigManager.canLockPots()) {
-            if(potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)) {
+        if (held.getItem() == Items.NAME_TAG
+                && ConfigManager.canLockPots()) {
+            if (potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)) {
                 potBlockEntity.setOwner(player.getUuid());
-            }
-            else if (potBlockEntity.isOwner(player.getUuid())
+            } else if (potBlockEntity.isOwner(player.getUuid())
                     || player.isCreative()) {
                 potBlockEntity.setOwner(UUIDUtil.NO_PLAYER);
-            }
-            else {
+            } else {
                 return ActionResult.FAIL;
             }
 
             return ActionResult.SUCCESS;
         }
 
-        if(!potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)
-            && !potBlockEntity.isOwner(player.getUuid())
-            && (!player.isCreative()
-            || (player.isCreative() && !ConfigManager.creativePlayersIgnoreLocks()))) {
+        if (!potBlockEntity.isOwner(UUIDUtil.NO_PLAYER)
+                && !potBlockEntity.isOwner(player.getUuid())
+                && (!player.isCreative()
+                || (player.isCreative() && !ConfigManager.creativePlayersIgnoreLocks()))) {
             return ActionResult.FAIL;
         }
 
@@ -222,10 +220,10 @@ public class CrockPotBlock extends BlockWithEntity {
         }
 
         if (held.getItem() == Blocks.REDSTONE_BLOCK.asItem()
-            && this != BlockRegistry.ELECTRIC_CROCK_POT.get()) {
+                && this != BlockRegistry.ELECTRIC_CROCK_POT.get()) {
             world.setBlockState(pos, BlockRegistry.ELECTRIC_CROCK_POT.get().getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
-            if(!player.isCreative()) {
+            if (!player.isCreative()) {
                 held.decrement(1);
             }
 
@@ -239,23 +237,20 @@ public class CrockPotBlock extends BlockWithEntity {
 
             if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
-                    if(heldItem instanceof BucketItem)
-                    {
+                    if (heldItem instanceof BucketItem) {
                         ItemStack emptyContainer = BucketItem.getEmptiedStack(held, player);
                         held.decrement(1);
                         player.giveItemStack(emptyContainer);
                     }
                 }
-            }
-            else if (ConfigManager.canFillWithWaterBottle()
+            } else if (ConfigManager.canFillWithWaterBottle()
                     && heldItem instanceof PotionItem
                     && PotionUtil.getPotion(held) == Potions.WATER) {
                 if (!player.isCreative()) {
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));
                 }
-            }
-            else if(!held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
+            } else if (!held.isIn(Tags.INFINITE_WATER_SOURCES_ITEMS)) {
                 return ActionResult.FAIL;
             }
 
@@ -315,7 +310,12 @@ public class CrockPotBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return world.isClient ? null : checkType(type, BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntity::tick);
+        if (world.isClient
+                || type != BlockEntityTypesRegistry.CROCK_POT.get()) {
+            return null;
+        }
+
+        return CrockPotBlockEntity::tick;
     }
 
     protected boolean needsSupport(BlockState state) {

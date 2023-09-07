@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.block;
 
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
+import com.github.nosrick.crockpot.blockentity.ElectricCrockPotBlockEntity;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
@@ -29,6 +30,11 @@ public class ElectricCrockPotBlock extends CrockPotBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        return world.isClient ? null : checkType(type, BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get(), CrockPotBlockEntity::tick);
+        if (world.isClient
+                || type != BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()) {
+            return null;
+        }
+
+        return ElectricCrockPotBlockEntity::tick;
     }
 }

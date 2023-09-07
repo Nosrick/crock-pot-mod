@@ -34,6 +34,7 @@ import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionUtil;
 import net.minecraft.recipe.CampfireCookingRecipe;
+import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -743,9 +744,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected void cookRawFood() {
         for (ItemStack stack : this.getContents()) {
             SimpleInventory inv = new SimpleInventory(stack);
-            Optional<CampfireCookingRecipe> possibleRecipe = world.getRecipeManager()
-                    .getFirstMatch(
-                            RecipeType.CAMPFIRE_COOKING,
+            Optional<RecipeEntry<CampfireCookingRecipe>> possibleRecipe = world.getRecipeManager()
+                    .getFirstMatch(RecipeType.CAMPFIRE_COOKING,
                             inv,
                             world);
 
@@ -777,7 +777,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.potionEffects.removeAll(removeEffects);
             }
 
-            Item cookedItem = possibleRecipe.get().getOutput(DynamicRegistryManager.EMPTY).getItem();
+            Item cookedItem = possibleRecipe.get().value().getResult(DynamicRegistryManager.EMPTY).getItem();
 
             int cookedSlot = this.getSlotForItem(cookedItem);
 
