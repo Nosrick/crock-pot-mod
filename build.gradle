@@ -52,7 +52,7 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-
+    /*
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
         transitive = false
@@ -82,6 +82,7 @@ dependencies {
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
+     */
 
     /*
     //These are all the optional dependencies
