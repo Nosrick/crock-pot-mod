@@ -52,12 +52,17 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    /*
+
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
+    modCompileOnly("lol.bai:badpackets:fabric-${project.badpackets_version}") {
+        transitive = false
+        exclude group: "net.fabricmc", module: "fabric-loader"
+    }
+    /*
     modRuntimeOnly("lol.bai:badpackets:fabric-${project.badpackets_version}") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
@@ -66,30 +71,34 @@ dependencies {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
+     */
 
     //Cloth Config
     modApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+    /*
     modRuntimeOnly("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+     */
 
     //ModMenu
-    modApi("com.terraformersmc:modmenu:${project.modmenu_version}") {
+    modCompileOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
+    /*
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
      */
 
-    /*
     //These are all the optional dependencies
     //Appleskin
     modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
         transitive = false
     }
+    /*
     modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}") {
         transitive = false
     }
