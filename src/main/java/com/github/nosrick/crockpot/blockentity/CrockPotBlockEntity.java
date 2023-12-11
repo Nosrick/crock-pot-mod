@@ -41,6 +41,7 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
@@ -392,7 +393,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
         }
 
-        if(countAdded > 0){
+        if (countAdded > 0) {
             this.dilutePotionEffects();
         }
     }
@@ -458,7 +459,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 if (ConfigManager.canAddPotions()) {
                     int max = Math.min(ConfigManager.effectPerPot(), this.potionEffects.size());
                     boolean dilute = ConfigManager.diluteEffects();
-                    if(dilute && this.potionEffects.size() != this.dilutedPotionEffects.size()){
+                    if (dilute && this.potionEffects.size() != this.dilutedPotionEffects.size()) {
                         this.dilutePotionEffects();
                     }
                     for (int i = 0; i < max; i++) {
@@ -499,37 +500,43 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     && this.curseLevel >= ConfigManager.stewMinNegativeLevelsEffect()) {
                 statusText.append(Text.translatable("item.crockpot.stew.cursed"));
             } else {
+                if (this.items.stream().anyMatch(itemStack -> itemStack.getItem() instanceof PotionItem)) {
+                    statusText.append(Text.translatable("item.crockpot.stew.alchemical"));
+                    statusText.append(" ");
+                }
+
                 if (this.filledSlotCount() < 4) {
-                    String total = "";
-                    for (ItemStack itemStack : contents) {
-                        String content = itemStack.getName().getString();
-                        total = total.concat(content + " ");
-                    }
+                    List<Text> list = new ArrayList<>();
+                    for (int i = 0; i < contents.size(); i++) {
+                        ItemStack content = contents.get(i);
 
-                    total = total.trim();
-
-                    if (total.length() > ConfigManager.maxStewNameLength()) {
-                        statusText.append(Text.translatable("item.crockpot.stew.mixed"));
-                    } else {
-                        List<Text> list = new ArrayList<>();
-                        for (int i = 0; i < contents.size(); i++) {
-                            ItemStack content = contents.get(i);
-
-                            Text text = Text.translatable(
-                                    content.getItem() instanceof StewItem
-                                            ? "item.crockpot.stew_name"
-                                            : content.getTranslationKey());
-
-                            list.add(text);
-                            if (i < contents.size() - 2) {
-                                list.add(Text.of(", "));
-                            } else if (i < contents.size() - 1) {
-                                list.add(Text.of(" & "));
-                            }
+                        if (content.getItem() instanceof PotionItem) {
+                            continue;
                         }
 
+                        Text text = Text.translatable(
+                                content.getItem() instanceof StewItem
+                                        ? "item.crockpot.stew_name"
+                                        : content.getTranslationKey());
+
+                        list.add(text);
+                        if (i < contents.size() - 2) {
+                            list.add(Text.of(", "));
+                        } else if (i < contents.size() - 1) {
+                            list.add(Text.of(" & "));
+                        }
+                    }
+
+                    MutableText total = Text.empty();
+                    list.forEach(total::append);
+
+                    if(total.getString().length() > ConfigManager.maxStewNameLength()){
+                        statusText.append(Text.translatable("item.crockpot.stew.mixed"));
+                    }
+                    else {
                         list.forEach(statusText::append);
                     }
+
                 } else {
                     statusText.append(Text.translatable("item.crockpot.stew.mixed"));
                 }

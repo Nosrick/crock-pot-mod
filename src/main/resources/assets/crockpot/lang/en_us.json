@@ -13,6 +13,7 @@
   "item.crockpot.stew.hearty": "Hearty",
   "item.crockpot.stew.hunger": "Hunger: %s",
   "item.crockpot.stew.saturation":  "Saturation: %s",
+  "item.crockpot.stew.alchemical": "Alchemical",
 
   "block.crockpot.crock_pot": "Crock Pot",
   "block.crockpot.electric_crock_pot": "Powered Crock Pot",
