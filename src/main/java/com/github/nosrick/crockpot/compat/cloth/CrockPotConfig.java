@@ -20,36 +20,37 @@ public class CrockPotConfig implements ConfigData {
 
         public int maxBonusLevels = 5;
 
-        @Comment("How gross is too gross?")
-        public int cowlCurseLevels = 5;
+        public int boilSecondsPerLevel = 60 * 2;
+
+        public boolean itemPositiveEffects = true;
+
+        public boolean cappedPositiveDuration = true;
+        public int itemMinPositiveBonusLevel = 5;
+
+        @Comment("Number of seconds to add to the saturation effect per bonus level")
+        public int basePositiveDuration = 5;
+
+        public int maxPositiveDuration = basePositiveDuration * maxBonusLevels;
 
         @Comment("Is reboiling stew really all that bad?")
         public boolean cursedStew = true;
-
-        public int boilSecondsPerLevel = 60 * 2;
-        public int maxPortions = 64;
-
-        public boolean itemPositiveEffects = true;
-        public int itemMinPositiveBonusLevel = 5;
         public boolean itemNegativeEffects = true;
-        public int itemMinNegativeCurseLevel = 2;
-
-        public int maxStewNameLength = 32;
 
         @Comment("It's probably a good idea to keep this enabled")
         public boolean cappedNauseaDuration = true;
+        public int itemMinNegativeCurseLevel = 2;
+
+        @Comment("How gross is too gross?")
+        public int cowlCurseLevels = 5;
 
         @Comment("Number of seconds added to the nausea effect per curse level")
         public int baseNauseaDuration = 5;
 
         public int maxNauseaDuration = baseNauseaDuration * cowlCurseLevels;
 
-        public boolean cappedPositiveDuration = true;
+        public int maxPortions = 64;
 
-        @Comment("Number of seconds to add to the saturation effect per bonus level")
-        public int basePositiveDuration = 5;
-
-        public int maxPositiveDuration = basePositiveDuration * maxBonusLevels;
+        public int maxStewNameLength = 32;
 
         @Comment("Minimum bonus levels before a stew can be called 'satisfying'")
         public int minSatisfyingLevel = 1;
@@ -57,6 +58,12 @@ public class CrockPotConfig implements ConfigData {
         public int minFillingLevel = 3;
         @Comment("Minimum bonus levels before a stew can be called 'hearty'")
         public int minHeartyLevel = 5;
+
+        @Comment("hunger + (bonusLevels * bonusHungerMagnitude)")
+        public float bonusHungerMagnitude = 0.5f;
+
+        @Comment("saturation * (1 + (bonusSaturationMagnitude * bonusLevelsNormal))")
+        public float bonusSaturationMagnitude = 0.5f;
     }
 
     @ConfigEntry.Category("mechanics")

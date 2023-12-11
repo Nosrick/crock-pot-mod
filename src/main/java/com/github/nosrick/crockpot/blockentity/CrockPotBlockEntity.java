@@ -219,33 +219,20 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         int combinedHunger = 0;
         float combinedSaturation = 0f;
 
-        int foodItems = 0;
-
-        for (ItemStack itemStack : this.getContents()) {
+        for(ItemStack itemStack : this.getContents()) {
             Item item = itemStack.getItem();
-            if (item.isFood()) {
-                foodItems++;
-                FoodComponent foodComponent = item.getFoodComponent();
+            FoodComponent foodComponent = item.getFoodComponent();
 
-                if (foodComponent == null) {
-                    continue;
-                }
+            if(foodComponent == null) {
+                continue;
+            }
 
-                combinedHunger += foodComponent.getHunger();
-                combinedSaturation += foodComponent.getSaturationModifier();
-            }
-            else if(item instanceof PotionItem
-                && ConfigManager.potionsCountAsFood()){
-                foodItems++;
-            }
+            combinedHunger += foodComponent.getHunger();
+            combinedSaturation += foodComponent.getSaturationModifier();
         }
 
-        if(foodItems <= 0) {
-            foodItems = 1;
-        }
-
-        this.hunger = combinedHunger / foodItems;
-        this.saturation = combinedSaturation / foodItems;
+        this.hunger = combinedHunger;
+        this.saturation = combinedSaturation;
     }
 
     protected void dilutePotionEffects() {
@@ -442,11 +429,16 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (this.getPortions() > 0) {
             ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
-            float boilingIntensity = this.getBoilingIntensity() / 2f;
 
             if (!ConfigManager.useCursedStew() || this.curseLevel < ConfigManager.stewMinNegativeLevelsEffect()) {
-                StewItem.setHunger(stew, this.hunger + (int) (this.hunger * boilingIntensity));
-                StewItem.setSaturation(stew, this.saturation * (1.0f + (boilingIntensity / 2f)));
+
+                int foodItems = this.getFoodStackCount();
+
+                int hungerToGo = (this.hunger + (int) (this.bonusLevels * ConfigManager.bonusHungerMagnitude())) / foodItems;
+                float saturationToGo = (this.saturation * (1f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity()))) / foodItems;
+
+                StewItem.setHunger(stew, hungerToGo);
+                StewItem.setSaturation(stew, saturationToGo);
                 if (ConfigManager.useItemPositiveEffects()
                         && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()) {
                     if (!ConfigManager.effectsOverride()) {
@@ -475,6 +467,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 StewItem.setSaturation(stew, 0);
                 if (ConfigManager.useItemNegativeEffects()) {
                     int duration = ConfigManager.baseNauseaDuration() * 20 * this.curseLevel;
+
                     StewItem.addStatusEffect(
                             stew,
                             new StatusEffectInstance(
@@ -482,7 +475,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                                     ConfigManager.cappedNauseaDuration()
                                             ? Math.min(ConfigManager.maxNauseaDuration(), duration)
                                             : duration,
-                                    Math.min(this.curseLevel, 5)));
+                                    Math.min(this.curseLevel - ConfigManager.stewMinNegativeLevelsEffect() + 1, 5)));
                 }
             }
 
@@ -562,7 +555,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                         ConfigManager.cappedPositiveDuration()
                                 ? Math.min(ConfigManager.maxPositiveDuration(), duration)
                                 : duration,
-                        Math.min(this.bonusLevels, ConfigManager.maxBonusLevels())));
+                        Math.min(this.bonusLevels - ConfigManager.stewMinPositiveLevelsEffect() + 1, ConfigManager.maxBonusLevels())));
     }
 
     public DefaultedList<ItemStack> getContents() {
@@ -907,6 +900,23 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     @Override
     public boolean isEmpty() {
         return this.items.isEmpty();
+    }
+
+    public int getFoodStackCount() {
+        int foodItems = 0;
+
+        for(ItemStack itemStack : this.getContents()) {
+            Item item = itemStack.getItem();
+            if(item.isFood()) {
+                foodItems++;
+            }
+            else if(ConfigManager.potionsCountAsFood()
+                && item instanceof PotionItem) {
+                foodItems++;
+            }
+        }
+
+        return foodItems;
     }
 
     @Override

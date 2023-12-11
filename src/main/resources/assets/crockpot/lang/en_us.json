@@ -65,6 +65,8 @@
   "text.autoconfig.crockpot.option.stews.minSatisfyingLevel": "Minimum 'satisfying stew' level",
   "text.autoconfig.crockpot.option.stews.minFillingLevel": "Minimum 'filling stew' level",
   "text.autoconfig.crockpot.option.stews.minHeartyLevel": "Minimum 'hearty stew' level",
+  "text.autoconfig.crockpot.option.stews.bonusHungerMagnitude": "Multiplier for bonus hunger",
+  "text.autoconfig.crockpot.option.stews.bonusSaturationMagnitude": "Multiplier for bonus saturation",
 
   "text.autoconfig.crockpot.category.mechanics": "Mechanics",
   "text.autoconfig.crockpot.option.mechanics.redstoneNeedsPower": "Redstone pot needs power",

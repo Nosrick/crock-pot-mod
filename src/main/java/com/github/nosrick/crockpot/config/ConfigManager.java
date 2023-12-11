@@ -56,6 +56,22 @@ public class ConfigManager {
         return 20 * 60 * 2;
     }
 
+    public static float bonusHungerMagnitude() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().stews.bonusHungerMagnitude;
+        }
+
+        return 0.5f;
+    }
+
+    public static float bonusSaturationMagnitude() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().stews.bonusSaturationMagnitude;
+        }
+
+        return 0.5f;
+    }
+
     public static int minCowlLevel() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().stews.cowlCurseLevels;
