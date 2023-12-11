@@ -16,6 +16,14 @@ public class ConfigManager {
         return clothPresent;
     }
 
+    public static boolean potionsCountAsFood() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().potions.potionsCountAsFood;
+        }
+
+        return false;
+    }
+
     public static boolean useCursedStew() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().stews.cursedStew;

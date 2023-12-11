@@ -82,6 +82,7 @@
   "text.autoconfig.crockpot.option.potions.useObfuscatedText": "Use cursed text for effect hiding",
   "text.autoconfig.crockpot.option.potions.diluteEffects": "Dilute effects based on portions",
   "text.autoconfig.crockpot.option.potions.dilutionModifier": "Make this higher for greater dilution",
+  "text.autoconfig.crockpot.option.potions.potionsCountAsFood": "Potions affect hunger/saturation values",
 
   "text.autoconfig.crockpot.category.locking": "Locking",
   "text.autoconfig.crockpot.option.locking.canLockPots": "Can lock pots using a name tag",

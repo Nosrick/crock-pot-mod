@@ -97,6 +97,8 @@ public class CrockPotConfig implements ConfigData {
 
         public boolean useObfuscatedText = false;
 
+        public boolean potionsCountAsFood = false;
+
         public boolean diluteEffects = true;
 
         @Comment("effect duration / (portions * dilutionModifier)")
