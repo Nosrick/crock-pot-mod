@@ -55,13 +55,6 @@ public class CrockPotProvider implements IBlockComponentProvider, IDataProvider<
 
             DefaultedList<ItemStack> items = DefaultedList.ofSize(ConfigManager.ingredientSlots(), ItemStack.EMPTY);
             Inventories.readNbt(nbt, items);
-            if (!items.isEmpty()) {
-                tooltip.addLine(new ItemRenderTooltipComponent(
-                        items.stream()
-                                .takeWhile(itemStack -> !itemStack.isEmpty())
-                                .map(ItemStack::getItem)
-                                .toList()));
-            }
         }
     }
 
