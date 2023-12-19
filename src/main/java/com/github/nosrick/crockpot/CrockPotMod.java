@@ -7,7 +7,10 @@ import com.github.nosrick.crockpot.registry.CrockPotSoundRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.ColorHelper;
 import org.slf4j.Logger;
@@ -21,6 +24,10 @@ public class CrockPotMod implements ModInitializer {
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 
     public static final Identifier CROCK_POT_CHANNEL = new Identifier(MOD_ID, "crockpot_blockentity_update");
+
+    public static final ItemGroup ITEM_GROUP = FabricItemGroupBuilder.build(
+            new Identifier(MOD_ID, "main"),
+            () -> new ItemStack(ItemRegistry.CROCK_POT.get()));
 
     public static final List<String> MODS_LOADED = new ArrayList<>();
 

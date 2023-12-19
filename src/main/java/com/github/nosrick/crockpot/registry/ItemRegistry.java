@@ -6,9 +6,8 @@ import com.github.nosrick.crockpot.item.ModItemSettings;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 
 import java.util.function.Supplier;
 
@@ -35,7 +34,7 @@ public enum ItemRegistry {
 
     public static void registerAll() {
         for (ItemRegistry value : values()) {
-            Registry.register(Registries.ITEM, new Identifier(CrockPotMod.MOD_ID, value.pathName), value.get());
+            Registry.register(Registry.ITEM, new Identifier(CrockPotMod.MOD_ID, value.pathName), value.get());
             if (value.burnTime != null) {
                 FuelRegistry.INSTANCE.add(value.get(), value.burnTime);
             }

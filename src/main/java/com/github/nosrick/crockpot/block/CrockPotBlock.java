@@ -4,12 +4,10 @@ import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.registry.BlockRegistry;
-import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
@@ -25,7 +23,6 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
 import net.minecraft.state.property.DirectionProperty;
-import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
@@ -40,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("deprecation")
 public class CrockPotBlock extends BlockWithEntity {
 
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final DirectionProperty FACING = DirectionProperty.of("facing", Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
@@ -65,12 +62,6 @@ public class CrockPotBlock extends BlockWithEntity {
                         .with(HAS_FOOD, false)
                         .with(NEEDS_SUPPORT, false)
                         .with(EMITS_SIGNAL, false));
-
-        this.addMeToItemGroup();
-    }
-
-    protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
     }
 
     @Nullable
@@ -97,7 +88,7 @@ public class CrockPotBlock extends BlockWithEntity {
         World world = context.getWorld();
 
         return getDefaultState()
-                .with(FACING, context.getHorizontalPlayerFacing().getOpposite())
+                .with(FACING, context.getPlayerFacing().getOpposite())
                 .with(NEEDS_SUPPORT, needsSupport(world.getBlockState(blockPos.down())));
     }
 

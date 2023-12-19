@@ -21,9 +21,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
-import org.joml.*;
-
-import java.lang.Math;
 
 public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPotBlockEntity> {
 
@@ -84,24 +81,23 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             float lastX = xRot;
             float lastZ = zRot;
 
-            float lidIntensity = ConfigManager.lidAnimationIntensity();
-
             if (time % 3 < 1f) {
-                yTrans = random.nextFloat() * lidIntensity;
-                xRot = (random.nextFloat() - 0.5f) * lidIntensity;
-                zRot = (random.nextFloat() - 0.5f) * lidIntensity;
+                yTrans = random.nextFloat() * 0.1f;
+                xRot = (random.nextFloat() - 0.5f) * 0.1f;
+                zRot = (random.nextFloat() - 0.5f) * 0.1f;
             }
 
-        Vector3f rotation = new Vector3f(lastX, 0, lastZ);
-        Vector3f newRotation = new Vector3f(xRot, 0, zRot);
+            Vec3f rotation = new Vec3f(lastX * 5, 0, lastZ * 5);
+            Vec3f newRotation = new Vec3f(xRot * 5, 0, zRot * 5);
             rotation.lerp(newRotation, tickDelta);
             float boilingIntensity = entity.getBoilingIntensity();
-            rotation = new Vector3f(rotation.x * boilingIntensity, 0, rotation.z * boilingIntensity);
+            rotation = new Vec3f(rotation.getX() * boilingIntensity, 0, rotation.getZ() * boilingIntensity);
 
             matrices.push();
             if (ConfigManager.animateBoilingLid()) {
-                matrices.translate(0f, ((yTrans * lidIntensity) + 0.02d) * boilingIntensity, 0f);
-                matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
+                matrices.translate(0f, ((yTrans * 0.1d) + 0.02d) * boilingIntensity, 0f);
+                matrices.multiply(
+                        Quaternion.fromEulerXyzDegrees(rotation));
             }
 
             Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
@@ -133,8 +129,8 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 }
                 Vec3d playerPos = player.getPos();
                 BlockPos entityPos = entity.getPos();
-                Vector3d playerRot = new Vector3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
-                Vector3d rot = new Vector3d(playerRot.cross(new Vector3d(0, 1, 0)));
+                Vec3d playerRot = new Vec3d(playerPos.x - entityPos.getX(), playerPos.y - entityPos.getY(), playerPos.z - entityPos.getZ());
+                Vec3f rot = new Vec3f(playerRot.crossProduct(new Vec3d(Vec3f.POSITIVE_Y)));
 
                 Text ownerName = entity.getOwnerName();
 
@@ -161,7 +157,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             Text text,
             MatrixStack matrices,
             VertexConsumerProvider vertexConsumerProvider,
-            Vector3d rotation,
+            Vec3f rotation,
             int light) {
         matrices.push();
 
@@ -170,14 +166,14 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         float scale = 0.025f;
         matrices.scale(-scale, -scale, scale);
 
-        float rot = (float) Math.atan2(rotation.z, rotation.x);
-        matrices.multiply(new Quaternionf(new AxisAngle4f(rot, 0, 1, 0)));
+        float rot = (float) Math.atan2(rotation.getZ(), rotation.getX());
+        matrices.multiply(Vec3f.POSITIVE_Y.getRadialQuaternion(rot));
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, false, backgroundOpacity, light);
         matrices.pop();
     }
 

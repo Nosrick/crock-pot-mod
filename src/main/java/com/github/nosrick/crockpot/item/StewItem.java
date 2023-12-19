@@ -17,7 +17,6 @@ import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
 import net.minecraft.potion.PotionUtil;
-import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
 import net.minecraft.text.Style;
@@ -28,6 +27,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.TypedActionResult;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
 import org.jetbrains.annotations.Nullable;
@@ -204,7 +204,7 @@ public class StewItem extends Item {
     public static List<Item> getContents(ItemStack stack) {
         NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
         List<Item> returnItems = new ArrayList<>();
-        list.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.get(new Identifier(string))));
+        list.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registry.ITEM.get(new Identifier(string))));
 
         return returnItems;
     }
@@ -217,7 +217,7 @@ public class StewItem extends Item {
         NbtList list = new NbtList();
         List<String> strings = contents
                 .stream()
-                .map(content -> Registries.ITEM
+                .map(content -> Registry.ITEM
                         .getId(content.getItem())
                         .toString())
                 .toList();
