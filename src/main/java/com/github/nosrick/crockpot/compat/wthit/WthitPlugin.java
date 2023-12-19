@@ -88,9 +88,11 @@ public class WthitPlugin implements IWailaPlugin, IBlockComponentProvider, IServ
             tooltip.addLine(Text.translatable("values.crockpot.redstone_output.type",
                     crockPotBlockEntity.getRedstoneOutputType().localName));
 
+            /*
             if (!contents.isEmpty()) {
                 tooltip.addLine(new ItemRenderTooltipComponent(contents));
             }
+             */
         }
     }
 }
