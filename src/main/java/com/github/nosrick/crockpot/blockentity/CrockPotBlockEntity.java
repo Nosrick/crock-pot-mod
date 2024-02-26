@@ -611,7 +611,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public void setOwner(UUID owner) {
         if (owner != null && !this.isOwner(owner)) {
             this.owner = owner;
-            if (this.world == null) {
+            if (this.world == null || this.world.isClient) {
                 return;
             }
             PlayerEntity playerOwner = this.world.getPlayerByUuid(this.owner);
@@ -645,7 +645,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public void setRedstoneOutputType(RedstoneOutputType type) {
         this.redstoneOutputType = type;
 
-        if (this.world == null) {
+        if (this.world == null || this.world.isClient) {
             return;
         }
 
@@ -655,15 +655,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             this.world.setBlockState(this.pos, this.getCachedState().with(CrockPotBlock.EMITS_SIGNAL, true));
         }
 
-        if (this.world.isClient) {
-            return;
-        }
-
         this.updateNearby();
     }
 
     protected void updateNearby() {
-        if (this.world == null) {
+        if (this.world == null || this.world.isClient) {
             return;
         }
         world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 0);
