@@ -43,7 +43,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
 
     @Override
     public TextContent getContent() {
-        return PlainTextContent.EMPTY;
+        return TextContent.EMPTY;
     }
 
     static List<Text> emptySiblings = new ArrayList<>();

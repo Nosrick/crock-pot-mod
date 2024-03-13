@@ -41,8 +41,6 @@ import org.jetbrains.annotations.Nullable;
 @SuppressWarnings("deprecation")
 public class CrockPotBlock extends BlockWithEntity {
 
-    public static final MapCodec<CrockPotBlock> CODEC = createCodec(CrockPotBlock::new);
-
     public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
@@ -84,11 +82,6 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return BlockEntityTypesRegistry.CROCK_POT.get().instantiate(pos, state);
-    }
-
-    @Override
-    protected MapCodec<? extends BlockWithEntity> getCodec() {
-        return CODEC;
     }
 
     @Override
