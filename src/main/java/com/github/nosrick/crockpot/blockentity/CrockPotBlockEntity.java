@@ -437,7 +437,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 int foodItems = this.getFoodStackCount();
 
                 int hungerToGo = (this.hunger + (int) (this.bonusLevels * ConfigManager.bonusHungerMagnitude())) / foodItems;
-                float saturationToGo = (this.saturation * (1f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity()))) / foodItems;
+                float defaultBonus = 1f + ConfigManager.bonusSaturationMagnitude();
+                float currentBonus = ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity();
+                float saturationToGo = 1f + currentBonus;
 
                 StewItem.setHunger(stew, hungerToGo);
                 StewItem.setSaturation(stew, saturationToGo);
@@ -754,7 +756,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
             var possibleStatus = new ArrayList<>(
                     StreamSupport.stream(
-                            stack.get(DataComponentTypes.POTION_CONTENTS)
+                            stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
                                     .getEffects()
                                     .spliterator(),
                                     false)
