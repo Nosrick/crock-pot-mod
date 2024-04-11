@@ -11,12 +11,13 @@ import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.NbtListUtil;
 import com.github.nosrick.crockpot.util.UUIDUtil;
 import com.mojang.datafixers.util.Pair;
-import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
-import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.FoodComponent;
+import net.minecraft.component.type.FoodComponents;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
@@ -27,18 +28,15 @@ import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.listener.ClientPlayPacketListener;
 import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
 import net.minecraft.registry.DynamicRegistryManager;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ServerWorld;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -52,6 +50,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 @SuppressWarnings("unused")
 public class CrockPotBlockEntity extends BlockEntity implements Inventory, SidedInventory {
@@ -146,7 +145,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     @Override
-    public void readNbt(NbtCompound nbt) {
+    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         this.name = nbt.getString(NAME_NBT);
         this.hunger = nbt.getInt(HUNGER_NBT);
         this.saturation = nbt.getFloat(SATURATION_NBT);
@@ -158,7 +157,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.curseLevel = nbt.getInt(CURSE_LEVEL);
 
-        Inventories.readNbt(nbt, this.items);
+        Inventories.readNbt(nbt, this.items, registryLookup);
 
         this.potionEffects.clear();
 
@@ -176,11 +175,11 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         this.markDirty();
 
-        super.readNbt(nbt);
+        super.readNbt(nbt, registryLookup);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt) {
+    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
         nbt.putString(NAME_NBT, this.name);
         nbt.putInt(HUNGER_NBT, this.hunger);
         nbt.putFloat(SATURATION_NBT, this.saturation);
@@ -198,13 +197,13 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             nbt.putUuid(OWNER_NBT, this.owner);
         }
 
-        Inventories.writeNbt(nbt, this.items);
+        Inventories.writeNbt(nbt, this.items, registryLookup);
 
         if (!this.potionEffects.isEmpty()) {
             nbt.put(EFFECTS_NBT, NbtListUtil.nbtListFromStatusEffectInstances(this.potionEffects));
         }
 
-        super.writeNbt(nbt);
+        super.writeNbt(nbt, registryLookup);
     }
 
     protected void recalculateFoodValues() {
@@ -219,16 +218,16 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         int combinedHunger = 0;
         float combinedSaturation = 0f;
 
-        for(ItemStack itemStack : this.getContents()) {
+        for (ItemStack itemStack : this.getContents()) {
             Item item = itemStack.getItem();
-            FoodComponent foodComponent = item.getFoodComponent();
+            FoodComponent foodComponent = item.getComponents().get(DataComponentTypes.FOOD);
 
-            if(foodComponent == null) {
+            if (foodComponent == null) {
                 continue;
             }
 
-            combinedHunger += foodComponent.getHunger();
-            combinedSaturation += foodComponent.getSaturationModifier();
+            combinedHunger += foodComponent.nutrition();
+            combinedSaturation += foodComponent.saturation();
         }
 
         this.hunger = combinedHunger;
@@ -250,7 +249,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public boolean canAddFood(ItemStack food) {
-        if (!this.canAddPotion(food) && !food.isFood()) {
+        if (!this.canAddPotion(food) && !food.getComponents().contains(DataComponentTypes.FOOD)) {
             return false;
         }
 
@@ -303,8 +302,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             this.curseLevel += 1;
         }
 
-        FoodComponent foodComponent = foodItem.getFoodComponent();
-        if (foodComponent == null && foodItem.isFood()) {
+        FoodComponent foodComponent = foodItem.getComponents().get(DataComponentTypes.FOOD);
+        if (foodComponent == null && foodItem.getComponents().contains(DataComponentTypes.FOOD)) {
             return false;
         }
 
@@ -318,7 +317,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         if (ConfigManager.canAddPotions()) {
             if (food.getItem() instanceof PotionItem) {
-                Potion potion = PotionUtil.getPotion(food);
+                Potion potion = food.getComponents().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                        .potion()
+                        .get()
+                        .value();
                 if (this.potionEffects.size() < ConfigManager.effectPerPot()) {
                     this.addStatusEffects(potion.getEffects());
 
@@ -329,10 +331,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 }
 
                 return false;
-            } else if (foodItem.getFoodComponent() != null) {
-                var effects = foodItem.getFoodComponent().getStatusEffects();
+            } else if (foodItem.getComponents().contains(DataComponentTypes.FOOD)) {
+                var effects = food.getOrDefault(DataComponentTypes.FOOD, FoodComponents.APPLE).effects();
                 if (!effects.isEmpty()) {
-                    this.addStatusEffects(effects.stream().map(Pair::getFirst).toList());
+                    this.addStatusEffects(effects.stream().map(FoodComponent.StatusEffectEntry::effect).toList());
                 }
 
                 if (foodItem instanceof SuspiciousStewItem) {
@@ -522,10 +524,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     MutableText total = Text.empty();
                     list.forEach(total::append);
 
-                    if(total.getString().length() > ConfigManager.maxStewNameLength()){
+                    if (total.getString().length() > ConfigManager.maxStewNameLength()) {
                         statusText.append(Text.translatable("item.crockpot.stew.mixed"));
-                    }
-                    else {
+                    } else {
                         list.forEach(statusText::append);
                     }
 
@@ -538,7 +539,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                     || this.curseLevel < ConfigManager.minCowlLevel()) {
                 statusText = Text.translatable("item.crockpot.stew", statusText);
             }
-            stew.setCustomName(statusText);
+            stew.set(DataComponentTypes.CUSTOM_NAME, statusText);
 
             return stew;
         }
@@ -665,12 +666,14 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 0);
         world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
 
+        /*
         for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) this.world, this.pos)) {
             PacketByteBuf buf = PacketByteBufs.create();
             buf.writeBlockPos(this.pos);
-            buf.writeNbt(this.createNbt());
-            ServerPlayNetworking.send(player, CrockPotMod.CROCK_POT_CHANNEL, buf);
+            buf.writeNbt(this.createNbt(world.getRegistryManager()));
+            ServerPlayNetworking.send(player, new Payload);
         }
+         */
     }
 
     public boolean canBoil() {
@@ -749,15 +752,20 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             int rawCount = stack.getCount();
             int rawSlot = this.getSlotForItem(stack.getItem());
 
-            var possibleStatus = PotionUtil.getPotionEffects(stack);
+            var possibleStatus = new ArrayList<>(
+                    StreamSupport.stream(
+                            stack.get(DataComponentTypes.POTION_CONTENTS)
+                                    .getEffects()
+                                    .spliterator(),
+                                    false)
+                            .toList());
 
-            Item rawItem = stack.getItem();
-            if (rawItem.getFoodComponent() != null) {
-                var foodEffects = rawItem
-                        .getFoodComponent()
-                        .getStatusEffects()
+            var foodComponent = stack.get(DataComponentTypes.FOOD);
+            if (foodComponent != null) {
+                var foodEffects = foodComponent
+                        .effects()
                         .stream()
-                        .map(Pair::getFirst)
+                        .map(FoodComponent.StatusEffectEntry::effect)
                         .toList();
                 possibleStatus.addAll(foodEffects);
             }
@@ -781,15 +789,22 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.setStack(rawSlot, new ItemStack(cookedItem, 1));
             }
 
-            if (cookedItem.getFoodComponent() != null) {
-                var cookedEffects = cookedItem.getFoodComponent()
-                        .getStatusEffects()
+            var cookedFoodComponent = cookedItem.getComponents().get(DataComponentTypes.FOOD);
+
+            if (cookedFoodComponent != null) {
+                var cookedEffects = cookedFoodComponent
+                        .effects()
                         .stream()
-                        .map(Pair::getFirst)
+                        .map(FoodComponent.StatusEffectEntry::effect)
                         .toList();
                 this.addStatusEffects(cookedEffects);
             }
-            this.addStatusEffects(PotionUtil.getPotionEffects(new ItemStack(cookedItem)));
+            this.addStatusEffects(
+                    stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP)
+                            .effects()
+                            .stream()
+                            .map(FoodComponent.StatusEffectEntry::effect)
+                            .toList());
             this.recalculateFoodValues();
             this.recalculateStews();
         }
@@ -884,8 +899,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     @Override
-    public NbtCompound toInitialChunkDataNbt() {
-        return this.createNbt();
+    public NbtCompound toInitialChunkDataNbt(RegistryWrapper.WrapperLookup registry) {
+        return this.createNbt(registry);
     }
 
     @Override
@@ -901,13 +916,12 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public int getFoodStackCount() {
         int foodItems = 0;
 
-        for(ItemStack itemStack : this.getContents()) {
-            Item item = itemStack.getItem();
-            if(item.isFood()) {
+        for (ItemStack itemStack : this.getContents()) {
+            var foodComponent = itemStack.get(DataComponentTypes.FOOD);
+            if (foodComponent != null) {
                 foodItems++;
-            }
-            else if(ConfigManager.potionsCountAsFood()
-                && item instanceof PotionItem) {
+            } else if (ConfigManager.potionsCountAsFood()
+                    && itemStack.getItem() instanceof PotionItem) {
                 foodItems++;
             }
         }

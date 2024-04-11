@@ -1,8 +1,7 @@
 package com.github.nosrick.crockpot.util;
 
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FoodComponent;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

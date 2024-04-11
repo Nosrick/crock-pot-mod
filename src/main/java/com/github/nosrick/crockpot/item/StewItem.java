@@ -4,19 +4,19 @@ import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.client.tooltip.StewContentsTooltip;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.util.NbtListUtil;
-import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
-import net.minecraft.client.item.TooltipContext;
+import net.minecraft.client.item.TooltipType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.*;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.registry.Registries;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.stat.Stats;
@@ -30,10 +30,10 @@ import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 public class StewItem extends Item {
 
@@ -44,7 +44,7 @@ public class StewItem extends Item {
     protected static final String CURSED_NBT = "Cursed";
 
     public StewItem() {
-        super(new FabricItemSettings()
+        super(new Item.Settings()
                 .food(
                         new FoodComponent.Builder()
                                 .build())
@@ -52,9 +52,9 @@ public class StewItem extends Item {
     }
 
     public static FoodComponent ConstructFoodComponent(ItemStack stack) {
-        if(stack.getItem() instanceof StewItem) {
+        if (stack.getItem() instanceof StewItem) {
             return new FoodComponent.Builder()
-                    .hunger(StewItem.getHunger(stack))
+                    .nutrition(StewItem.getHunger(stack))
                     .saturationModifier(StewItem.getSaturation(stack))
                     .build();
         }
@@ -65,7 +65,7 @@ public class StewItem extends Item {
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack playerStack = user.getStackInHand(hand);
-        if(playerStack.getItem() instanceof StewItem) {
+        if (playerStack.getItem() instanceof StewItem) {
             CrockPotMod.FOOD_MANAGER.PlayerBeginsEating(user, StewItem.ConstructFoodComponent(playerStack));
         }
 
@@ -75,7 +75,7 @@ public class StewItem extends Item {
     @Override
     public void onStoppedUsing(ItemStack stack, World world, LivingEntity user, int remainingUseTicks) {
         super.onStoppedUsing(stack, world, user, remainingUseTicks);
-        if(user instanceof PlayerEntity player) {
+        if (user instanceof PlayerEntity player) {
             CrockPotMod.FOOD_MANAGER.PlayerFinishesEating(player);
         }
     }
@@ -97,13 +97,11 @@ public class StewItem extends Item {
 
         if (user instanceof PlayerEntity player) {
             FoodComponent foodComponent = CrockPotMod.FOOD_MANAGER.GetFoodForPlayer(player);
-            player.getHungerManager().add(foodComponent.getHunger(), foodComponent.getSaturationModifier());
-            List<StatusEffectInstance> statusEffects = PotionUtil.getPotionEffects(stack);
+            player.getHungerManager().add(foodComponent.nutrition(), foodComponent.saturation());
+            var statusEffects = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT).getEffects();
 
-            if (!statusEffects.isEmpty()) {
-                for (StatusEffectInstance effectInstance : statusEffects) {
-                    player.addStatusEffect(effectInstance);
-                }
+            for (StatusEffectInstance effectInstance : statusEffects) {
+                player.addStatusEffect(effectInstance);
             }
 
             player.incrementStat(Stats.USED.getOrCreateStat(this));
@@ -132,8 +130,8 @@ public class StewItem extends Item {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, @Nullable World world, List<Text> tooltip, TooltipContext context) {
-        super.appendTooltip(stack, world, tooltip, context);
+    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
+        super.appendTooltip(stack, context, tooltip, type);
 
         if (ConfigManager.useCursedStew()) {
             if (getCurseLevel(stack) >= ConfigManager.minCowlLevel()) {
@@ -168,25 +166,27 @@ public class StewItem extends Item {
         }
         tooltip.add(StewContentsTooltip.of(stack));
 
-        List<StatusEffectInstance> statusEffects = PotionUtil.getPotionEffects(stack);
+        var statusEffects = StreamSupport.stream(
+                        stack.getOrDefault(
+                                        DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                                .getEffects()
+                                .spliterator(),
+                        false)
+                .toList();
         if (!statusEffects.isEmpty()) {
             tooltip.add(Text.translatable("tooltip.crockpot.effects"));
-            if(!ConfigManager.hideStewEffects()) {
+            if (!ConfigManager.hideStewEffects()) {
                 for (StatusEffectInstance effect : statusEffects) {
                     tooltip.add(Text.translatable(effect.getTranslationKey())
                             .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
                             .append(Text.translatable("tooltip.crockpot.seconds"))
                             .setStyle(Style.EMPTY)
-                            .formatted(effect.getEffectType().isBeneficial()
-                                    ? Formatting.GREEN
-                                    : Formatting.RED));
+                            .formatted(effect.getEffectType().value().getCategory().getFormatting()));
                 }
-            }
-            else {
-                if(ConfigManager.useObfuscatedText()) {
+            } else {
+                if (ConfigManager.useObfuscatedText()) {
                     tooltip.add(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
-                }
-                else {
+                } else {
                     tooltip.add(Text.translatable("tooltip.crockpot.hidden_effects"));
                 }
             }
@@ -194,15 +194,17 @@ public class StewItem extends Item {
     }
 
     public static int getHunger(ItemStack stack) {
-        return stack.getOrCreateNbt().getInt(HUNGER_NBT);
+        return stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.APPLE).nutrition();
     }
 
     public static float getSaturation(ItemStack stack) {
-        return stack.getOrCreateNbt().getFloat(SATURATION_NBT);
+
+        return stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.APPLE).saturation();
     }
 
     public static List<Item> getContents(ItemStack stack) {
-        NbtList list = stack.getOrCreateNbt().getList(CONTENTS_NBT, 8);
+        //TODO: THIS IS AN AWFUL CAST
+        NbtList list = (NbtList) ((NbtCompound) stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, CustomModelDataComponent.DEFAULT)).get(CONTENTS_NBT);
         List<Item> returnItems = new ArrayList<>();
         list.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.get(new Identifier(string))));
 
@@ -210,7 +212,8 @@ public class StewItem extends Item {
     }
 
     public static int getCurseLevel(ItemStack stack) {
-        return stack.getOrCreateNbt().getInt(CURSED_NBT);
+
+        return ((NbtCompound) stack.getOrDefault(DataComponentTypes.CUSTOM_DATA, CustomModelDataComponent.DEFAULT)).getInt(CURSED_NBT);
     }
 
     public static void setContents(ItemStack stack, DefaultedList<ItemStack> contents) {
@@ -223,30 +226,44 @@ public class StewItem extends Item {
                 .toList();
 
         list.addAll(strings.stream().map(NbtString::of).toList());
-        stack.getOrCreateNbt().put(CONTENTS_NBT, list);
+        NbtCompound compound = new NbtCompound();
+        compound.put(CONTENTS_NBT, list);
+        stack.set(DataComponentTypes.CUSTOM_DATA, NbtComponent.of(compound));
     }
 
     public static void setHunger(ItemStack stack, int hunger) {
-        stack.getOrCreateNbt().putInt(HUNGER_NBT, hunger);
+        var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
+        FoodComponent newFoodComponent = new FoodComponent(hunger, oldFood.saturation(), false, oldFood.eatSeconds(), oldFood.effects());
+        stack.set(DataComponentTypes.FOOD, newFoodComponent);
     }
 
     public static void setSaturation(ItemStack stack, float saturation) {
-        stack.getOrCreateNbt().putFloat(SATURATION_NBT, saturation);
+        var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
+        FoodComponent newFoodComponent = new FoodComponent(oldFood.nutrition(), saturation,false, oldFood.eatSeconds(), oldFood.effects());
+        stack.set(DataComponentTypes.FOOD, newFoodComponent);
     }
 
     public static void setCurseLevel(ItemStack stack, int curseLevel) {
-        stack.getOrCreateNbt().putInt(CURSED_NBT, curseLevel);
+        NbtCompound newCurse = new NbtCompound();
+        newCurse.putInt(CURSED_NBT, curseLevel);
+        NbtComponent.set(DataComponentTypes.CUSTOM_DATA, stack, newCurse);
     }
 
     public static void addStatusEffect(ItemStack stack, StatusEffectInstance statusEffectInstance) {
-        List<StatusEffectInstance> effects = PotionUtil.getPotionEffects(stack);
-        effects.add(statusEffectInstance);
+        var component =  stack.getOrDefault(
+                DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                .with(statusEffectInstance);
 
-        PotionUtil.setCustomPotionEffects(stack, effects);
-        stack.getOrCreateNbt().put(EFFECTS_NBT, NbtListUtil.nbtListFromStatusEffectInstances(effects));
+        stack.set(DataComponentTypes.POTION_CONTENTS, component);
     }
 
     public static List<StatusEffectInstance> getStatusEffects(ItemStack stack) {
-        return PotionUtil.getCustomPotionEffects(stack);
+
+        return StreamSupport.stream(
+                stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                        .getEffects()
+                        .spliterator(),
+                false)
+                .toList();
     }
 }

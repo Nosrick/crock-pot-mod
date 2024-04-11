@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.item.StewItem;
-import com.github.nosrick.crockpot.item.ModItemSettings;
 import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
@@ -14,8 +13,8 @@ import java.util.function.Supplier;
 public enum ItemRegistry {
 
     STEW_ITEM("stew", StewItem::new),
-    CROCK_POT("crock_pot", () -> new BlockItem(BlockRegistry.CROCK_POT.get(), new ModItemSettings())),
-    ELECTRIC_CROCK_POT("electric_crock_pot", () -> new BlockItem(BlockRegistry.ELECTRIC_CROCK_POT.get(), new ModItemSettings()));
+    CROCK_POT("crock_pot", () -> new BlockItem(BlockRegistry.CROCK_POT.get(), new Item.Settings())),
+    ELECTRIC_CROCK_POT("electric_crock_pot", () -> new BlockItem(BlockRegistry.ELECTRIC_CROCK_POT.get(), new Item.Settings()));
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;

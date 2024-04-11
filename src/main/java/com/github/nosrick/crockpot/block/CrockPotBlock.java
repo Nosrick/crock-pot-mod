@@ -16,10 +16,11 @@ import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
@@ -186,7 +187,7 @@ public class CrockPotBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (world.isClient()) {
             return ActionResult.CONSUME;
         }
@@ -257,7 +258,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 }
             } else if (ConfigManager.canFillWithWaterBottle()
                     && heldItem instanceof PotionItem
-                    && PotionUtil.getPotion(held) == Potions.WATER) {
+                    && heldItem.getComponents().get(DataComponentTypes.POTION_CONTENTS).potion().get().value() == Potions.WATER.value()) {
                 if (!player.isCreative()) {
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));

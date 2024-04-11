@@ -1,8 +1,8 @@
 package com.github.nosrick.crockpot.mixin;
 
 import com.github.nosrick.crockpot.item.StewItem;
+import net.minecraft.component.type.FoodComponent;
 import net.minecraft.entity.player.HungerManager;
-import net.minecraft.item.FoodComponent;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import org.spongepowered.asm.mixin.Mixin;
@@ -34,7 +34,7 @@ public class HungerManagerMixin {
     private FoodComponent eat(FoodComponent comp) {
         if (cachedItem instanceof StewItem) {
             return new FoodComponent.Builder()
-                    .hunger(StewItem.getHunger(cachedItemStack))
+                    .nutrition(StewItem.getHunger(cachedItemStack))
                     .saturationModifier(StewItem.getSaturation(cachedItemStack))
                     .build();
         }
