@@ -1,7 +1,6 @@
 package com.github.nosrick.crockpot.util;
 
 import net.minecraft.block.SuspiciousStewIngredient;
-import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.SuspiciousStewItem;
@@ -13,8 +12,6 @@ import net.minecraft.nbt.NbtOps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Consumer;
 
 public abstract class NbtListUtil {
 
@@ -61,22 +58,7 @@ public abstract class NbtListUtil {
 
         NbtCompound nbtCompound = stew.getNbt();
         if (nbtCompound != null && nbtCompound.contains(SuspiciousStewItem.EFFECTS_KEY, NbtElement.LIST_TYPE)) {
-            NbtList nbtList = nbtCompound.getList("Effects", NbtElement.COMPOUND_TYPE);
-
-            for(int i = 0; i < nbtList.size(); i++) {
-                int j = 160;
-                NbtCompound nbtCompound2 = nbtList.getCompound(i);
-                if (nbtCompound2.contains("EffectDuration", NbtElement.INT_TYPE)) {
-                    j = nbtCompound2.getInt("EffectDuration");
-                }
-
-                StatusEffect statusEffect = StatusEffect.byRawId(nbtCompound2.getInt("EffectId"));
-                if (statusEffect != null) {
-                    effectInstances.add(new StatusEffectInstance(statusEffect, j));
-                }
-            }
-
-            /*var tempList = SuspiciousStewIngredient.StewEffect.LIST_CODEC
+            var tempList = SuspiciousStewIngredient.StewEffect.LIST_CODEC
                     .parse(NbtOps.INSTANCE,
                             nbtCompound.getList(SuspiciousStewItem.EFFECTS_KEY, NbtElement.COMPOUND_TYPE))
                     .result();
@@ -87,8 +69,6 @@ public abstract class NbtListUtil {
                     effectInstances.add(effect.createStatusEffectInstance());
                 }
             }
-
-             */
         }
 
         return effectInstances;

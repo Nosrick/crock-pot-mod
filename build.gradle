@@ -57,7 +57,7 @@ dependencies {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
-    modCompileOnly("curse.maven:badpackets-615134:4784394") {
+    modCompileOnly("curse.maven:badpackets-615134:5105367") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
@@ -74,7 +74,7 @@ dependencies {
 
     //These are all the optional dependencies
     //Appleskin
-    modCompileOnly("curse.maven:appleskin-248787:4770825") {
+    modCompileOnly("curse.maven:appleskin-248787:4770830") {
         transitive = false
         exclude module: 'modmenu'
     }
@@ -83,7 +83,7 @@ dependencies {
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
-    modRuntimeOnly("curse.maven:badpackets-615134:4784394") {
+    modRuntimeOnly("curse.maven:badpackets-615134:5105367") {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
@@ -94,7 +94,7 @@ dependencies {
     modRuntimeOnly("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-    modRuntimeOnly("curse.maven:appleskin-248787:4770825") {
+    modRuntimeOnly("curse.maven:appleskin-248787:4770830") {
         transitive = false
         exclude module: 'modmenu'
     }

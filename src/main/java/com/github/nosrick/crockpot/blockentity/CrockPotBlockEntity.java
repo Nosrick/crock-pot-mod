@@ -736,7 +736,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected void cookRawFood() {
         for (ItemStack stack : this.getContents()) {
             SimpleInventory inv = new SimpleInventory(stack);
-            Optional<CampfireCookingRecipe> possibleRecipe = world.getRecipeManager()
+            var possibleRecipe = world.getRecipeManager()
                     .getFirstMatch(RecipeType.CAMPFIRE_COOKING,
                             inv,
                             world);
@@ -769,7 +769,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.potionEffects.removeAll(removeEffects);
             }
 
-            Item cookedItem = possibleRecipe.get().getOutput(DynamicRegistryManager.EMPTY).getItem();
+            Item cookedItem = possibleRecipe.get()
+                    .value()
+                    .getResult(DynamicRegistryManager.EMPTY)
+                    .getItem();
 
             int cookedSlot = this.getSlotForItem(cookedItem);
 
