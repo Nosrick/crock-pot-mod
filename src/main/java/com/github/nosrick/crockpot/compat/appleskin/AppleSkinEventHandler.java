@@ -5,7 +5,6 @@ import com.github.nosrick.crockpot.item.StewItem;
 import net.minecraft.item.ItemStack;
 import squeek.appleskin.api.AppleSkinApi;
 import squeek.appleskin.api.event.FoodValuesEvent;
-import squeek.appleskin.api.food.FoodValues;
 
 public class AppleSkinEventHandler implements AppleSkinApi {
 
@@ -15,11 +14,8 @@ public class AppleSkinEventHandler implements AppleSkinApi {
                 foodValuesEvent -> {
                     if(foodValuesEvent.itemStack.getItem() instanceof StewItem) {
                         ItemStack itemStack = foodValuesEvent.itemStack;
-                        foodValuesEvent.defaultFoodValues = new FoodValues(
-                                StewItem.getHunger(itemStack),
-                                StewItem.getSaturation(itemStack));
-
-                        foodValuesEvent.modifiedFoodValues = foodValuesEvent.defaultFoodValues;
+                        foodValuesEvent.defaultFoodComponent = StewItem.ConstructFoodComponent(itemStack);
+                        foodValuesEvent.modifiedFoodComponent = foodValuesEvent.defaultFoodComponent;
                     }
                 }
         );
