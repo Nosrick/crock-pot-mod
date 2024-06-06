@@ -35,6 +35,7 @@ import net.minecraft.potion.Potion;
 import net.minecraft.recipe.CampfireCookingRecipe;
 import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.sound.SoundCategory;
@@ -45,6 +46,7 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
@@ -216,7 +218,6 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
 
         int combinedHunger = 0;
-        float combinedSaturation = 0f;
 
         for (ItemStack itemStack : this.getContents()) {
             Item item = itemStack.getItem();
@@ -227,11 +228,9 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
 
             combinedHunger += foodComponent.nutrition();
-            combinedSaturation += foodComponent.saturation();
         }
 
         this.hunger = combinedHunger;
-        this.saturation = combinedSaturation;
     }
 
     protected void dilutePotionEffects() {
@@ -437,12 +436,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 int foodItems = this.getFoodStackCount();
 
                 int hungerToGo = (this.hunger + (int) (this.bonusLevels * ConfigManager.bonusHungerMagnitude())) / foodItems;
-                float defaultBonus = 1f + ConfigManager.bonusSaturationMagnitude();
-                float currentBonus = ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity();
-                float saturationToGo = 1f + currentBonus;
+                this.saturation = 0.8f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity());
 
                 StewItem.setHunger(stew, hungerToGo);
-                StewItem.setSaturation(stew, saturationToGo);
+                StewItem.setSaturation(stew, this.saturation);
                 if (ConfigManager.useItemPositiveEffects()
                         && this.bonusLevels >= ConfigManager.stewMinPositiveLevelsEffect()) {
                     if (!ConfigManager.effectsOverride()) {
@@ -741,10 +738,10 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected void cookRawFood() {
         for (ItemStack stack : this.getContents()) {
-            SimpleInventory inv = new SimpleInventory(stack);
-            Optional<RecipeEntry<CampfireCookingRecipe>> possibleRecipe = world.getRecipeManager()
-                    .getFirstMatch(RecipeType.CAMPFIRE_COOKING,
-                            inv,
+            var possibleRecipe = world.getRecipeManager()
+                    .getFirstMatch(
+                            RecipeType.CAMPFIRE_COOKING,
+                            new SingleStackRecipeInput(stack),
                             world);
 
             if (possibleRecipe.isEmpty()) {

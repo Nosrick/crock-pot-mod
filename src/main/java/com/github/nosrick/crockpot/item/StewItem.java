@@ -3,7 +3,6 @@ package com.github.nosrick.crockpot.item;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.client.tooltip.StewContentsTooltip;
 import com.github.nosrick.crockpot.config.ConfigManager;
-import net.minecraft.client.item.TooltipType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.component.type.FoodComponents;
@@ -15,6 +14,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
@@ -155,7 +155,7 @@ public class StewItem extends Item {
 
         if (!CrockPotMod.MODS_LOADED.contains("appleskin")) {
             int hunger = getHunger(stack);
-            int saturation = MathHelper.floor(hunger * getSaturation(stack) * 2f);
+            String saturation = String.format("%.2g", getSaturation(stack));
 
             tooltip.add(Text.translatable(
                             "item.crockpot.stew.hunger", hunger)
@@ -214,7 +214,7 @@ public class StewItem extends Item {
 
         NbtCompound value = nbt.copyNbt();
         NbtList contents = (NbtList) value.get(CONTENTS_NBT);
-        contents.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.get(new Identifier(string))));
+        contents.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.get(Identifier.of(string))));
 
         return returnItems;
     }
@@ -247,13 +247,21 @@ public class StewItem extends Item {
 
     public static void setHunger(ItemStack stack, int hunger) {
         var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
-        FoodComponent newFoodComponent = new FoodComponent(hunger, oldFood.saturation(), false, oldFood.eatSeconds(), oldFood.effects());
+        var builder = new FoodComponent.Builder()
+                .nutrition(hunger)
+                .saturationModifier(oldFood.saturation());
+        oldFood.effects().stream().map(t -> builder.statusEffect(t.effect(), 100));
+        FoodComponent newFoodComponent = builder.build();
         stack.set(DataComponentTypes.FOOD, newFoodComponent);
     }
 
     public static void setSaturation(ItemStack stack, float saturation) {
         var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
-        FoodComponent newFoodComponent = new FoodComponent(oldFood.nutrition(), saturation, false, oldFood.eatSeconds(), oldFood.effects());
+        var builder = new FoodComponent.Builder()
+                .nutrition(oldFood.nutrition())
+                .saturationModifier(saturation);
+        oldFood.effects().stream().map(t -> builder.statusEffect(t.effect(), 100));
+        FoodComponent newFoodComponent = builder.build();
         stack.set(DataComponentTypes.FOOD, newFoodComponent);
     }
 

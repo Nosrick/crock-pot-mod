@@ -149,11 +149,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                         matrices,
                         vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
                         light,
-                        overlay,
-                        1f,
-                        1f,
-                        1f,
-                        1f);
+                        overlay);
             }
         }
     }

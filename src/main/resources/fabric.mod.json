@@ -24,9 +24,6 @@
     "client": [
       "com.github.nosrick.crockpot.CrockPotModClient"
     ],
-    "appleskin": [
-      "com.github.nosrick.crockpot.compat.appleskin.AppleSkinEventHandler"
-    ],
     "modmenu": [
       "com.github.nosrick.crockpot.compat.modmenu.ModMenuIntegration"
     ]
@@ -38,7 +35,7 @@
   "depends": {
     "fabricloader": "*",
     "fabric": "*",
-    "minecraft": "1.20.x",
+    "minecraft": "1.21.x",
     "java": ">=21"
   },
   "recommends": {

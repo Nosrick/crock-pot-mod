@@ -12,6 +12,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
@@ -249,6 +250,8 @@ public class CrockPotBlock extends BlockWithEntity {
 
         if (!state.get(HAS_LIQUID)) {
             Item heldItem = held.getItem();
+
+            boolean thing = heldItem.getRegistryEntry().isIn(ConventionalItemTags.ENTITY_WATER_BUCKETS);
 
             if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
