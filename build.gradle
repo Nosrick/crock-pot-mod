@@ -67,7 +67,6 @@ dependencies {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
 
-    /*
     //Cloth Config
     modCompileOnlyApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
@@ -79,7 +78,6 @@ dependencies {
         transitive = false
         exclude module: 'modmenu'
     }
-     */
 
     //The runtime mods for testing
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
@@ -93,10 +91,10 @@ dependencies {
         transitive = false
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
-    /*
     modRuntimeOnly("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
+    /*
     modRuntimeOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}") {
         transitive = false
         exclude module: 'modmenu'
