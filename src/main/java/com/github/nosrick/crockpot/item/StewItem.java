@@ -53,22 +53,11 @@ public class StewItem extends Item {
                 .recipeRemainder(Items.BOWL));
     }
 
-    public static FoodComponent ConstructFoodComponent(ItemStack stack) {
-        if (stack.getItem() instanceof StewItem) {
-            return new FoodComponent.Builder()
-                    .nutrition(StewItem.getHunger(stack))
-                    .saturationModifier(StewItem.getSaturation(stack))
-                    .build();
-        }
-
-        return new FoodComponent.Builder().build();
-    }
-
     @Override
     public TypedActionResult<ItemStack> use(World world, PlayerEntity user, Hand hand) {
         ItemStack playerStack = user.getStackInHand(hand);
         if (playerStack.getItem() instanceof StewItem) {
-            CrockPotMod.FOOD_MANAGER.PlayerBeginsEating(user, StewItem.ConstructFoodComponent(playerStack));
+            CrockPotMod.FOOD_MANAGER.PlayerBeginsEating(user, playerStack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.APPLE));
         }
 
         return super.use(world, user, hand);

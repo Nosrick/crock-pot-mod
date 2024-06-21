@@ -436,7 +436,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 int foodItems = this.getFoodStackCount();
 
                 int hungerToGo = (this.hunger + (int) (this.bonusLevels * ConfigManager.bonusHungerMagnitude())) / foodItems;
-                this.saturation = 0.8f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity());
+                this.saturation = 0.7f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity());
 
                 StewItem.setHunger(stew, hungerToGo);
                 StewItem.setSaturation(stew, this.saturation);
