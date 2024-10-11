@@ -31,7 +31,7 @@ public class CrockPotMod implements ModInitializer {
         LOGGER.info("REV UP THOSE CROCK POTS BOIS");
 
         CrockPotSoundRegistry.registerAll();
-        BlockRegistry.registerAll();
+        BlockRegistry.initialize();
         BlockEntityTypesRegistry.registerAll();
         ItemRegistry.registerAll();
 

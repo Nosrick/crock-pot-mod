@@ -72,7 +72,7 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public int getHeight() {
+    public int getHeight(TextRenderer textRenderer) {
         return 19;
     }
 
@@ -97,8 +97,8 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public void drawItems(TextRenderer textRenderer, int x, int y, DrawContext context) {
-        TooltipComponent.super.drawItems(textRenderer, x, y, context);
+    public void drawItems(TextRenderer textRenderer, int x, int y, int width, int height, DrawContext context) {
+        TooltipComponent.super.drawItems(textRenderer, x, y, width, height, context);
         for(int i = 0; i < contents.size(); i++) {
             context.drawItem(
                     this.contents.get(i).getDefaultStack(),

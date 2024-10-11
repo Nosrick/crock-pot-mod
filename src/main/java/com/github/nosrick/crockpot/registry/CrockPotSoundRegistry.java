@@ -17,7 +17,7 @@ public enum CrockPotSoundRegistry {
 
     CrockPotSoundRegistry(SoundEvent soundEvent) {
         this.soundEvent = soundEvent;
-        this.identifier = soundEvent.getId();
+        this.identifier = soundEvent.id();
     }
 
     CrockPotSoundRegistry(String identifier) {

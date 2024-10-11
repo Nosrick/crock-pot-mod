@@ -10,7 +10,6 @@ import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.NbtListUtil;
 import com.github.nosrick.crockpot.util.UUIDUtil;
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
@@ -18,14 +17,17 @@ import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.component.type.FoodComponents;
 import net.minecraft.component.type.PotionContentsComponent;
+import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventories;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.SidedInventory;
-import net.minecraft.inventory.SimpleInventory;
-import net.minecraft.item.*;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.PotionItem;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.network.listener.ClientPlayPacketListener;
@@ -33,11 +35,11 @@ import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.potion.Potion;
 import net.minecraft.recipe.CampfireCookingRecipe;
-import net.minecraft.recipe.RecipeEntry;
 import net.minecraft.recipe.RecipeType;
+import net.minecraft.recipe.ServerRecipeManager;
 import net.minecraft.recipe.input.SingleStackRecipeInput;
-import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -46,11 +48,11 @@ import net.minecraft.util.StringIdentifiable;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
-import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
 
@@ -330,16 +332,16 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 }
 
                 return false;
-            } else if (foodItem.getComponents().contains(DataComponentTypes.FOOD)) {
-                var effects = food.getOrDefault(DataComponentTypes.FOOD, FoodComponents.APPLE).effects();
-                if (!effects.isEmpty()) {
-                    this.addStatusEffects(effects.stream().map(FoodComponent.StatusEffectEntry::effect).toList());
+            } else if (foodItem.getComponents().contains(DataComponentTypes.POTION_CONTENTS)) {
+                var effects = food.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+                if (effects.hasEffects()) {
+                    this.addStatusEffects(effects.customEffects());
                 }
+            }
 
-                if (foodItem instanceof SuspiciousStewItem) {
-                    List<StatusEffectInstance> effectsFromSuspiciousStew = NbtListUtil.getEffectsFromSuspiciousStew(food);
-                    this.addStatusEffects(effectsFromSuspiciousStew);
-                }
+            if (food.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) != null) {
+                List<StatusEffectInstance> effectsFromSuspiciousStew = NbtListUtil.getEffectsFromSuspiciousStew(food);
+                this.addStatusEffects(effectsFromSuspiciousStew);
             }
         }
 
@@ -510,7 +512,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                         Text text = Text.translatable(
                                 content.getItem() instanceof StewItem
                                         ? "item.crockpot.stew_name"
-                                        : content.getTranslationKey());
+                                        : content.getItem().getTranslationKey());
 
                         list.add(text);
                         if (i < contents.size() - 2) {
@@ -548,13 +550,14 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     protected void addEffectToStew(ItemStack stew) {
         int duration = ConfigManager.basePositiveDuration() * 20 * this.bonusLevels;
+        duration = ConfigManager.cappedPositiveDuration()
+                ? Math.min(ConfigManager.maxPositiveDuration(), duration)
+                : duration;
         StewItem.addStatusEffect(
                 stew,
                 new StatusEffectInstance(
                         StatusEffects.SATURATION,
-                        ConfigManager.cappedPositiveDuration()
-                                ? Math.min(ConfigManager.maxPositiveDuration(), duration)
-                                : duration,
+                        duration,
                         Math.min(this.bonusLevels - ConfigManager.stewMinPositiveLevelsEffect() + 1, ConfigManager.maxBonusLevels())));
     }
 
@@ -737,35 +740,38 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void cookRawFood() {
-        for (ItemStack stack : this.getContents()) {
-            var possibleRecipe = world.getRecipeManager()
-                    .getFirstMatch(
-                            RecipeType.CAMPFIRE_COOKING,
-                            new SingleStackRecipeInput(stack),
-                            world);
+        if (world == null || world.isClient) {
+            return;
+        }
 
-            if (possibleRecipe.isEmpty()) {
-                continue;
-            }
+        ServerWorld serverWorld = (ServerWorld) world;
+
+        for (ItemStack stack : this.getContents()) {
+
+            ServerRecipeManager.MatchGetter<SingleStackRecipeInput, CampfireCookingRecipe> matchGetter = ServerRecipeManager.createCachedMatchGetter(RecipeType.CAMPFIRE_COOKING);
+
+            var singleStackRecipeInput = new SingleStackRecipeInput(stack);
+
+            var cookedStack = matchGetter
+                    .getFirstMatch(singleStackRecipeInput, serverWorld)
+                    .map(recipe -> (recipe.value()).craft(singleStackRecipeInput, world.getRegistryManager()))
+                    .orElse(stack);
 
             int rawCount = stack.getCount();
             int rawSlot = this.getSlotForItem(stack.getItem());
 
             var possibleStatus = new ArrayList<>(
                     StreamSupport.stream(
-                            stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-                                    .getEffects()
-                                    .spliterator(),
+                                    stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                                            .getEffects()
+                                            .spliterator(),
                                     false)
                             .toList());
 
             var foodComponent = stack.get(DataComponentTypes.FOOD);
             if (foodComponent != null) {
-                var foodEffects = foodComponent
-                        .effects()
-                        .stream()
-                        .map(FoodComponent.StatusEffectEntry::effect)
-                        .toList();
+                var foodEffects = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                        .customEffects();
                 possibleStatus.addAll(foodEffects);
             }
             for (StatusEffectInstance effect : possibleStatus) {
@@ -777,7 +783,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.potionEffects.removeAll(removeEffects);
             }
 
-            Item cookedItem = possibleRecipe.get().value().getResult(DynamicRegistryManager.EMPTY).getItem();
+            Item cookedItem = cookedStack.getItem();
 
             int cookedSlot = this.getSlotForItem(cookedItem);
 
@@ -789,21 +795,12 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             }
 
             var cookedFoodComponent = cookedItem.getComponents().get(DataComponentTypes.FOOD);
+            var cookedFoodEffects = cookedItem.getComponents().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
 
-            if (cookedFoodComponent != null) {
-                var cookedEffects = cookedFoodComponent
-                        .effects()
-                        .stream()
-                        .map(FoodComponent.StatusEffectEntry::effect)
-                        .toList();
-                this.addStatusEffects(cookedEffects);
+            if (cookedFoodEffects.hasEffects()) {
+                this.addStatusEffects(StreamSupport.stream(cookedFoodEffects.getEffects().spliterator(), false).collect(Collectors.toList()));
             }
-            this.addStatusEffects(
-                    stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP)
-                            .effects()
-                            .stream()
-                            .map(FoodComponent.StatusEffectEntry::effect)
-                            .toList());
+
             this.recalculateFoodValues();
             this.recalculateStews();
         }

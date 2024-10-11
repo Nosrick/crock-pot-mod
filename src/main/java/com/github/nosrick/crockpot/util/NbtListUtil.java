@@ -1,16 +1,11 @@
 package com.github.nosrick.crockpot.util;
 
-import net.minecraft.block.SuspiciousStewIngredient;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
-import net.minecraft.component.type.SuspiciousStewEffectsComponent.StewEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SuspiciousStewItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +48,7 @@ public abstract class NbtListUtil {
     }
 
     public static List<StatusEffectInstance> getEffectsFromSuspiciousStew(ItemStack stew) {
-        if (!(stew.getItem() instanceof SuspiciousStewItem)) {
+        if (stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) != null) {
             return new ArrayList<>();
         }
 

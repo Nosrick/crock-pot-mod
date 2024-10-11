@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.6-SNAPSHOT'
+    id 'fabric-loom' version '1.7-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -18,11 +18,6 @@ repositories {
     // for more information about repositories.
 
     maven {
-        name = 'Curse Maven'
-        url = "https://www.cursemaven.com"
-    }
-
-    maven {
         name = 'appleskin'
         url "https://maven.ryanliptak.com/"
     }
@@ -39,7 +34,7 @@ repositories {
 
     maven {
         name = 'terraformers maven'
-        url "https://maven.terraformersmc.com/releases"
+        url "https://maven.terraformersmc.com/"
     }
 }
 
@@ -80,6 +75,7 @@ dependencies {
     }
 
     //The runtime mods for testing
+    /*
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
     }
@@ -98,6 +94,7 @@ dependencies {
         transitive = false
         exclude module: 'modmenu'
     }
+     */
 }
 
 processResources {

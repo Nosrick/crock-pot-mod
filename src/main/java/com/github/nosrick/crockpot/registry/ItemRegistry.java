@@ -2,7 +2,6 @@ package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.item.StewItem;
-import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.registry.Registries;
@@ -18,7 +17,6 @@ public enum ItemRegistry {
 
     private final String pathName;
     private final Supplier<Item> itemSupplier;
-    private final Integer burnTime;
     private Item item;
 
     ItemRegistry(String pathName, Supplier<Item> itemSupplier) {
@@ -28,15 +26,11 @@ public enum ItemRegistry {
     ItemRegistry(String pathName, Supplier<Item> itemSupplier, Integer burnTime) {
         this.pathName = pathName;
         this.itemSupplier = itemSupplier;
-        this.burnTime = burnTime;
     }
 
     public static void registerAll() {
         for (ItemRegistry value : values()) {
             Registry.register(Registries.ITEM, CrockPotMod.createIdentifier(value.pathName), value.get());
-            if (value.burnTime != null) {
-                FuelRegistry.INSTANCE.add(value.get(), value.burnTime);
-            }
         }
     }
 
