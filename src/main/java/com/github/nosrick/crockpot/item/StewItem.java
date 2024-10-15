@@ -49,12 +49,8 @@ public class StewItem extends Item {
     protected static final String EFFECTS_NBT = "Effects";
     protected static final String CURSED_NBT = "Cursed";
 
-    public StewItem() {
-        super(new Item.Settings()
-                .food(
-                        new FoodComponent.Builder()
-                                .build())
-                .recipeRemainder(Items.BOWL));
+    public StewItem(Settings settings) {
+        super(settings);
     }
 
     @Override

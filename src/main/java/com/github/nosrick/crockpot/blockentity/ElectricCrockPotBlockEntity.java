@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class ElectricCrockPotBlockEntity extends CrockPotBlockEntity{
 
     public ElectricCrockPotBlockEntity(BlockPos pos, BlockState state) {
-        this(BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get(), pos, state);
+        this(BlockEntityTypesRegistry.ELECTRIC_CROCK_POT, pos, state);
     }
 
     protected ElectricCrockPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {

@@ -1,6 +1,7 @@
 package com.github.nosrick.crockpot.registry;
 
 import com.github.nosrick.crockpot.CrockPotMod;
+import com.github.nosrick.crockpot.block.CrockPotBlock;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.blockentity.ElectricCrockPotBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
@@ -15,53 +16,17 @@ import java.util.function.Supplier;
 
 public class BlockEntityTypesRegistry {
 
-    public static BlockEntityType register(BlockEntit)
-}
+    public static final BlockEntityType<CrockPotBlockEntity> CROCK_POT = register(
+            "crock_pot",
+            FabricBlockEntityTypeBuilder.create(CrockPotBlockEntity::new, BlockRegistry.CROCK_POT).build());
 
-@SuppressWarnings("unchecked")
-public enum BlockEntityTypesRegistry {
+    public static final BlockEntityType<ElectricCrockPotBlockEntity> ELECTRIC_CROCK_POT = register(
+            "electric_crock_pot",
+            FabricBlockEntityTypeBuilder.create(ElectricCrockPotBlockEntity::new, BlockRegistry.ELECTRIC_CROCK_POT).build());
 
-    CROCK_POT("crock_pot", CrockPotBlockEntity.class, CrockPotBlockEntity::new, BlockRegistry.CROCK_POT),
-    ELECTRIC_CROCK_POT("electric_crock_pot", ElectricCrockPotBlockEntity.class, ElectricCrockPotBlockEntity::new, BlockRegistry.ELECTRIC_CROCK_POT);
+    public static void initialize() {}
 
-    private final String pathName;
-    private final Class<? extends BlockEntity> blockEntityClass;
-    private final Supplier<BlockEntityType<? extends BlockEntity>> blockEntityTypeSupplier;
-    private BlockEntityType<? extends BlockEntity> blockEntityType;
-
-    BlockEntityTypesRegistry(
-            String pathName,
-            Class<? extends BlockEntity> blockEntityClass,
-            FabricBlockEntityTypeBuilder.Factory<? extends BlockEntity> blockEntitySupplier,
-            BlockRegistry... blockRegistry) {
-        this.pathName = pathName;
-        this.blockEntityClass = blockEntityClass;
-        this.blockEntityTypeSupplier = () -> FabricBlockEntityTypeBuilder.create(
-                        blockEntitySupplier,
-                        Arrays.stream(blockRegistry)
-                                .map(BlockRegistry::get)
-                                .toArray(Block[]::new))
-                .build();
-    }
-
-    public static void registerAll() {
-        for (BlockEntityTypesRegistry value : values()){
-            Registry.register(
-                    Registries.BLOCK_ENTITY_TYPE,
-                    CrockPotMod.createIdentifier(value.pathName),
-                    value.get());
-        }
-    }
-
-    public <T extends BlockEntity> BlockEntityType<T> get() {
-        return (BlockEntityType<T>) get(blockEntityClass);
-    }
-
-    private <T extends BlockEntity> BlockEntityType<T> get(Class<T> clazz) {
-        if(blockEntityType == null) {
-            blockEntityType = blockEntityTypeSupplier.get();
-        }
-
-        return (BlockEntityType<T>) blockEntityType;
+    public static <T extends BlockEntityType<?>> T register(String path,T blockEntityType) {
+        return Registry.register(Registries.BLOCK_ENTITY_TYPE, CrockPotMod.createIdentifier(path), blockEntityType);
     }
 }

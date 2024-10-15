@@ -20,8 +20,8 @@ public class CrockPotModClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_MODEL_LAYER, CrockPotBlockEntityRenderer::createPotLidModelData);
         EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.PADLOCK_MODEL_LAYER, CrockPotBlockEntityRenderer::createPadlockModelData);
         EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_LIQUID_LAYER, CrockPotBlockEntityRenderer::createLiquidModelData);
-        BlockEntityRendererFactories.register(BlockEntityTypesRegistry.CROCK_POT.get(), CrockPotBlockEntityRenderer::new);
-        BlockEntityRendererFactories.register(BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get(), CrockPotBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(BlockEntityTypesRegistry.CROCK_POT, CrockPotBlockEntityRenderer::new);
+        BlockEntityRendererFactories.register(BlockEntityTypesRegistry.ELECTRIC_CROCK_POT, CrockPotBlockEntityRenderer::new);
         BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.CROCK_POT, RenderLayer.getCutout());
         BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ELECTRIC_CROCK_POT, RenderLayer.getCutout());
 

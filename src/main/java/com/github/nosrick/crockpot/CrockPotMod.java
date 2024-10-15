@@ -32,8 +32,8 @@ public class CrockPotMod implements ModInitializer {
 
         CrockPotSoundRegistry.registerAll();
         BlockRegistry.initialize();
-        BlockEntityTypesRegistry.registerAll();
-        ItemRegistry.registerAll();
+        BlockEntityTypesRegistry.initialize();
+        ItemRegistry.initialize();
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
             ClothConfigManager.registerAutoConfig();

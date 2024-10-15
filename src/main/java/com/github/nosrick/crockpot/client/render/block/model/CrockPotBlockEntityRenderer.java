@@ -105,7 +105,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
             }
 
-            Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
+            Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT
                     ? ELECTRIC_POT_LID_TEXTURE_ID
                     : POT_LID_TEXTURE_ID;
 

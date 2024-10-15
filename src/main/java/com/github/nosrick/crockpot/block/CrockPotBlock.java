@@ -55,12 +55,8 @@ public class CrockPotBlock extends BlockWithEntity {
     //THIS IS GROSS
     public static final BooleanProperty UPDATE_ME = BooleanProperty.of("update_me");
 
-    public CrockPotBlock() {
-        super(Settings
-                .create()
-                .strength(2.0f)
-                .requiresTool()
-                .nonOpaque());
+    public CrockPotBlock(Settings settings) {
+        super(settings);
 
         this.setDefaultState(
                 this.getStateManager()
@@ -73,18 +69,14 @@ public class CrockPotBlock extends BlockWithEntity {
         this.addMeToItemGroup();
     }
 
-    public CrockPotBlock(AbstractBlock.Settings settings) {
-        this();
-    }
-
     protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(BlockRegistry.CROCK_POT.asItem()));
     }
 
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return BlockEntityTypesRegistry.CROCK_POT.get().instantiate(pos, state);
+        return new CrockPotBlockEntity(pos, state);
     }
 
     @Override
@@ -328,7 +320,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (world.isClient
-                || type != BlockEntityTypesRegistry.CROCK_POT.get()) {
+                || type != BlockEntityTypesRegistry.CROCK_POT) {
             return null;
         }
 

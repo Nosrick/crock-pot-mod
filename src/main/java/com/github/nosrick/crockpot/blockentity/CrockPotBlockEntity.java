@@ -139,7 +139,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     public CrockPotBlockEntity(BlockPos pos, BlockState state) {
-        this(BlockEntityTypesRegistry.CROCK_POT.get(), pos, state);
+        this(BlockEntityTypesRegistry.CROCK_POT, pos, state);
     }
 
     protected CrockPotBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -431,7 +431,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     protected ItemStack makeStew() {
 
         if (this.getPortions() > 0) {
-            ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM.get());
+            ItemStack stew = new ItemStack(ItemRegistry.STEW_ITEM);
 
             if (!ConfigManager.useCursedStew() || this.curseLevel < ConfigManager.stewMinNegativeLevelsEffect()) {
 
@@ -563,7 +563,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     public DefaultedList<ItemStack> getContents() {
         DefaultedList<ItemStack> contents = DefaultedList.ofSize(ConfigManager.ingredientSlots());
-        contents.addAll(this.items.stream().filter(itemStack -> !itemStack.isEmpty() && itemStack.getItem() != ItemRegistry.STEW_ITEM.get()).toList());
+        contents.addAll(this.items.stream().filter(itemStack -> !itemStack.isEmpty() && itemStack.getItem() != ItemRegistry.STEW_ITEM).toList());
         return contents;
     }
 
