@@ -13,7 +13,6 @@ import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
-import java.util.function.BiFunction;
 import java.util.function.Function;
 
 
@@ -30,29 +29,32 @@ public class ItemRegistry {
 
     public static final Item CROCK_POT = registerBlock(
             BlockRegistry.CROCK_POT,
-            BlockItem::new);
+            new Item.Settings());
 
     public static final Item ELECTRIC_CROCK_POT = registerBlock(
             BlockRegistry.ELECTRIC_CROCK_POT,
-            BlockItem::new);
+            new Item.Settings());
 
     public static Item register(Function<Item.Settings, Item> factory, String id, Item.Settings settings) {
         Identifier itemID = CrockPotMod.createIdentifier(id);
         RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, itemID);
+        var withKey = settings.registryKey(registryKey);
 
-        Item item = factory.apply(settings.registryKey(registryKey));
+        Item item = factory.apply(withKey);
 
         return Registry.register(Registries.ITEM, itemID, item);
     }
 
-    public static Item registerBlock(Block block, BiFunction<Block, Item.Settings, Item> factory) {
-        Item.Settings itemSettings = new Item.Settings();
+    public static Item registerBlock(Block block, Item.Settings settings) {
+        Identifier blockID = block.getRegistryEntry().registryKey().getValue();
+        RegistryKey<Item> registryKey = RegistryKey.of(RegistryKeys.ITEM, blockID);
+        var withKey = settings
+                .useBlockPrefixedTranslationKey()
+                .registryKey(registryKey);
 
-        var blockKey = RegistryKey.of(RegistryKeys.ITEM, block.getRegistryEntry().registryKey().getValue());
-        Item item = factory.apply(block, itemSettings);
-        itemSettings.useBlockPrefixedTranslationKey();
+        Item item = new BlockItem(block, withKey);
 
-        return Registry.register(Registries.ITEM, blockKey, item);
+        return Registry.register(Registries.ITEM, blockID, item);
     }
 
     public static void initialize() {

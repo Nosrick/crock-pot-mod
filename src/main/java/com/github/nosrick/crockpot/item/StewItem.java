@@ -113,8 +113,8 @@ public class StewItem extends Item {
             if (user instanceof PlayerEntity player) {
                 if (!player.getAbilities().creativeMode) {
                     if (!player.getInventory().insertStack(container)
-                        && !world.isClient) {
-                        player.dropStack((ServerWorld) world, container);
+                        && world instanceof ServerWorld serverWorld) {
+                        player.dropStack(serverWorld, container);
                     } else {
                         player.giveItemStack(container);
                     }

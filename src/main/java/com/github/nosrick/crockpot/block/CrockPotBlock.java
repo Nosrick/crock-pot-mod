@@ -70,7 +70,7 @@ public class CrockPotBlock extends BlockWithEntity {
     }
 
     protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(BlockRegistry.CROCK_POT.asItem()));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT));
     }
 
     @Nullable

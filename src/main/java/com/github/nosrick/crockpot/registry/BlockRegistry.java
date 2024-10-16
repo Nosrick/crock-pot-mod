@@ -29,8 +29,9 @@ public class BlockRegistry {
     public static Block register(Function<AbstractBlock.Settings, Block> factory, String id, AbstractBlock.Settings settings) {
         Identifier blockID = CrockPotMod.createIdentifier(id);
         RegistryKey<Block> registryKey = RegistryKey.of(RegistryKeys.BLOCK, blockID);
+        var withKey = settings.registryKey(registryKey);
 
-        Block block = factory.apply(settings.registryKey(registryKey));
+        Block block = factory.apply(withKey);
 
         return Registry.register(Registries.BLOCK, blockID, block);
     }

@@ -15,7 +15,6 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.FoodComponent;
-import net.minecraft.component.type.FoodComponents;
 import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
@@ -437,6 +436,12 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
                 int foodItems = this.getFoodStackCount();
 
+                if(foodItems == 0)
+                {
+                    CrockPotMod.LOGGER.error("APPARENTLY NO FOOD ITEMS");
+                    return stew;
+                }
+
                 int hungerToGo = (this.hunger + (int) (this.bonusLevels * ConfigManager.bonusHungerMagnitude())) / foodItems;
                 this.saturation = 0.7f + (ConfigManager.bonusSaturationMagnitude() * this.getBoilingIntensity());
 
@@ -740,69 +745,72 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void cookRawFood() {
-        if (world == null || world.isClient) {
+        if (world == null) {
             return;
         }
 
-        ServerWorld serverWorld = (ServerWorld) world;
+        if (world instanceof ServerWorld serverWorld) {
+            for (ItemStack stack : this.getContents()) {
 
-        for (ItemStack stack : this.getContents()) {
+                ServerRecipeManager.MatchGetter<SingleStackRecipeInput, CampfireCookingRecipe> matchGetter = ServerRecipeManager.createCachedMatchGetter(RecipeType.CAMPFIRE_COOKING);
 
-            ServerRecipeManager.MatchGetter<SingleStackRecipeInput, CampfireCookingRecipe> matchGetter = ServerRecipeManager.createCachedMatchGetter(RecipeType.CAMPFIRE_COOKING);
+                var singleStackRecipeInput = new SingleStackRecipeInput(stack);
 
-            var singleStackRecipeInput = new SingleStackRecipeInput(stack);
+                var cookedStack = matchGetter
+                        .getFirstMatch(singleStackRecipeInput, serverWorld)
+                        .map(recipe -> (recipe.value()).craft(singleStackRecipeInput, world.getRegistryManager()))
+                        .orElse(stack);
 
-            var cookedStack = matchGetter
-                    .getFirstMatch(singleStackRecipeInput, serverWorld)
-                    .map(recipe -> (recipe.value()).craft(singleStackRecipeInput, world.getRegistryManager()))
-                    .orElse(stack);
+                if(cookedStack == stack)
+                {
+                    continue;
+                }
 
-            int rawCount = stack.getCount();
-            int rawSlot = this.getSlotForItem(stack.getItem());
+                int rawCount = stack.getCount();
+                int rawSlot = this.getSlotForItem(stack.getItem());
 
-            var possibleStatus = new ArrayList<>(
-                    StreamSupport.stream(
-                                    stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-                                            .getEffects()
-                                            .spliterator(),
-                                    false)
-                            .toList());
+                var possibleStatus = new ArrayList<>(
+                        StreamSupport.stream(
+                                        stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                                                .getEffects()
+                                                .spliterator(),
+                                        false)
+                                .toList());
 
-            var foodComponent = stack.get(DataComponentTypes.FOOD);
-            if (foodComponent != null) {
-                var foodEffects = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-                        .customEffects();
-                possibleStatus.addAll(foodEffects);
+                var foodComponent = stack.get(DataComponentTypes.FOOD);
+                if (foodComponent != null) {
+                    var foodEffects = stack.getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
+                            .customEffects();
+                    possibleStatus.addAll(foodEffects);
+                }
+                for (StatusEffectInstance effect : possibleStatus) {
+                    var removeEffects = this.potionEffects.stream()
+                            .filter(status ->
+                                    status.getEffectType().equals(effect.getEffectType()))
+                            .toList();
+
+                    this.potionEffects.removeAll(removeEffects);
+                }
+
+                Item cookedItem = cookedStack.getItem();
+
+                int cookedSlot = this.getSlotForItem(cookedItem);
+
+                if (cookedSlot < 0) {
+                    this.removeStack(rawSlot);
+                    this.setStack(rawSlot, new ItemStack(cookedItem, 1));
+                }
+
+                var cookedFoodComponent = cookedItem.getComponents().get(DataComponentTypes.FOOD);
+                var cookedFoodEffects = cookedItem.getComponents().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
+
+                if (cookedFoodEffects.hasEffects()) {
+                    this.addStatusEffects(StreamSupport.stream(cookedFoodEffects.getEffects().spliterator(), false).collect(Collectors.toList()));
+                }
+
+                this.recalculateFoodValues();
+                this.recalculateStews();
             }
-            for (StatusEffectInstance effect : possibleStatus) {
-                var removeEffects = this.potionEffects.stream()
-                        .filter(status ->
-                                status.getEffectType().equals(effect.getEffectType()))
-                        .toList();
-
-                this.potionEffects.removeAll(removeEffects);
-            }
-
-            Item cookedItem = cookedStack.getItem();
-
-            int cookedSlot = this.getSlotForItem(cookedItem);
-
-            if (cookedSlot >= 0) {
-                this.removeStack(rawSlot);
-            } else {
-                this.removeStack(rawSlot);
-                this.setStack(rawSlot, new ItemStack(cookedItem, 1));
-            }
-
-            var cookedFoodComponent = cookedItem.getComponents().get(DataComponentTypes.FOOD);
-            var cookedFoodEffects = cookedItem.getComponents().getOrDefault(DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT);
-
-            if (cookedFoodEffects.hasEffects()) {
-                this.addStatusEffects(StreamSupport.stream(cookedFoodEffects.getEffects().spliterator(), false).collect(Collectors.toList()));
-            }
-
-            this.recalculateFoodValues();
-            this.recalculateStews();
         }
     }
 
@@ -813,8 +821,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) blockEntity;
 
-        if (!world.isClient) {
-            serverTick(world, crockPotBlockEntity);
+        if (world instanceof ServerWorld serverWorld) {
+            serverTick(serverWorld, crockPotBlockEntity);
         }
 
         var random = world.random;
@@ -838,7 +846,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         }
     }
 
-    protected static void serverTick(World world, CrockPotBlockEntity blockEntity) {
+    protected static void serverTick(ServerWorld world, CrockPotBlockEntity blockEntity) {
 
         BlockState blockState = world.getBlockState(blockEntity.pos);
 

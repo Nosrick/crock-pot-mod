@@ -23,7 +23,7 @@ public class ElectricCrockPotBlock extends CrockPotBlock {
 
     @Override
     protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(BlockRegistry.ELECTRIC_CROCK_POT.asItem()));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.ELECTRIC_CROCK_POT));
     }
 
     @Nullable
