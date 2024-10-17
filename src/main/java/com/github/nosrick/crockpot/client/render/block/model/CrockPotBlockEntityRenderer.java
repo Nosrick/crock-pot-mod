@@ -174,7 +174,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.SEE_THROUGH, backgroundOpacity, light);
         matrices.pop();
     }
 

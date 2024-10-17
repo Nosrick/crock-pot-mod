@@ -421,7 +421,7 @@ public class ConfigManager {
             return ClothConfigManager.getConfig().locking.textColor;
         }
 
-        return 0xCCFFFFFF;
+        return 0xFFFFFF;
     }
 
     public static int labelBackgroundOpacity() {
