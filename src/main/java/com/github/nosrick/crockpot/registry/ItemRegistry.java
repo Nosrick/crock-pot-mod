@@ -3,7 +3,6 @@ package com.github.nosrick.crockpot.registry;
 import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.item.StewItem;
 import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
 import net.minecraft.component.type.FoodComponent;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;

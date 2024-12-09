@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.8-SNAPSHOT'
+    id 'fabric-loom' version '1.9-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -47,7 +47,6 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    /*
     //What the hell is that?
     modCompileOnly("mcp.mobius.waila:wthit:fabric-${project.wthit_version}") {
         transitive = false
@@ -67,9 +66,7 @@ dependencies {
     modCompileOnlyApi("me.shedaniel.cloth:cloth-config-fabric:${project.cloth_version}") {
         exclude(group: "net.fabricmc.fabric-api")
     }
-     */
 
-    /*
     //These are all the optional dependencies
     //Appleskin
     modCompileOnly("squeek.appleskin:appleskin-fabric:${project.appleskin_version}:api") {
@@ -96,7 +93,6 @@ dependencies {
         transitive = false
         exclude module: 'modmenu'
     }
-     */
 }
 
 processResources {
