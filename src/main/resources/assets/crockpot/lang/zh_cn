@@ -1,9 +1,9 @@
 {
-    "item.crockpot.stew": "炖%s",
-    "item.crockpot.stew_name": "炖",
+    "item.crockpot.stew": "炖汤 %s",
+    "item.crockpot.stew_name": "炖汤",
     "item.crockpot.stew.mixed": "杂烩",
     "item.crockpot.stew.mistake": "可怕的失误",
-    "item.crockpot.stew.cursed": "被诅咒的",
+    "item.crockpot.stew.cursed": "诅咒之汤",
     "item.crockpot.stew.cursed_description": "炖太多次了",
     "item.crockpot.stew.cowl": "外婆的汤",
     "item.crockpot.stew.cowl_description": "不适合食用！",
@@ -32,7 +32,7 @@
   
     "tooltip.crockpot.no_player_name": "未知玩家",
   
-    "values.crockpot.redstone_output.type": "输出信号: %s",
+    "values.crockpot.redstone_output.type": "输出信号：%s",
     "values.crockpot.redstone_output.bonus_levels": "增益等级",
     "values.crockpot.redstone_output.portions": "食物数量",
     "values.crockpot.redstone_output.none": "无",
