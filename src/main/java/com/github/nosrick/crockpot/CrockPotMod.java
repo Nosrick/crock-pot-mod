@@ -9,7 +9,6 @@ import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.ColorHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,9 +31,9 @@ public class CrockPotMod implements ModInitializer {
         LOGGER.info("REV UP THOSE CROCK POTS BOIS");
 
         CrockPotSoundRegistry.registerAll();
-        BlockRegistry.registerAll();
-        BlockEntityTypesRegistry.registerAll();
-        ItemRegistry.registerAll();
+        BlockRegistry.initialize();
+        BlockEntityTypesRegistry.initialize();
+        ItemRegistry.initialize();
 
         if(FabricLoader.getInstance().isModLoaded("cloth-config")){
             ClothConfigManager.registerAutoConfig();
@@ -42,6 +41,6 @@ public class CrockPotMod implements ModInitializer {
     }
 
     public static Identifier createIdentifier(String key) {
-        return new Identifier(CrockPotMod.MOD_ID, key);
+        return Identifier.of(CrockPotMod.MOD_ID, key);
     }
 }

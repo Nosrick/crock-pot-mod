@@ -1,6 +1,6 @@
 {
   "parent": "minecraft:item/generated",
   "textures": {
-    "layer0": "crockpot:item/crockpot"
+    "layer0": "crockpot:item/crock_pot"
   }
 }

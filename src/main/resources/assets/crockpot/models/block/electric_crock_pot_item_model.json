@@ -3,9 +3,9 @@
 	"ambientocclusion": false,
 	"texture_size": [32, 32],
 	"textures": {
-		"1": "crockpot:block/crock_pot_bottom",
+		"1": "crockpot:block/electric_crock_pot_bottom",
 		"handle": "crockpot:block/crock_pot_handle",
-		"particle": "crockpot:block/crock_pot_bottom"
+		"particle": "crockpot:block/electric_crock_pot_bottom"
 	},
 	"elements": [
 		{

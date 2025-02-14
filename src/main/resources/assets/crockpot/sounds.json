@@ -24,7 +24,7 @@
     "category": "block",
     "sounds": [
       {
-        "name": "minecraft:entity/generic/splash"
+        "name": "minecraft:block/generic/splash"
       }
     ]
   }

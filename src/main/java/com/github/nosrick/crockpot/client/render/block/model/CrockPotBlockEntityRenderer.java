@@ -20,6 +20,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.*;
+import net.minecraft.util.math.random.Random;
 import net.minecraft.world.World;
 import org.joml.*;
 
@@ -104,7 +105,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 matrices.multiply(new Quaternionf().rotateXYZ(rotation.x, 0, rotation.z));
             }
 
-            Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()
+            Identifier textureID = entity.getType() == BlockEntityTypesRegistry.ELECTRIC_CROCK_POT
                     ? ELECTRIC_POT_LID_TEXTURE_ID
                     : POT_LID_TEXTURE_ID;
 
@@ -148,11 +149,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                         matrices,
                         vertexConsumers.getBuffer(RenderLayer.getEntitySolid(PADLOCK_TEXTURE_ID)),
                         light,
-                        overlay,
-                        1f,
-                        1f,
-                        1f,
-                        1f);
+                        overlay);
             }
         }
     }
@@ -177,7 +174,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.SEE_THROUGH, backgroundOpacity, light);
         matrices.pop();
     }
 

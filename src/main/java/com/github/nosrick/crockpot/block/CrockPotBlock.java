@@ -7,27 +7,27 @@ import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.tag.Tags;
 import com.github.nosrick.crockpot.util.UUIDUtil;
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
-import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityTicker;
 import net.minecraft.block.entity.BlockEntityType;
+import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
 import net.minecraft.particle.ParticleTypes;
-import net.minecraft.potion.PotionUtil;
 import net.minecraft.potion.Potions;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.state.StateManager;
 import net.minecraft.state.property.BooleanProperty;
-import net.minecraft.state.property.DirectionProperty;
+import net.minecraft.state.property.EnumProperty;
 import net.minecraft.state.property.Properties;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -35,12 +35,16 @@ import net.minecraft.util.math.random.Random;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldAccess;
+import net.minecraft.world.WorldView;
+import net.minecraft.world.tick.ScheduledTickView;
 import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("deprecation")
 public class CrockPotBlock extends BlockWithEntity {
 
-    public static final DirectionProperty FACING = Properties.HORIZONTAL_FACING;
+    public static final MapCodec<CrockPotBlock> CODEC = createCodec(CrockPotBlock::new);
+
+    public static final EnumProperty<Direction> FACING = Properties.HORIZONTAL_FACING;
     public static final BooleanProperty NEEDS_SUPPORT = BooleanProperty.of("needs_support");
     public static final BooleanProperty HAS_LIQUID = BooleanProperty.of("has_liquid");
 
@@ -51,12 +55,8 @@ public class CrockPotBlock extends BlockWithEntity {
     //THIS IS GROSS
     public static final BooleanProperty UPDATE_ME = BooleanProperty.of("update_me");
 
-    public CrockPotBlock() {
-        super(FabricBlockSettings
-                .create()
-                .strength(2.0f)
-                .requiresTool()
-                .nonOpaque());
+    public CrockPotBlock(Settings settings) {
+        super(settings);
 
         this.setDefaultState(
                 this.getStateManager()
@@ -70,13 +70,18 @@ public class CrockPotBlock extends BlockWithEntity {
     }
 
     protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT.get()));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.CROCK_POT));
     }
 
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return BlockEntityTypesRegistry.CROCK_POT.get().instantiate(pos, state);
+        return new CrockPotBlockEntity(pos, state);
+    }
+
+    @Override
+    protected MapCodec<? extends BlockWithEntity> getCodec() {
+        return CODEC;
     }
 
     @Override
@@ -174,7 +179,7 @@ public class CrockPotBlock extends BlockWithEntity {
     }
 
     @Override
-    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
+    public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, BlockHitResult hit) {
         if (world.isClient()) {
             return ActionResult.CONSUME;
         }
@@ -220,8 +225,8 @@ public class CrockPotBlock extends BlockWithEntity {
         }
 
         if (held.getItem() == Blocks.REDSTONE_BLOCK.asItem()
-                && this != BlockRegistry.ELECTRIC_CROCK_POT.get()) {
-            world.setBlockState(pos, BlockRegistry.ELECTRIC_CROCK_POT.get().getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
+                && this != BlockRegistry.ELECTRIC_CROCK_POT) {
+            world.setBlockState(pos, BlockRegistry.ELECTRIC_CROCK_POT.getDefaultState(), Block.NOTIFY_ALL | Block.REDRAW_ON_MAIN_THREAD);
 
             if (!player.isCreative()) {
                 held.decrement(1);
@@ -235,6 +240,8 @@ public class CrockPotBlock extends BlockWithEntity {
         if (!state.get(HAS_LIQUID)) {
             Item heldItem = held.getItem();
 
+            boolean thing = heldItem.getRegistryEntry().isIn(ConventionalItemTags.ENTITY_WATER_BUCKETS);
+
             if (held.isIn(Tags.CONSUMABLE_WATER_SOURCES_ITEMS)) {
                 if (!player.isCreative()) {
                     if (heldItem instanceof BucketItem) {
@@ -245,7 +252,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 }
             } else if (ConfigManager.canFillWithWaterBottle()
                     && heldItem instanceof PotionItem
-                    && PotionUtil.getPotion(held) == Potions.WATER) {
+                    && heldItem.getComponents().get(DataComponentTypes.POTION_CONTENTS).potion().get().value() == Potions.WATER.value()) {
                 if (!player.isCreative()) {
                     held.decrement(1);
                     player.giveItemStack(new ItemStack(Items.GLASS_BOTTLE));
@@ -279,8 +286,8 @@ public class CrockPotBlock extends BlockWithEntity {
                     world.playSound(null, pos, SoundEvents.ENTITY_GENERIC_SPLASH, SoundCategory.BLOCKS, volume, 1.0F);
 
                     // if the food has a bowl, give it back to the player
-                    if (held.getItem().hasRecipeRemainder()) {
-                        player.giveItemStack(new ItemStack(held.getItem().getRecipeRemainder()));
+                    if (held.getItem().getRecipeRemainder() != ItemStack.EMPTY) {
+                        player.giveItemStack(held.getItem().getRecipeRemainder());
                     }
                 }
 
@@ -294,14 +301,16 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public BlockState getStateForNeighborUpdate(
             BlockState state,
-            Direction direction,
-            BlockState newState,
-            WorldAccess world,
+            WorldView world,
+            ScheduledTickView tickView,
             BlockPos pos,
-            BlockPos posFrom) {
+            Direction direction,
+            BlockPos neighborPos,
+            BlockState neighborState,
+            Random random) {
 
         if (direction == Direction.DOWN) {
-            return state.with(NEEDS_SUPPORT, this.needsSupport(newState));
+            return state.with(NEEDS_SUPPORT, this.needsSupport(state));
         }
 
         return state;
@@ -311,7 +320,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (world.isClient
-                || type != BlockEntityTypesRegistry.CROCK_POT.get()) {
+                || type != BlockEntityTypesRegistry.CROCK_POT) {
             return null;
         }
 

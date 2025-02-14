@@ -3,6 +3,7 @@ package com.github.nosrick.crockpot.block;
 import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.blockentity.ElectricCrockPotBlockEntity;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
+import com.github.nosrick.crockpot.registry.BlockRegistry;
 import com.github.nosrick.crockpot.registry.ItemRegistry;
 import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents;
 import net.minecraft.block.BlockState;
@@ -16,22 +17,26 @@ import org.jetbrains.annotations.Nullable;
 
 public class ElectricCrockPotBlock extends CrockPotBlock {
 
+    public ElectricCrockPotBlock(Settings settings) {
+        super(settings);
+    }
+
     @Override
     protected void addMeToItemGroup() {
-        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.ELECTRIC_CROCK_POT.get()));
+        ItemGroupEvents.modifyEntriesEvent(ItemGroups.FUNCTIONAL).register(entries -> entries.add(ItemRegistry.ELECTRIC_CROCK_POT));
     }
 
     @Nullable
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
-        return BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get().instantiate(pos, state);
+        return new ElectricCrockPotBlockEntity(pos, state);
     }
 
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
         if (world.isClient
-                || type != BlockEntityTypesRegistry.ELECTRIC_CROCK_POT.get()) {
+                || type != BlockEntityTypesRegistry.ELECTRIC_CROCK_POT) {
             return null;
         }
 

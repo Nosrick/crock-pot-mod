@@ -1,21 +1,15 @@
 package com.github.nosrick.crockpot.util;
 
-import net.minecraft.block.SuspiciousStewIngredient;
-import net.minecraft.entity.effect.StatusEffect;
-import net.minecraft.entity.effect.StatusEffectCategory;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.SuspiciousStewEffectsComponent;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.entity.effect.StatusEffectUtil;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.SuspiciousStewItem;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
-import net.minecraft.nbt.NbtOps;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.Consumer;
 
 public abstract class NbtListUtil {
 
@@ -27,7 +21,7 @@ public abstract class NbtListUtil {
         }
 
         for (StatusEffectInstance effectInstance : collection) {
-            list.add(effectInstance.writeNbt(new NbtCompound()));
+            list.add(effectInstance.writeNbt());
         }
 
         return list;
@@ -54,24 +48,17 @@ public abstract class NbtListUtil {
     }
 
     public static List<StatusEffectInstance> getEffectsFromSuspiciousStew(ItemStack stew) {
-        if (!(stew.getItem() instanceof SuspiciousStewItem)) {
+        if (stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) != null) {
             return new ArrayList<>();
         }
 
         ArrayList<StatusEffectInstance> effectInstances = new ArrayList<>();
 
-        NbtCompound nbtCompound = stew.getNbt();
-        if (nbtCompound != null && nbtCompound.contains(SuspiciousStewItem.EFFECTS_KEY, NbtElement.LIST_TYPE)) {
-            var tempList = SuspiciousStewIngredient.StewEffect.LIST_CODEC
-                    .parse(NbtOps.INSTANCE,
-                            nbtCompound.getList(SuspiciousStewItem.EFFECTS_KEY, NbtElement.COMPOUND_TYPE))
-                    .result();
-
-            if (tempList.isPresent()) {
-                var effectsList = tempList.get();
-                for (var effect : effectsList) {
-                    effectInstances.add(effect.createStatusEffectInstance());
-                }
+        var stewEffects = stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT);
+        if(!stewEffects.effects().isEmpty())
+        {
+            for(var effect : stewEffects.effects()){
+                effectInstances.add(effect.createStatusEffectInstance());
             }
         }
 

@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "crockpot:crock_pot",
+    "minecraft:redstone_block"
+  ],
+  "result": {
+    "id": "crockpot:electric_crock_pot",
+    "count": 1
+  }
+}

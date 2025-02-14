@@ -5,7 +5,7 @@
   "item.crockpot.stew.mistake": "Horrible Mistake",
   "item.crockpot.stew.cursed": "Cursed",
   "item.crockpot.stew.cursed_description": "Boiled one too many times",
-  "item.crockpot.stew.cowl": "Cowl Mam-gu",
+  "item.crockpot.stew.cowl": "Cawl Mam-gu",
   "item.crockpot.stew.cowl_description": "Not fit for consumption!",
   "item.crockpot.stew.plain": "Plain",
   "item.crockpot.stew.satisfying": "Satisfying",
@@ -13,6 +13,7 @@
   "item.crockpot.stew.hearty": "Hearty",
   "item.crockpot.stew.hunger": "Hunger: %s",
   "item.crockpot.stew.saturation":  "Saturation: %s",
+  "item.crockpot.stew.alchemical": "Alchemical",
 
   "block.crockpot.crock_pot": "Crock Pot",
   "block.crockpot.electric_crock_pot": "Powered Crock Pot",
@@ -64,6 +65,8 @@
   "text.autoconfig.crockpot.option.stews.minSatisfyingLevel": "Minimum 'satisfying stew' level",
   "text.autoconfig.crockpot.option.stews.minFillingLevel": "Minimum 'filling stew' level",
   "text.autoconfig.crockpot.option.stews.minHeartyLevel": "Minimum 'hearty stew' level",
+  "text.autoconfig.crockpot.option.stews.bonusHungerMagnitude": "Multiplier for bonus hunger",
+  "text.autoconfig.crockpot.option.stews.bonusSaturationMagnitude": "Multiplier for bonus saturation",
 
   "text.autoconfig.crockpot.category.mechanics": "Mechanics",
   "text.autoconfig.crockpot.option.mechanics.redstoneNeedsPower": "Redstone pot needs power",
@@ -81,6 +84,7 @@
   "text.autoconfig.crockpot.option.potions.useObfuscatedText": "Use cursed text for effect hiding",
   "text.autoconfig.crockpot.option.potions.diluteEffects": "Dilute effects based on portions",
   "text.autoconfig.crockpot.option.potions.dilutionModifier": "Make this higher for greater dilution",
+  "text.autoconfig.crockpot.option.potions.potionsCountAsFood": "Potions affect hunger/saturation values",
 
   "text.autoconfig.crockpot.category.locking": "Locking",
   "text.autoconfig.crockpot.option.locking.canLockPots": "Can lock pots using a name tag",

@@ -15,7 +15,7 @@ public interface TooltipComponentMixin extends TooltipComponent {
 
     @Inject(
             at = @At("HEAD"),
-            method = "of(Lnet/minecraft/text/OrderedText;)Lnet/minecraft/client/gui/tooltip/TooltipComponent;",
+            method = "Lnet/minecraft/client/gui/tooltip/TooltipComponent;of(Lnet/minecraft/text/OrderedText;)Lnet/minecraft/client/gui/tooltip/TooltipComponent;",
             cancellable = true
     )
     private static void ofReplacement(OrderedText text, CallbackInfoReturnable<TooltipComponent> info)

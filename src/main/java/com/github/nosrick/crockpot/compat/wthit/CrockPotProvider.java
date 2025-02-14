@@ -4,7 +4,6 @@ import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import mcp.mobius.waila.api.*;
 import net.minecraft.entity.effect.StatusEffectInstance;
-import net.minecraft.inventory.Inventories;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
@@ -54,14 +53,7 @@ public class CrockPotProvider implements IBlockComponentProvider, IDataProvider<
             }
 
             DefaultedList<ItemStack> items = DefaultedList.ofSize(ConfigManager.ingredientSlots(), ItemStack.EMPTY);
-            Inventories.readNbt(nbt, items);
-            if (!items.isEmpty()) {
-                tooltip.addLine(new ItemRenderTooltipComponent(
-                        items.stream()
-                                .takeWhile(itemStack -> !itemStack.isEmpty())
-                                .map(ItemStack::getItem)
-                                .toList()));
-            }
+            //Inventories.readNbt(nbt, items);
         }
     }
 
@@ -77,11 +69,11 @@ public class CrockPotProvider implements IBlockComponentProvider, IDataProvider<
         if (!crockPotBlockEntity.getPotionEffects().isEmpty()) {
             NbtList effectList = new NbtList();
             for (StatusEffectInstance effectInstance : crockPotBlockEntity.getPotionEffects()) {
-                effectList.add(effectInstance.writeNbt(new NbtCompound()));
+                effectList.add(effectInstance.writeNbt());
             }
             nbt.put(CrockPotBlockEntity.EFFECTS_NBT, effectList);
         }
 
-        Inventories.writeNbt(nbt, crockPotBlockEntity.getContents());
+        //Inventories.writeNbt(nbt, crockPotBlockEntity.getContents(), RegistryWrapper.WrapperLookup.of());
     }
 }

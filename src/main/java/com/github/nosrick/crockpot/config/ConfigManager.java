@@ -16,6 +16,14 @@ public class ConfigManager {
         return clothPresent;
     }
 
+    public static boolean potionsCountAsFood() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().potions.potionsCountAsFood;
+        }
+
+        return false;
+    }
+
     public static boolean useCursedStew() {
         if(clothPresent()) {
             return ClothConfigManager.getConfig().stews.cursedStew;
@@ -46,6 +54,22 @@ public class ConfigManager {
         }
 
         return 20 * 60 * 2;
+    }
+
+    public static float bonusHungerMagnitude() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().stews.bonusHungerMagnitude;
+        }
+
+        return 0.5f;
+    }
+
+    public static float bonusSaturationMagnitude() {
+        if(clothPresent()) {
+            return ClothConfigManager.getConfig().stews.bonusSaturationMagnitude;
+        }
+
+        return 0.5f;
     }
 
     public static int minCowlLevel() {
@@ -397,7 +421,7 @@ public class ConfigManager {
             return ClothConfigManager.getConfig().locking.textColor;
         }
 
-        return 0xCCFFFFFF;
+        return 0xFFFFFF;
     }
 
     public static int labelBackgroundOpacity() {
