@@ -19,8 +19,8 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.random.Random;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.joml.*;
 
@@ -54,14 +54,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     }
 
     @Override
-    public void render(
-            CrockPotBlockEntity entity,
-            float tickDelta,
-            MatrixStack matrices,
-            VertexConsumerProvider vertexConsumers,
-            int light,
-            int overlay) {
-
+    public void render(CrockPotBlockEntity entity, float tickProgress, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, Vec3d cameraPos) {
         World world = entity.getWorld();
 
         if (world == null || MinecraftClient.getInstance().isPaused()) {
@@ -70,9 +63,9 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
 
         BlockState blockState = entity.getCachedState();
 
-        if(blockState.get(CrockPotBlock.HAS_FOOD)) {
+        if (blockState.get(CrockPotBlock.HAS_FOOD)) {
             matrices.push();
-                this.liquidModel.render(
+            this.liquidModel.render(
                     matrices,
                     vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_STEW)),
                     light,
@@ -80,7 +73,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
             matrices.pop();
 
             var random = entity.getWorld().random;
-            float time = world.getTime() + tickDelta;
+            float time = world.getTime() + tickProgress;
 
             float lastX = xRot;
             float lastZ = zRot;
@@ -93,9 +86,9 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                 zRot = (random.nextFloat() - 0.5f) * lidIntensity;
             }
 
-        Vector3f rotation = new Vector3f(lastX, 0, lastZ);
-        Vector3f newRotation = new Vector3f(xRot, 0, zRot);
-            rotation.lerp(newRotation, tickDelta);
+            Vector3f rotation = new Vector3f(lastX, 0, lastZ);
+            Vector3f newRotation = new Vector3f(xRot, 0, zRot);
+            rotation.lerp(newRotation, tickProgress);
             float boilingIntensity = entity.getBoilingIntensity();
             rotation = new Vector3f(rotation.x * boilingIntensity, 0, rotation.z * boilingIntensity);
 
@@ -115,10 +108,9 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
                     light,
                     overlay);
             matrices.pop();
-        }
-        else if(blockState.get(CrockPotBlock.HAS_LIQUID)) {
+        } else if (blockState.get(CrockPotBlock.HAS_LIQUID)) {
             matrices.push();
-                this.liquidModel.render(
+            this.liquidModel.render(
                     matrices,
                     vertexConsumers.getBuffer(RenderLayer.getEntitySolid(LIQUID_WATER)),
                     light,

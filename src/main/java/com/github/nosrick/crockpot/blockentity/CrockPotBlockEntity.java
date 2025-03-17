@@ -44,10 +44,12 @@ import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.StringIdentifiable;
+import net.minecraft.util.Uuids;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
+import net.minecraft.world.block.WireOrientation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
@@ -149,32 +151,31 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
     @Override
     public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        this.name = nbt.getString(NAME_NBT);
-        this.hunger = nbt.getInt(HUNGER_NBT);
-        this.saturation = nbt.getFloat(SATURATION_NBT);
-        this.portions = nbt.getInt(PORTIONS_NBT);
+        this.name = nbt.getString(NAME_NBT).orElse("");
+        this.hunger = nbt.getInt(HUNGER_NBT).orElse(0);
+        this.saturation = nbt.getFloat(SATURATION_NBT).orElse(0f);
+        this.portions = nbt.getInt(PORTIONS_NBT).orElse(0);
 
-        this.bonusLevels = nbt.getInt(BONUS_LEVELS);
-        this.boilingTime = nbt.getLong(BOILING_TIME);
-        this.lastTime = nbt.getLong(LAST_TIME);
+        this.bonusLevels = nbt.getInt(BONUS_LEVELS).orElse(0);
+        this.boilingTime = nbt.getLong(BOILING_TIME).orElse(0L);
+        this.lastTime = nbt.getLong(LAST_TIME).orElse(0L);
 
-        this.curseLevel = nbt.getInt(CURSE_LEVEL);
+        this.curseLevel = nbt.getInt(CURSE_LEVEL).orElse(0);
 
         Inventories.readNbt(nbt, this.items, registryLookup);
 
         this.potionEffects.clear();
 
         if (ConfigManager.canLockPots()) {
-            this.setOwner(nbt.getUuid(OWNER_NBT));
+            this.setOwner(nbt.get(OWNER_NBT, Uuids.INT_STREAM_CODEC).orElse(null));
         }
 
         if (nbt.contains(EFFECTS_NBT)) {
-            NbtList nbtList = (NbtList) nbt.get(EFFECTS_NBT);
-            this.potionEffects = new ArrayList<>(NbtListUtil.effectInstanceCollectionFromNbtList(nbtList));
+            this.potionEffects = nbt.get(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf()).orElse(List.of());
             this.dilutePotionEffects();
         }
 
-        this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT)));
+        this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT).orElse("")));
 
         this.markDirty();
 
@@ -197,13 +198,13 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
         if (ConfigManager.canLockPots()) {
-            nbt.putUuid(OWNER_NBT, this.owner);
+            nbt.put(OWNER_NBT, Uuids.INT_STREAM_CODEC, this.owner);
         }
 
         Inventories.writeNbt(nbt, this.items, registryLookup);
 
         if (!this.potionEffects.isEmpty()) {
-            nbt.put(EFFECTS_NBT, NbtListUtil.nbtListFromStatusEffectInstances(this.potionEffects));
+            nbt.put(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf(), this.potionEffects);
         }
 
         super.writeNbt(nbt, registryLookup);
@@ -671,7 +672,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             return;
         }
         world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 0);
-        world.updateNeighborsAlways(this.pos, this.getCachedState().getBlock());
+        world.updateNeighbors(this.pos, this.getCachedState().getBlock());
 
         /*
         for (ServerPlayerEntity player : PlayerLookup.tracking((ServerWorld) this.world, this.pos)) {
@@ -876,7 +877,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
                     blockEntity.markDirty();
                     world.updateListeners(blockEntity.pos, blockState, blockState, 0);
-                    world.updateNeighborsAlways(blockEntity.pos, blockState.getBlock());
+                    world.updateNeighbors(blockEntity.pos, blockState.getBlock());
                 }
             }
         } else {

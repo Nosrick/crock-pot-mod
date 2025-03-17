@@ -163,7 +163,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
                 double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
-                world.addParticle(ParticleTypes.EFFECT, baseX, baseY, baseZ, .0d, .0d, .0d);
+                world.addParticleClient(ParticleTypes.EFFECT, baseX, baseY, baseZ, .0d, .0d, .0d);
             }
 
             if (ConfigManager.useBubbleParticles()
@@ -173,7 +173,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
                 double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
-                world.addParticle(ParticleTypes.BUBBLE_POP, baseX, baseY, baseZ, .0d, .0d, .0d);
+                world.addParticleClient(ParticleTypes.BUBBLE_POP, baseX, baseY, baseZ, .0d, .0d, .0d);
             }
         }
     }

@@ -2,9 +2,13 @@ package com.github.nosrick.crockpot.util;
 
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.component.type.SuspiciousStewEffectsComponent;
+import net.minecraft.entity.effect.StatusEffect;
 import net.minecraft.entity.effect.StatusEffectInstance;
+import net.minecraft.entity.effect.StatusEffectUtil;
+import net.minecraft.entity.effect.StatusEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 
 import java.util.ArrayList;
@@ -13,6 +17,7 @@ import java.util.List;
 
 public abstract class NbtListUtil {
 
+    /*
     public static NbtList nbtListFromStatusEffectInstances(Collection<StatusEffectInstance> collection) {
         NbtList list = new NbtList();
 
@@ -21,7 +26,7 @@ public abstract class NbtListUtil {
         }
 
         for (StatusEffectInstance effectInstance : collection) {
-            list.add(effectInstance.writeNbt());
+            list.add(effectInstance.);
         }
 
         return list;
@@ -35,7 +40,7 @@ public abstract class NbtListUtil {
         ArrayList<StatusEffectInstance> effectInstances = new ArrayList<>();
 
         for (int i = 0; i < nbtList.size(); i++) {
-            NbtCompound nbtCompound = nbtList.getCompound(i);
+            NbtCompound nbtCompound = nbtList.getCompound(i).get();
             StatusEffectInstance effectInstance = StatusEffectInstance.fromNbt(nbtCompound);
             if (effectInstance == null) {
                 continue;
@@ -46,6 +51,8 @@ public abstract class NbtListUtil {
 
         return effectInstances;
     }
+
+     */
 
     public static List<StatusEffectInstance> getEffectsFromSuspiciousStew(ItemStack stew) {
         if (stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) != null) {

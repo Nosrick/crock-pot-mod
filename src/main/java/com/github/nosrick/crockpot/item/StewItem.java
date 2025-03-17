@@ -4,24 +4,18 @@ import com.github.nosrick.crockpot.CrockPotMod;
 import com.github.nosrick.crockpot.client.tooltip.StewContentsTooltip;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.FoodComponent;
+import net.minecraft.component.type.*;
 import net.minecraft.component.type.FoodComponent.Builder;
-import net.minecraft.component.type.FoodComponents;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.component.type.PotionContentsComponent;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.effect.StatusEffectInstance;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.tooltip.TooltipType;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtString;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.Potions;
 import net.minecraft.registry.Registries;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
@@ -39,6 +33,7 @@ import net.minecraft.world.event.GameEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.StreamSupport;
 
 public class StewItem extends Item {
@@ -80,14 +75,12 @@ public class StewItem extends Item {
 
         world.emitGameEvent(user, GameEvent.EAT, user.getBlockPos());
         world.playSound(
-                user.getX(),
-                user.getY(),
-                user.getZ(),
+                user,
+                user.getBlockPos(),
                 SoundEvents.ENTITY_GENERIC_EAT.value(),
                 SoundCategory.NEUTRAL,
                 1.0f,
-                1.0f,
-                true);
+                1.0f);
 
         if (user instanceof PlayerEntity player) {
             FoodComponent foodComponent = CrockPotMod.FOOD_MANAGER.GetFoodForPlayer(player);
@@ -113,7 +106,7 @@ public class StewItem extends Item {
             if (user instanceof PlayerEntity player) {
                 if (!player.getAbilities().creativeMode) {
                     if (!player.getInventory().insertStack(container)
-                        && world instanceof ServerWorld serverWorld) {
+                            && world instanceof ServerWorld serverWorld) {
                         player.dropStack(serverWorld, container);
                     } else {
                         player.giveItemStack(container);
@@ -126,23 +119,27 @@ public class StewItem extends Item {
     }
 
     @Override
-    public void appendTooltip(ItemStack stack, TooltipContext context, List<Text> tooltip, TooltipType type) {
-        super.appendTooltip(stack, context, tooltip, type);
+    public void appendTooltip(
+            ItemStack stack,
+            Item.TooltipContext context,
+            TooltipDisplayComponent displayComponent,
+            Consumer<Text> textConsumer,
+            TooltipType type) {
+
+        super.appendTooltip(stack, context, displayComponent, textConsumer, type);
 
         if (ConfigManager.useCursedStew()) {
             if (getCurseLevel(stack) >= ConfigManager.minCowlLevel()) {
-                tooltip.set(0, Text.literal(tooltip.get(0).getString())
+                textConsumer.accept(Text.translatable("item.crockpot.stew.cowl_description")
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_GRAY)
                                 .withItalic(true)
                                 .withBold(true)));
-                tooltip.add(Text.translatable("item.crockpot.stew.cowl_description"));
             } else if (getCurseLevel(stack) >= ConfigManager.stewMinNegativeLevelsEffect()) {
-                tooltip.set(0, Text.literal(tooltip.get(0).getString())
+                textConsumer.accept(Text.translatable("item.crockpot.stew.cursed_description")
                         .setStyle(Style.EMPTY
                                 .withColor(Formatting.DARK_RED)
                                 .withItalic(true)));
-                tooltip.add(Text.translatable("item.crockpot.stew.cursed_description"));
             }
         }
 
@@ -150,17 +147,17 @@ public class StewItem extends Item {
             int hunger = getHunger(stack);
             String saturation = String.format("%.2g", getSaturation(stack));
 
-            tooltip.add(Text.translatable(
+            textConsumer.accept(Text.translatable(
                             "item.crockpot.stew.hunger", hunger)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.YELLOW)));
 
-            tooltip.add(Text.translatable(
+            textConsumer.accept(Text.translatable(
                             "item.crockpot.stew.saturation", saturation)
                     .setStyle(Style.EMPTY
                             .withColor(Formatting.GOLD)));
         }
-        tooltip.add(StewContentsTooltip.of(stack));
+        textConsumer.accept(StewContentsTooltip.of(stack));
 
         var statusEffects = StreamSupport.stream(
                         stack.getOrDefault(
@@ -170,10 +167,10 @@ public class StewItem extends Item {
                         false)
                 .toList();
         if (!statusEffects.isEmpty()) {
-            tooltip.add(Text.translatable("tooltip.crockpot.effects"));
+            textConsumer.accept(Text.translatable("tooltip.crockpot.effects"));
             if (!ConfigManager.hideStewEffects()) {
                 for (StatusEffectInstance effect : statusEffects) {
-                    tooltip.add(Text.translatable(effect.getTranslationKey())
+                    textConsumer.accept(Text.translatable(effect.getTranslationKey())
                             .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
                             .append(Text.translatable("tooltip.crockpot.seconds"))
                             .setStyle(Style.EMPTY)
@@ -181,9 +178,9 @@ public class StewItem extends Item {
                 }
             } else {
                 if (ConfigManager.useObfuscatedText()) {
-                    tooltip.add(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
+                    textConsumer.accept(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
                 } else {
-                    tooltip.add(Text.translatable("tooltip.crockpot.hidden_effects"));
+                    textConsumer.accept(Text.translatable("tooltip.crockpot.hidden_effects"));
                 }
             }
         }
@@ -207,7 +204,7 @@ public class StewItem extends Item {
 
         NbtCompound value = nbt.copyNbt();
         NbtList contents = (NbtList) value.get(CONTENTS_NBT);
-        contents.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.getEntry(Identifier.of(string)).get().value()));
+        contents.stream().map(NbtElement::asString).forEach(string -> returnItems.add(Registries.ITEM.getEntry(Identifier.of(string.orElse(""))).get().value()));
 
         return returnItems;
     }
@@ -220,7 +217,7 @@ public class StewItem extends Item {
         }
 
         NbtCompound value = nbt.copyNbt();
-        return value.getInt(CURSED_NBT);
+        return value.getInt(CURSED_NBT).orElse(0);
     }
 
     public static void setContents(ItemStack stack, DefaultedList<ItemStack> contents) {
@@ -240,7 +237,7 @@ public class StewItem extends Item {
 
     public static void setHunger(ItemStack stack, int hunger) {
         var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
-        var builder = new FoodComponent.Builder()
+        var builder = new Builder()
                 .nutrition(hunger)
                 .saturationModifier(oldFood.saturation());
         FoodComponent newFoodComponent = builder.build();
@@ -249,7 +246,7 @@ public class StewItem extends Item {
 
     public static void setSaturation(ItemStack stack, float saturation) {
         var oldFood = stack.getOrDefault(DataComponentTypes.FOOD, FoodComponents.DRIED_KELP);
-        var builder = new FoodComponent.Builder()
+        var builder = new Builder()
                 .nutrition(oldFood.nutrition())
                 .saturationModifier(saturation);
         FoodComponent newFoodComponent = builder.build();
