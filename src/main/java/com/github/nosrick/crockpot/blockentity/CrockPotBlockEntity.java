@@ -164,7 +164,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
 
         Inventories.readNbt(nbt, this.items, registryLookup);
 
-        this.potionEffects.clear();
+        this.potionEffects = new ArrayList<>();
 
         if (ConfigManager.canLockPots()) {
             this.setOwner(nbt.get(OWNER_NBT, Uuids.INT_STREAM_CODEC).orElse(null));

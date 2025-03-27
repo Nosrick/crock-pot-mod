@@ -159,6 +159,7 @@ public class StewItem extends Item {
         }
         textConsumer.accept(StewContentsTooltip.of(stack));
 
+        /*
         var statusEffects = StreamSupport.stream(
                         stack.getOrDefault(
                                         DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
@@ -184,6 +185,8 @@ public class StewItem extends Item {
                 }
             }
         }
+
+         */
     }
 
     public static int getHunger(ItemStack stack) {
