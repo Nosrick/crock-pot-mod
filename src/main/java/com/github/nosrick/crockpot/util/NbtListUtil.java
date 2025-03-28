@@ -55,7 +55,7 @@ public abstract class NbtListUtil {
      */
 
     public static List<StatusEffectInstance> getEffectsFromSuspiciousStew(ItemStack stew) {
-        if (stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) != null) {
+        if (stew.getOrDefault(DataComponentTypes.SUSPICIOUS_STEW_EFFECTS, SuspiciousStewEffectsComponent.DEFAULT) == null) {
             return new ArrayList<>();
         }
 

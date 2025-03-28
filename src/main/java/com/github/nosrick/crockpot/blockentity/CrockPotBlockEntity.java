@@ -580,6 +580,8 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
         this.boilingTime = 0;
         this.bonusLevels = 0;
 
+        this.potionEffects = new ArrayList<>();
+
         this.curseLevel = 0;
 
         if (this.world != null) {
