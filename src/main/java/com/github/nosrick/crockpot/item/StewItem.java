@@ -158,35 +158,6 @@ public class StewItem extends Item {
                             .withColor(Formatting.GOLD)));
         }
         textConsumer.accept(StewContentsTooltip.of(stack));
-
-        /*
-        var statusEffects = StreamSupport.stream(
-                        stack.getOrDefault(
-                                        DataComponentTypes.POTION_CONTENTS, PotionContentsComponent.DEFAULT)
-                                .getEffects()
-                                .spliterator(),
-                        false)
-                .toList();
-        if (!statusEffects.isEmpty()) {
-            textConsumer.accept(Text.translatable("tooltip.crockpot.effects"));
-            if (!ConfigManager.hideStewEffects()) {
-                for (StatusEffectInstance effect : statusEffects) {
-                    textConsumer.accept(Text.translatable(effect.getTranslationKey())
-                            .append(Text.literal(" " + (effect.getAmplifier() + 1) + " - " + effect.getDuration() / 20))
-                            .append(Text.translatable("tooltip.crockpot.seconds"))
-                            .setStyle(Style.EMPTY)
-                            .formatted(effect.getEffectType().value().getCategory().getFormatting()));
-                }
-            } else {
-                if (ConfigManager.useObfuscatedText()) {
-                    textConsumer.accept(Text.literal("THIS DOES STUFF").setStyle(Style.EMPTY.withObfuscated(true)));
-                } else {
-                    textConsumer.accept(Text.translatable("tooltip.crockpot.hidden_effects"));
-                }
-            }
-        }
-
-         */
     }
 
     public static int getHunger(ItemStack stack) {

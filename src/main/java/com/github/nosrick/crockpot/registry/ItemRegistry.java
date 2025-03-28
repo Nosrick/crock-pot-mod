@@ -25,7 +25,7 @@ public class ItemRegistry {
                     .food(
                             new FoodComponent.Builder()
                                     .build())
-                    .recipeRemainder(Items.BOWL));
+                    .useRemainder(Items.BOWL));
 
     public static final Item CROCK_POT = registerBlock(
             BlockRegistry.CROCK_POT,
