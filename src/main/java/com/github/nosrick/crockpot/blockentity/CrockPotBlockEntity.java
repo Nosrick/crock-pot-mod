@@ -40,6 +40,8 @@ import net.minecraft.recipe.input.SingleStackRecipeInput;
 import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.sound.SoundCategory;
+import net.minecraft.storage.ReadView;
+import net.minecraft.storage.WriteView;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -150,66 +152,63 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     @Override
-    public void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        this.name = nbt.getString(NAME_NBT).orElse("");
-        this.hunger = nbt.getInt(HUNGER_NBT).orElse(0);
-        this.saturation = nbt.getFloat(SATURATION_NBT).orElse(0f);
-        this.portions = nbt.getInt(PORTIONS_NBT).orElse(0);
+    protected void readData(ReadView view) {
+        super.readData(view);
+        this.name = view.getString(NAME_NBT, "");
+        this.hunger = view.getInt(HUNGER_NBT, 0);
+        this.saturation = view.getFloat(SATURATION_NBT, 0f);
+        this.portions = view.getInt(PORTIONS_NBT, 0);
 
-        this.bonusLevels = nbt.getInt(BONUS_LEVELS).orElse(0);
-        this.boilingTime = nbt.getLong(BOILING_TIME).orElse(0L);
-        this.lastTime = nbt.getLong(LAST_TIME).orElse(0L);
+        this.bonusLevels = view.getInt(BONUS_LEVELS, 0);
+        this.boilingTime = view.getLong(BOILING_TIME, 0L);
+        this.lastTime = view.getLong(LAST_TIME, 0L);
 
-        this.curseLevel = nbt.getInt(CURSE_LEVEL).orElse(0);
+        this.curseLevel = view.getInt(CURSE_LEVEL, 0);
 
-        Inventories.readNbt(nbt, this.items, registryLookup);
+        Inventories.readData(view, this.items);
 
         this.potionEffects = new ArrayList<>();
 
         if (ConfigManager.canLockPots()) {
-            this.setOwner(nbt.get(OWNER_NBT, Uuids.INT_STREAM_CODEC).orElse(null));
+            this.setOwner(Uuids.toUuid(view.getOptionalIntArray(OWNER_NBT).orElse(new int[0])));
         }
 
-        if (nbt.contains(EFFECTS_NBT)) {
-            this.potionEffects = nbt.get(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf()).orElse(List.of());
-            this.dilutePotionEffects();
-        }
+        this.potionEffects = view.read(EFFECTS_NBT, StatusEffectInstance.CODEC).stream().toList();
+        this.dilutePotionEffects();
 
-        this.setRedstoneOutputType(RedstoneOutputType.valueOf(nbt.getString(REDSTONE_OUTPUT).orElse("")));
+        this.setRedstoneOutputType(RedstoneOutputType.valueOf(view.getString(REDSTONE_OUTPUT, RedstoneOutputType.BONUS_LEVELS.asString())));
 
         this.markDirty();
-
-        super.readNbt(nbt, registryLookup);
     }
 
     @Override
-    protected void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup) {
-        nbt.putString(NAME_NBT, this.name);
-        nbt.putInt(HUNGER_NBT, this.hunger);
-        nbt.putFloat(SATURATION_NBT, this.saturation);
-        nbt.putInt(PORTIONS_NBT, this.portions);
+    protected void writeData(WriteView view) {
+        super.writeData(view);
 
-        nbt.putInt(BONUS_LEVELS, this.bonusLevels);
-        nbt.putLong(BOILING_TIME, this.boilingTime);
-        nbt.putLong(LAST_TIME, this.lastTime);
+        view.putString(NAME_NBT, this.name);
+        view.putInt(HUNGER_NBT, this.hunger);
+        view.putFloat(SATURATION_NBT, this.saturation);
+        view.putInt(PORTIONS_NBT, this.portions);
 
-        nbt.putInt(CURSE_LEVEL, this.curseLevel);
+        view.putInt(BONUS_LEVELS, this.bonusLevels);
+        view.putLong(BOILING_TIME, this.boilingTime);
+        view.putLong(LAST_TIME, this.lastTime);
 
-        nbt.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
+        view.putInt(CURSE_LEVEL, this.curseLevel);
+
+        view.putString(REDSTONE_OUTPUT, this.redstoneOutputType.toString());
 
         if (ConfigManager.canLockPots()) {
-            nbt.put(OWNER_NBT, Uuids.INT_STREAM_CODEC, this.owner);
+            view.put(OWNER_NBT, Uuids.INT_STREAM_CODEC, this.owner);
         }
 
-        Inventories.writeNbt(nbt, this.items, registryLookup);
+        Inventories.writeData(view, this.items);
 
         if (!this.potionEffects.isEmpty()) {
-            nbt.put(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf(), this.potionEffects);
+            view.put(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf(), this.potionEffects);
         }
-
-        super.writeNbt(nbt, registryLookup);
     }
-
+    
     protected void recalculateFoodValues() {
         int portions = this.getPortions();
 

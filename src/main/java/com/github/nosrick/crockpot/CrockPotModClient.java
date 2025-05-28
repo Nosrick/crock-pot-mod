@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.blockrenderlayer.v1.BlockRenderLayerMap;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.impl.networking.payload.PayloadHelper;
+import net.minecraft.client.render.BlockRenderLayer;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.block.entity.BlockEntityRendererFactories;
 import net.minecraft.nbt.NbtCompound;
@@ -22,8 +23,8 @@ public class CrockPotModClient implements ClientModInitializer {
         EntityModelLayerRegistry.registerModelLayer(CrockPotBlockEntityRenderer.POT_LIQUID_LAYER, CrockPotBlockEntityRenderer::createLiquidModelData);
         BlockEntityRendererFactories.register(BlockEntityTypesRegistry.CROCK_POT, CrockPotBlockEntityRenderer::new);
         BlockEntityRendererFactories.register(BlockEntityTypesRegistry.ELECTRIC_CROCK_POT, CrockPotBlockEntityRenderer::new);
-        BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.CROCK_POT, RenderLayer.getCutout());
-        BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ELECTRIC_CROCK_POT, RenderLayer.getCutout());
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.CROCK_POT, BlockRenderLayer.CUTOUT);
+        BlockRenderLayerMap.INSTANCE.putBlock(BlockRegistry.ELECTRIC_CROCK_POT, BlockRenderLayer.CUTOUT);
 
         /*
         ClientPlayNetworking.registerGlobalReceiver(CrockPotMod.CROCK_POT_CHANNEL, (payload, context) -> {

@@ -82,18 +82,14 @@ public class StewContentsTooltip implements Text, OrderedText, TooltipComponent 
     }
 
     @Override
-    public void drawText(TextRenderer textRenderer, int x, int y, Matrix4f matrix, VertexConsumerProvider.Immediate vertexConsumers) {
-        textRenderer.draw(
+    public void drawText(DrawContext context, TextRenderer textRenderer, int x, int y) {
+        context.drawText(
+                textRenderer,
                 this.contentsString,
-                (float)x,
-                (float)y,
+                x,
+                y,
                 -1,
-                true,
-                matrix,
-                vertexConsumers,
-                TextRenderer.TextLayerType.NORMAL,
-                0,
-                LightmapTextureManager.MAX_LIGHT_COORDINATE);
+                true);
     }
 
     @Override
