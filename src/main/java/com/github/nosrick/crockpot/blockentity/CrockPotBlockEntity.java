@@ -173,7 +173,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
             this.setOwner(Uuids.toUuid(view.getOptionalIntArray(OWNER_NBT).orElse(new int[0])));
         }
 
-        this.potionEffects = view.read(EFFECTS_NBT, StatusEffectInstance.CODEC).stream().toList();
+        this.potionEffects = new ArrayList<>(view.read(EFFECTS_NBT, StatusEffectInstance.CODEC.listOf()).orElse(new ArrayList<>()));
         this.dilutePotionEffects();
 
         this.setRedstoneOutputType(RedstoneOutputType.valueOf(view.getString(REDSTONE_OUTPUT, RedstoneOutputType.BONUS_LEVELS.asString())));
