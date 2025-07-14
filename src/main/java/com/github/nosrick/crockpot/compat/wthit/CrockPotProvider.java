@@ -30,7 +30,7 @@ public class CrockPotProvider implements IBlockComponentProvider, IDataProvider<
             tooltip.addLine(Text.translatable("tooltip.crockpot.portions", portions));
             tooltip.addLine(Text.translatable("tooltip.crockpot.bonus_levels", bonusLevels));
             tooltip.addLine(Text.translatable("values.crockpot.redstone_output.type",
-                    nbt.getString(CrockPotBlockEntity.REDSTONE_OUTPUT)));
+                    nbt.getString(CrockPotBlockEntity.REDSTONE_OUTPUT).orElse("")));
 
             if (nbt.contains(CrockPotBlockEntity.EFFECTS_NBT)) {
                 var effectsList = nbt.get("Effects", StatusEffectInstance.CODEC.listOf()).orElse(List.of());

@@ -33,6 +33,8 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
     protected ModelPart padlockModel;
     protected ModelPart liquidModel;
 
+    protected BlockEntityRendererFactory.Context context;
+
     public static EntityModelLayer POT_MODEL_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("crock_pot_lid"), "crock_pot_lid");
     public static EntityModelLayer POT_LIQUID_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("crock_pot_lid"), "crock_pot_liquid");
     public static EntityModelLayer PADLOCK_MODEL_LAYER = new EntityModelLayer(CrockPotMod.createIdentifier("padlock"), "padlock");
@@ -51,6 +53,7 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         this.lidModel = context.getLayerModelPart(POT_MODEL_LAYER);
         this.padlockModel = context.getLayerModelPart(PADLOCK_MODEL_LAYER);
         this.liquidModel = context.getLayerModelPart(POT_LIQUID_LAYER);
+        this.context = context;
     }
 
     @Override
@@ -163,10 +166,11 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         matrices.multiply(new Quaternionf(new AxisAngle4f(rot, 0, 1, 0)));
 
         Matrix4f matrix4f = matrices.peek().getPositionMatrix();
-        TextRenderer textRenderer = MinecraftClient.getInstance().textRenderer;
+        TextRenderer textRenderer = this.context.getTextRenderer();
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.SEE_THROUGH, backgroundOpacity, light);
+        //textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, 0xFFFFFFFF, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
         matrices.pop();
     }
 

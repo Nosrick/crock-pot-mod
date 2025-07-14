@@ -74,7 +74,7 @@ dependencies {
         exclude module: 'modmenu'
     }
 
-    /*
+
     //The runtime mods for testing
     modRuntimeOnly("com.terraformersmc:modmenu:${project.modmenu_version}") {
         exclude group: "net.fabricmc", module: "fabric-loader"
@@ -94,7 +94,6 @@ dependencies {
         transitive = false
         exclude module: 'modmenu'
     }
-     */
 
 }
 
