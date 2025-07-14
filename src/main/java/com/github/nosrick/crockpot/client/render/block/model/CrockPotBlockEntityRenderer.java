@@ -6,6 +6,7 @@ import com.github.nosrick.crockpot.blockentity.CrockPotBlockEntity;
 import com.github.nosrick.crockpot.config.ConfigManager;
 import com.github.nosrick.crockpot.registry.BlockEntityTypesRegistry;
 import com.github.nosrick.crockpot.util.UUIDUtil;
+import me.shedaniel.math.Color;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -169,8 +170,9 @@ public class CrockPotBlockEntityRenderer implements BlockEntityRenderer<CrockPot
         TextRenderer textRenderer = this.context.getTextRenderer();
         int backgroundOpacity = ConfigManager.labelBackgroundOpacity() << 24;
         float x = -(textRenderer.getWidth(text) / 2f);
-        //textRenderer.draw(text, x, 0, ConfigManager.textColor(), false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
-        textRenderer.draw(text, x, 0, 0xFFFFFFFF, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, backgroundOpacity, light);
+        int color = Color.ofOpaque(ConfigManager.textColor()).getColor();
+        textRenderer.draw(text, x, 0, 0, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.SEE_THROUGH, backgroundOpacity, light);
+        textRenderer.draw(text, x, 0, color, false, matrix4f, vertexConsumerProvider, TextRenderer.TextLayerType.NORMAL, 0, light);
         matrices.pop();
     }
 

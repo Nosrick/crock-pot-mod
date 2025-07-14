@@ -385,13 +385,11 @@ public class ConfigManager {
     }
 
     public static boolean canLockPots() {
-        /*
         if(clothPresent()) {
             return ClothConfigManager.getConfig().locking.canLockPots;
         }
-         */
 
-        return false;
+        return true;
     }
 
     public static boolean creativePlayersIgnoreLocks() {
@@ -423,7 +421,7 @@ public class ConfigManager {
             return ClothConfigManager.getConfig().locking.textColor;
         }
 
-        return 0xFFFFFFFF;
+        return 0xFFFFFF;
     }
 
     public static int labelBackgroundOpacity() {
