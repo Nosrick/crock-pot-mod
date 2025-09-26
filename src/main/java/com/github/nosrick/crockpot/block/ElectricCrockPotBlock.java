@@ -35,7 +35,7 @@ public class ElectricCrockPotBlock extends CrockPotBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (world.isClient
+        if (world.isClient()
                 || type != BlockEntityTypesRegistry.ELECTRIC_CROCK_POT) {
             return null;
         }

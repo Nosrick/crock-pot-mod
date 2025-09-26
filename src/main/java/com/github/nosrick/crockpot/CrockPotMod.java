@@ -9,6 +9,8 @@ import com.github.nosrick.crockpot.registry.ItemRegistry;
 import com.github.nosrick.crockpot.util.FoodManager;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.render.TexturedRenderLayers;
+import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.util.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,5 +45,9 @@ public class CrockPotMod implements ModInitializer {
 
     public static Identifier createIdentifier(String key) {
         return Identifier.of(CrockPotMod.MOD_ID, key);
+    }
+
+    public static SpriteIdentifier createSpriteIdentifier(String key) {
+        return TexturedRenderLayers.ENTITY_SPRITE_MAPPER.map(CrockPotMod.createIdentifier(key));
     }
 }

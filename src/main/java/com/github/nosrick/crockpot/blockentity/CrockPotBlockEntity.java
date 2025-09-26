@@ -398,7 +398,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     @Nullable
     public ItemStack take(World world, ItemStack container, PlayerEntity player) {
 
-        if (world.isClient) {
+        if (world.isClient()) {
             return null;
         }
 
@@ -621,7 +621,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public void setOwner(UUID owner) {
         if (owner != null && !this.isOwner(owner)) {
             this.owner = owner;
-            if (this.world == null || this.world.isClient) {
+            if (this.world == null || this.world.isClient()) {
                 return;
             }
             PlayerEntity playerOwner = this.world.getPlayerByUuid(this.owner);
@@ -629,14 +629,14 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
                 this.ownerName = playerOwner.getDisplayName();
             }
             this.markDirty();
-            if (!this.world.isClient) {
+            if (!this.world.isClient()) {
                 this.updateNearby();
             }
         } else if (owner == null) {
             this.owner = UUIDUtil.NO_PLAYER;
             this.ownerName = Text.empty();
             this.markDirty();
-            if (this.world != null && !this.world.isClient) {
+            if (this.world != null && !this.world.isClient()) {
                 this.updateNearby();
             }
         }
@@ -655,7 +655,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     public void setRedstoneOutputType(RedstoneOutputType type) {
         this.redstoneOutputType = type;
 
-        if (this.world == null || this.world.isClient) {
+        if (this.world == null || this.world.isClient()) {
             return;
         }
 
@@ -669,7 +669,7 @@ public class CrockPotBlockEntity extends BlockEntity implements Inventory, Sided
     }
 
     protected void updateNearby() {
-        if (this.world == null || this.world.isClient) {
+        if (this.world == null || this.world.isClient()) {
             return;
         }
         world.updateListeners(this.pos, this.getCachedState(), this.getCachedState(), 0);

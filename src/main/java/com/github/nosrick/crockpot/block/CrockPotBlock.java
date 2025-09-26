@@ -19,6 +19,8 @@ import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.*;
+import net.minecraft.particle.EffectParticleEffect;
+import net.minecraft.particle.ParticleEffect;
 import net.minecraft.particle.ParticleTypes;
 import net.minecraft.potion.Potions;
 import net.minecraft.sound.SoundCategory;
@@ -150,7 +152,7 @@ public class CrockPotBlock extends BlockWithEntity {
             return;
         }
 
-        if (world.isClient) {
+        if (world.isClient()) {
             CrockPotBlockEntity crockPotBlockEntity = (CrockPotBlockEntity) world.getBlockEntity(pos);
             if (crockPotBlockEntity == null) {
                 return;
@@ -163,7 +165,7 @@ public class CrockPotBlock extends BlockWithEntity {
                 double baseX = pos.getX() + .5d + (random.nextDouble() * .4d - .2d);
                 double baseY = pos.getY() + .7d;
                 double baseZ = pos.getZ() + .5d + (random.nextDouble() * .4d - .2d);
-                world.addParticleClient(ParticleTypes.EFFECT, baseX, baseY, baseZ, .0d, .0d, .0d);
+                world.addParticleClient(EffectParticleEffect.of(ParticleTypes.EFFECT, 0, 1.0f), baseX, baseY, baseZ, .0d, .0d, .0d);
             }
 
             if (ConfigManager.useBubbleParticles()
@@ -319,7 +321,7 @@ public class CrockPotBlock extends BlockWithEntity {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
-        if (world.isClient
+        if (world.isClient()
                 || type != BlockEntityTypesRegistry.CROCK_POT) {
             return null;
         }
